@@ -6,8 +6,14 @@ import com.j256.ormlite.field.ForeignCollectionField;
 
 public class Post {
 
+	/********************
+	 * Static
+	 ********************/
 	private static final String LOGTAG = Post.class.getName();
 
+	/********************
+	 * Private members
+	 ********************/
 	@DatabaseField(generatedId = true)
 	private int id;
 
@@ -23,6 +29,9 @@ public class Post {
 	@ForeignCollectionField
 	private ForeignCollection<Image> images;
 
+	/********************
+	 * Constructors
+	 ********************/
 	public Post() {
 		// Needed by ormlite
 		this("", "", "");
@@ -35,6 +44,9 @@ public class Post {
 		this.location = location;
 	}
 
+	/********************
+	 * Public methods
+	 ********************/
 	public String getTitle() {
 		return title;
 	}

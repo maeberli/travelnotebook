@@ -12,7 +12,6 @@ public class FlightTagExtendet {
 	/********************
 	 * Private members
 	 ********************/
-	
 	@DatabaseField(generatedId = true)
 	private int id;
 
@@ -25,7 +24,6 @@ public class FlightTagExtendet {
 	/********************
 	 * Constructors
 	 ********************/
-
 	public FlightTagExtendet() {
 		this("", "");
 	}
@@ -39,7 +37,6 @@ public class FlightTagExtendet {
 	/********************
 	 * Public methods
 	 ********************/
-
 	public String getFlightNumber() {
 		return flightNumber;
 	}

@@ -3,8 +3,15 @@ package ch.hearc.devmobile.travelnotebook.database;
 import com.j256.ormlite.field.DatabaseField;
 
 public class Image {
+
+	/********************
+	 * Static
+	 ********************/
 	private static final String LOGTAG = Post.class.getName();
 
+	/********************
+	 * Private members
+	 ********************/
 	@DatabaseField(generatedId = true)
 	private int id;
 
@@ -14,6 +21,9 @@ public class Image {
 	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true)
 	private Post post;
 
+	/********************
+	 * Constructors
+	 ********************/
 	public Image() {
 		this("", null);
 	}
@@ -24,6 +34,9 @@ public class Image {
 		this.post = post;
 	}
 
+	/********************
+	 * Public methods
+	 ********************/
 	public String getImageURI() {
 		return imageURI;
 	}
