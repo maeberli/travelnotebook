@@ -8,11 +8,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.provider.ContactsContract.CommonDataKinds.Note;
 import android.support.v4.widget.DrawerLayout;
+import android.text.Layout;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,62 +64,68 @@ public class HomeActivity extends Activity {
 		return databaseHelper;
 	}
 
-	private class DrawerItemClickListener implements
-			ListView.OnItemClickListener {
-		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position,
-				long id) {
-			Toast.makeText(HomeActivity.this,
-					((TextView) view).getText().toString() + id + position,
-					Toast.LENGTH_LONG).show();
-			HomeActivity.this.drawerLayout.closeDrawer(drawerListView);
-		}
-	}
-
 	private void buildDrawer() {
-		// Drawer menu
+		// Travel list
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawerListViewItems = new ArrayList<MenuElement>();
-
+		final LinearLayout drawerPanel = (LinearLayout) findViewById(R.id.left_drawer);
 		
+				
+				
+		
+		// Init buttons
+		Button btnNewNotebook = (Button) findViewById(R.id.btn_new_notebook);
+		btnNewNotebook.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(HomeActivity.this,
+						NotebookActivity.class);
+				startActivity(intent);
+				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);				
+			}
+		});
+		
+		Button btnSettings = (Button) findViewById(R.id.btn_settings);
+		btnSettings.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(HomeActivity.this,
+						SettingsActivity.class);
+				startActivity(intent);
+				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);				
+			}
+		});
+		
+		
+		
+		
+		
+		
+		MenuElement newNotebookAction = null;
+		// do foreach loop over database travel elements
 		// Create a new notebook
-		MenuElement newNotebookAction = new MenuElement(getResources()
+		newNotebookAction = new MenuElement(getResources()
 				.getString(R.string.new_notebook), new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				// TODO change notebookActivity to newNotebook
 				Intent intent = new Intent(HomeActivity.this,
 						NotebookActivity.class);
 				startActivity(intent);
-				HomeActivity.this.drawerLayout.closeDrawer(drawerListView);
+				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
 		});
 		drawerListViewItems.add(newNotebookAction);
 		
-		// Go To settings
-		MenuElement settingsAction = new MenuElement(getResources().getString(R.string.settings), new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
-				startActivity(intent);
-				HomeActivity.this.drawerLayout.closeDrawer(drawerListView);
-			}
-		});
-		drawerListViewItems.add(settingsAction);
-		
-		// TODO add notebook in the drawer from the database here :)
 		
 		
 		// gets ListView defined in activity_main.xml
-		drawerListView = (ListView) findViewById(R.id.left_drawer);
+		drawerListView = (ListView) findViewById(R.id.left_drawer_list);
 
 		// Sets the adapter for the list view
 		drawerListView.setAdapter(new MenuElementArrayAdapter(this,
 				drawerListViewItems));
 
-		drawerListView.setOnItemClickListener(new DrawerItemClickListener());
 	}
 
 }

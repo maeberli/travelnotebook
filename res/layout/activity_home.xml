@@ -11,7 +11,8 @@
         android:layout_height="match_parent" />
  
     <!-- The navigation drawer -->
-    <ListView android:id="@+id/left_drawer"
+    <LinearLayout  android:id="@+id/left_drawer"
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="240dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
@@ -21,6 +22,23 @@
         android:background="#333"
         android:paddingLeft="15sp"
         android:paddingRight="15sp"
-        />
+        android:orientation="vertical">
+    	
+    	<Button android:id="@+id/btn_new_notebook"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/new_notebook" />
+    	
+    	<Button android:id="@+id/btn_settings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/settings" />
+    	
+	    <ListView android:id="@+id/left_drawer_list"
+	        android:layout_width="match_parent"
+        	android:layout_height="wrap_content"
+        	android:layout_gravity="bottom" />
+	    
+    </LinearLayout>
  
 </android.support.v4.widget.DrawerLayout>
