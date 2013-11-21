@@ -9,7 +9,7 @@ public class Voyage {
 	/********************
 	 * Static
 	 ********************/
-	private static final String LOGTAG = Post.class.getName();
+	private static final String LOGTAG = Voyage.class.getSimpleName();
 
 	/********************
 	 * Private members

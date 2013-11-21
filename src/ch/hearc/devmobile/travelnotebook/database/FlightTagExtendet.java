@@ -7,7 +7,7 @@ public class FlightTagExtendet {
 	/********************
 	 * Static
 	 ********************/
-	private static final String LOGTAG = Post.class.getName();
+	private static final String LOGTAG = FlightTagExtendet.class.getSimpleName();
 
 	/********************
 	 * Private members

@@ -7,7 +7,7 @@ public class Tag {
 	/********************
 	 * Static
 	 ********************/
-	private static final String LOGTAG = Post.class.getName();
+	private static final String LOGTAG = Tag.class.getSimpleName();
 
 	/********************
 	 * Private members

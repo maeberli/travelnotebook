@@ -7,7 +7,7 @@ public class Image {
 	/********************
 	 * Static
 	 ********************/
-	private static final String LOGTAG = Post.class.getName();
+	private static final String LOGTAG = Image.class.getSimpleName();
 
 	/********************
 	 * Private members

@@ -2,18 +2,19 @@ package ch.hearc.devmobile.travelnotebook.database;
 
 import java.sql.SQLException;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.provider.ContactsContract.Contacts.Data;
+import android.util.Log;
+
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
-
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
-	private static final String LOGTAG = Post.class.getName();
+	private static final String LOGTAG = DatabaseHelper.class.getSimpleName();
 
 	private static final String DATABASE_NAME = "travelnotebook.db";
 	private static final int DATABASE_VERSION = 3;
@@ -44,6 +45,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			Log.e(LOGTAG, "Can't create database", e);
 			throw new RuntimeException(e);
 		}
+
 	}
 
 	@Override
@@ -92,7 +94,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		return tagDao;
 	}
 
-	public Dao<TagType, Integer> getTypeDao() throws SQLException {
+	public Dao<TagType, Integer> getTagTypeDao() throws SQLException {
 		if (tagTypeDao == null) {
 			tagTypeDao = getDao(TagType.class);
 		}

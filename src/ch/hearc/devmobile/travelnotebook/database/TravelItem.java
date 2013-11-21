@@ -11,7 +11,7 @@ public class TravelItem {
 	/********************
 	 * Static
 	 ********************/
-	private static final String LOGTAG = Post.class.getName();
+	private static final String LOGTAG = TravelItem.class.getSimpleName();
 
 	/********************
 	 * Private members
@@ -62,6 +62,17 @@ public class TravelItem {
 		this.startLocation = startLocation;
 		this.endLocation = endLocation;
 		this.voyage = voyage;
+	}
+
+	public TravelItem(String title, String description, Date startDate,
+			Date endDate, String startLocation, Voyage voyage) {
+		this(title, description, startDate, endDate, startLocation, null,
+				voyage);
+	}
+
+	public TravelItem(String title, String description, Date date,
+			String location, Voyage voyage) {
+		this(title, description, date, null, location, null, voyage);
 	}
 
 	/********************
@@ -129,6 +140,14 @@ public class TravelItem {
 
 	public void setTags(ForeignCollection<Tag> tags) {
 		this.tags = tags;
+	}
+
+	public boolean isSingleTimed() {
+		return (endDate == null);
+	}
+
+	public boolean isSingleLocation() {
+		return (endLocation == null);
 	}
 
 	@Override
