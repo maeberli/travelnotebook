@@ -28,7 +28,8 @@ public class NotebookActivity extends Activity {
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
 		// gets list items from strings.xml
-		drawerListViewItems = getResources().getStringArray(R.array.notebookMenuItems);
+		drawerListViewItems = getResources().getStringArray(
+				R.array.notebookMenuItems);
 
 		// gets ListView defined in activity_main.xml
 		drawerListView = (ListView) findViewById(R.id.left_drawer);
@@ -56,7 +57,6 @@ public class NotebookActivity extends Activity {
 			Toast.makeText(NotebookActivity.this, ((TextView) view).getText(),
 					Toast.LENGTH_LONG).show();
 			NotebookActivity.this.drawerLayout.closeDrawer(drawerListView);
-
 		}
 
 	}

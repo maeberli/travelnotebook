@@ -26,6 +26,10 @@
             android:name="ch.hearc.devmobile.travelnotebook.NotebookActivity"
             android:label="@string/title_activity_notebook" >
         </activity>
+        <activity
+            android:name="ch.hearc.devmobile.travelnotebook.SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
     </application>
 
 </manifest>
