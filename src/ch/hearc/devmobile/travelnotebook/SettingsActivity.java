@@ -9,6 +9,19 @@ import android.widget.Button;
 
 public class SettingsActivity extends Activity {
 
+	/********************
+	 * Public methods
+	 ********************/
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.settings, menu);
+		return true;
+	}
+	
+	/********************
+	 * Protected methods
+	 ********************/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -25,13 +38,9 @@ public class SettingsActivity extends Activity {
 		});
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.settings, menu);
-		return true;
-	}
-	
+	/********************
+	 * Private methods
+	 ********************/
 	private void saveSettings() {
 		// save settings here
 	}

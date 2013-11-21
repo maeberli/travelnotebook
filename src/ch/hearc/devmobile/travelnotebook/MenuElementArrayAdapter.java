@@ -12,15 +12,24 @@ import android.widget.TextView;
 
 public class MenuElementArrayAdapter extends ArrayAdapter<MenuElement>{
 	
+	/********************
+	 * Private members
+	 ********************/
 	private final Context context;
 	private final List<MenuElement> values;
  
+	/********************
+	 * Constructor
+	 ********************/
 	public MenuElementArrayAdapter(Context context,  List<MenuElement> values) {
 		super(context, R.layout.drawer_listview_item, values);
 		this.context = context;
 		this.values = values;
 	}
 	
+	/********************
+	 * Public methods
+	 ********************/
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		LayoutInflater inflater = (LayoutInflater) context

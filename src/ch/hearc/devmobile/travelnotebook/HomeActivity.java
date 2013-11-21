@@ -1,10 +1,13 @@
 package ch.hearc.devmobile.travelnotebook;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.ContactsContract.CommonDataKinds.Note;
 import android.support.v4.widget.DrawerLayout;
@@ -15,21 +18,38 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
+import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 
 public class HomeActivity extends Activity {
 
+	/********************
+	 * Private members
+	 ********************/
 	private DatabaseHelper databaseHelper = null;
 	private List<MenuElement> drawerListViewItems;
 	private ListView drawerListView;
 	private DrawerLayout drawerLayout;
-
+	
+	/********************
+	 * Public methods
+	 ********************/
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+	
+	/********************
+	 * Protected methods
+	 ********************/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -38,14 +58,7 @@ public class HomeActivity extends Activity {
 		buildDrawer();
 
 	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
-
+	
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -56,6 +69,10 @@ public class HomeActivity extends Activity {
 		}
 	}
 
+	
+	/********************
+	 * Private methods
+	 ********************/
 	private DatabaseHelper getHelper() {
 		if (databaseHelper == null) {
 			databaseHelper = OpenHelperManager.getHelper(this,
@@ -68,7 +85,7 @@ public class HomeActivity extends Activity {
 		// Travel list
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawerListViewItems = new ArrayList<MenuElement>();
-		final LinearLayout drawerPanel = (LinearLayout) findViewById(R.id.left_drawer);
+		final RelativeLayout drawerPanel = (RelativeLayout) findViewById(R.id.left_drawer);
 		
 				
 				
@@ -98,24 +115,30 @@ public class HomeActivity extends Activity {
 		
 		
 		
-		
-		
-		
-		MenuElement newNotebookAction = null;
-		// do foreach loop over database travel elements
-		// Create a new notebook
-		newNotebookAction = new MenuElement(getResources()
-				.getString(R.string.new_notebook), new OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(HomeActivity.this,
-						NotebookActivity.class);
-				startActivity(intent);
-				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
+		// Add voyages in the list from de database
+		try {
+			
+			MenuElement voyageMenuElement = null;
+			for(final Voyage voyage : getHelper().getVoyageDao().queryForAll() ) {
+				
+				voyageMenuElement = new MenuElement(voyage.getTitle(), new OnClickListener() {
+		
+					@Override
+					public void onClick(View v) {
+						Intent intent = new Intent(HomeActivity.this,
+								NotebookActivity.class);
+						intent.putExtra("notebookId", voyage.getId());
+						startActivity(intent);
+						HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
+					}
+		
+				});
+				drawerListViewItems.add(voyageMenuElement);
 			}
-		});
-		drawerListViewItems.add(newNotebookAction);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		
 		
 		
@@ -126,6 +149,17 @@ public class HomeActivity extends Activity {
 		drawerListView.setAdapter(new MenuElementArrayAdapter(this,
 				drawerListViewItems));
 
+	}
+	
+	private void databaseStub(){
+		Voyage voyage = new Voyage("My voyage", Color.rgb(220, 12, 123));
+		Voyage voyage2 = new Voyage("India", Color.rgb(123, 112, 123));
+		try {
+			getHelper().getVoyageDao().create(voyage);
+			getHelper().getVoyageDao().create(voyage2);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -66,6 +66,10 @@ public class Voyage {
 	public void setTravelItems(ForeignCollection<TravelItem> travelItems) {
 		this.travelItems = travelItems;
 	}
+	
+	public int getId() {
+		return id;
+	}
 
 	@Override
 	public String toString() {

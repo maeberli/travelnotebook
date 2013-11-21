@@ -14,11 +14,28 @@ import android.widget.Toast;
 
 public class NotebookActivity extends Activity {
 
+	/********************
+	 * Private members
+	 ********************/
 	private DatabaseHelper databaseHelper = null;
 	private String[] drawerListViewItems;
 	private ListView drawerListView;
 	private DrawerLayout drawerLayout;
 
+	
+	/********************
+	 * Public methods
+	 ********************/
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.notebook, menu);
+		return true;
+	}
+
+	/********************
+	 * Protected methods
+	 ********************/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -42,13 +59,9 @@ public class NotebookActivity extends Activity {
 
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.notebook, menu);
-		return true;
-	}
-
+	/********************
+	 * Private methods
+	 ********************/
 	private class DrawerItemClickListener implements
 			ListView.OnItemClickListener {
 		@Override
