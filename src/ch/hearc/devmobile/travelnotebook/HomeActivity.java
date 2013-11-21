@@ -28,7 +28,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class HomeActivity extends Activity {
 
 	private DatabaseHelper databaseHelper = null;
 	private String[] drawerListViewItems;
@@ -38,7 +38,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_home);
 		
 		// Drawer menu
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -85,8 +85,8 @@ public class MainActivity extends Activity {
 	private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Toast.makeText(MainActivity.this, ((TextView)view).getText(), Toast.LENGTH_LONG).show();
-            MainActivity.this.drawerLayout.closeDrawer(drawerListView);
+            Toast.makeText(HomeActivity.this, ((TextView)view).getText(), Toast.LENGTH_LONG).show();
+            HomeActivity.this.drawerLayout.closeDrawer(drawerListView);
  
         }
 
