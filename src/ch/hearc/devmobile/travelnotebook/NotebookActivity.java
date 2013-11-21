@@ -32,7 +32,17 @@ public class NotebookActivity extends Activity {
 	private DatabaseHelper databaseHelper = null;
 
 	/********************
-	 * Proteted methods
+	 * Public methods
+	 ********************/
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.notebook, menu);
+		return true;
+	}
+
+	/********************
+	 * Protected methods
 	 ********************/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,15 +60,6 @@ public class NotebookActivity extends Activity {
 		super.onResume();
 		setUpMapIfNeeded();
 		getDBHelperIfNecessary();
-	}
-
-	/********************
-	 * Public methods
-	 ********************/
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.notebook, menu);
-		return true;
 	}
 
 	/********************
