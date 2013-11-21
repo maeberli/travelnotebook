@@ -22,6 +22,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="ch.hearc.devmobile.travelnotebook.NotebookActivity"
+            android:label="@string/title_activity_notebook" >
+        </activity>
     </application>
 
 </manifest>

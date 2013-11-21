@@ -1,37 +1,27 @@
 package ch.hearc.devmobile.travelnotebook;
 
-import java.sql.SQLException;
-import java.util.GregorianCalendar;
+import java.util.ArrayList;
 import java.util.List;
 
-import ch.hearc.devmobile.travelnotebook.R;
-
-import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.dao.Dao;
-
-import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
-import ch.hearc.devmobile.travelnotebook.database.Image;
-import ch.hearc.devmobile.travelnotebook.database.Post;
-import ch.hearc.devmobile.travelnotebook.database.Tag;
-import ch.hearc.devmobile.travelnotebook.database.TagType;
-import ch.hearc.devmobile.travelnotebook.database.TravelItem;
-import ch.hearc.devmobile.travelnotebook.database.Voyage;
-import android.os.Bundle;
 import android.app.Activity;
-import android.graphics.Color;
+import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
+
+import com.j256.ormlite.android.apptools.OpenHelperManager;
 
 public class HomeActivity extends Activity {
 
 	private DatabaseHelper databaseHelper = null;
-	private String[] drawerListViewItems;
+	private List<MenuElement> drawerListViewItems;
 	private ListView drawerListView;
 	private DrawerLayout drawerLayout;
 
@@ -44,14 +34,27 @@ public class HomeActivity extends Activity {
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		
 		// gets list items from strings.xml
-        drawerListViewItems = getResources().getStringArray(R.array.homeMenuItems);
+        String menuElementLabel = getResources().getString(R.string.new_notebook);
+        
+        OnClickListener action = new OnClickListener() {
+			
+			@Override
+			public void onClick(View view) {
+				 Toast.makeText(HomeActivity.this, ((TextView)view).getText().toString(), Toast.LENGTH_LONG).show();
+		          HomeActivity.this.drawerLayout.closeDrawer(drawerListView);			
+			}
+		};
+        
+        MenuElement debugGoToNotebook = new MenuElement(menuElementLabel, action);
+        
+        drawerListViewItems = new ArrayList<MenuElement>();
+        drawerListViewItems.add( debugGoToNotebook );
  
         // gets ListView defined in activity_main.xml
         drawerListView = (ListView) findViewById(R.id.left_drawer);
  
         // Sets the adapter for the list view
-        drawerListView.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_listview_item, drawerListViewItems));
+        drawerListView.setAdapter(new MenuElementArrayAdapter(this, drawerListViewItems));
 		
         drawerListView.setOnItemClickListener(new DrawerItemClickListener());
 		
@@ -85,7 +88,7 @@ public class HomeActivity extends Activity {
 	private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Toast.makeText(HomeActivity.this, ((TextView)view).getText(), Toast.LENGTH_LONG).show();
+            Toast.makeText(HomeActivity.this, ((TextView)view).getText().toString()+id+position, Toast.LENGTH_LONG).show();
             HomeActivity.this.drawerLayout.closeDrawer(drawerListView);
  
         }
