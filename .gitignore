@@ -7,3 +7,7 @@ gen/*
 *.jar
 *.war
 *.ear
+
+# TEAM
+*.orig
+project.properties
