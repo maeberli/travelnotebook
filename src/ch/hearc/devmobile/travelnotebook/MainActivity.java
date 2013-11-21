@@ -4,6 +4,8 @@ import java.sql.SQLException;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import ch.hearc.devmobile.travelnotebook.R;
+
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 
@@ -17,64 +19,42 @@ import ch.hearc.devmobile.travelnotebook.database.Voyage;
 import android.os.Bundle;
 import android.app.Activity;
 import android.graphics.Color;
+import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
 	private DatabaseHelper databaseHelper = null;
+	private String[] drawerListViewItems;
+	private ListView drawerListView;
+	private DrawerLayout drawerLayout;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		TextView displayInformation = (TextView) findViewById(R.id.displayInformation);
-
-		try {
-			Dao<Post, Integer> postDao = getHelper().getPostDao();
-			Post newPost = new Post("Title" + System.currentTimeMillis(),
-					"longer description", "Zurich, Suisse");
-
-			Image image1 = new Image("new URI1", newPost);
-			Image image2 = new Image("new URI2", newPost);
-
-			getHelper().getImageDao().create(image1);
-			getHelper().getImageDao().create(image2);
-
-			List<Post> postList = postDao.queryForAll();
-			StringBuilder sb = new StringBuilder();
-
-			for (Post post : postList) {
-				sb.append("------------------------------------------\n");
-				for (Image image : post.getImages()) {
-					sb.append(image).append("\n");
-				}
-			}
-
-			// Append a more complex item
-			Voyage voyage = new Voyage("My favorite voyage", Color.rgb(220, 12,
-					123));
-			TravelItem travelItem = new TravelItem("My firstVoyage",
-					"This is the description", new GregorianCalendar(1990, 12,
-							8).getGregorianChange(), new GregorianCalendar(
-							1990, 12, 8).getGregorianChange(), "Hirzel", "Elm",
-					voyage);
-
-			Tag tag = new Tag(travelItem, new TagType("SKkiii", false));
-
-			getHelper().getTagDao().create(tag);
-			
-			sb.delete(0, sb.length());
-			for (TravelItem ti : getHelper().getTravelItemDao().queryForAll()) {
-				sb.append(ti.toString());
-			}
-
-			displayInformation.setText(sb.toString());
-		} catch (SQLException e) {
-			displayInformation.setText(e.toString());
-			e.printStackTrace();
-		}
+		
+		// Drawer menu
+		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		
+		// gets list items from strings.xml
+        drawerListViewItems = getResources().getStringArray(R.array.homeMenuItems);
+ 
+        // gets ListView defined in activity_main.xml
+        drawerListView = (ListView) findViewById(R.id.left_drawer);
+ 
+        // Sets the adapter for the list view
+        drawerListView.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_listview_item, drawerListViewItems));
+		
+        drawerListView.setOnItemClickListener(new DrawerItemClickListener());
+		
 	}
 
 	@Override
@@ -101,5 +81,15 @@ public class MainActivity extends Activity {
 		}
 		return databaseHelper;
 	}
+	
+	private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Toast.makeText(MainActivity.this, ((TextView)view).getText(), Toast.LENGTH_LONG).show();
+            MainActivity.this.drawerLayout.closeDrawer(drawerListView);
+ 
+        }
+
+    }
 
 }
