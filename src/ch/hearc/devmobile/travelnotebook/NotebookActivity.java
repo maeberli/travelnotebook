@@ -52,7 +52,7 @@ public class NotebookActivity extends Activity {
 		setUpMapIfNeeded();
 		getDBHelperIfNecessary();
 
-		createDBEntries();
+		createDBEntries(databaseHelper);
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class NotebookActivity extends Activity {
 	private void setUpMap() {
 	}
 
-	private void createDBEntries() {
+	public static void createDBEntries(DatabaseHelper databaseHelper) {
 		Log.i(LOGTAG, "Create example db entries");
 
 		try {
