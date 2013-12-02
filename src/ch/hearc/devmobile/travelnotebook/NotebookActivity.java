@@ -128,10 +128,15 @@ public class NotebookActivity extends Activity {
 						"Hilton Hotel, London", "Heathrow Airport, London",
 						voyage));
 
-		travelItems.add(new TravelItem("Heathrow->ZRH",
+		travelItems.add(new TravelItem("Heathrow->Hamburg",
 				"Please no kids in avion", startDate.getTime(), endDate
 						.getTime(), "Heathrow Airport, London",
-				"Zurich International Airport", voyage));
+				"Hamburg Airport", voyage));
+		
+		travelItems.add(new TravelItem("Hamburg->ZRH",
+				"Please no kids in avion", startDate.getTime(), endDate
+						.getTime(), "Hamburg Airport",
+				"Zurich, Airport", voyage));
 
 		try {
 			for (TravelItem travelItem : travelItems) {
