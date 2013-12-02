@@ -13,21 +13,53 @@
         <com.google.android.gms.maps.MapView
             android:id="@+id/map_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent" >
+
+            <Button
+                android:id="@+id/btn_back_home"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/back_home" />
+
+        </com.google.android.gms.maps.MapView>
     </FrameLayout>
 
     <!-- The navigation drawer -->
 
-    <ListView
-        android:id="@+id/left_drawer"
+    <RelativeLayout  android:id="@+id/right_drawer"
         android:layout_width="240dp"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
+        android:layout_gravity="right"
         android:background="#333"
         android:choiceMode="singleChoice"
         android:divider="#666"
         android:dividerHeight="1dp"
         android:paddingLeft="15sp"
-        android:paddingRight="15sp" />
+        android:paddingRight="15sp">
+        
+        <Button android:id="@+id/btn_get_planning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/get_planning" />
+        
+        <Button android:id="@+id/btn_add_planing_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btn_get_planning"
+        android:text="@string/add_planning_item" />
+        
+        <Button android:id="@+id/btn_add_travel_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btn_add_planing_item"
+        android:text="@string/add_travel_item" />
+        
+        <ListView android:id="@+id/right_drawer_list"
+	        android:layout_width="match_parent"
+        	android:layout_height="wrap_content"
+        	android:layout_below="@+id/btn_add_travel_item"
+        	android:layout_alignParentBottom="true" />
+        
+	</RelativeLayout>
 
 </android.support.v4.widget.DrawerLayout>

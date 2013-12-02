@@ -20,6 +20,7 @@ public class TravelItem {
 	 ********************/
 	private static final String LOGTAG = TravelItem.class.getSimpleName();
 	private static final int MAXGEOCODERRESULTS = 1;
+	public static final String FIELD_VOYAGE = "voyage_id";
 
 	/********************
 	 * Private members
@@ -86,6 +87,10 @@ public class TravelItem {
 	/********************
 	 * Public methods
 	 ********************/
+	public int getId() {
+		return id;
+	}
+	
 	public String getTitle() {
 		return title;
 	}
