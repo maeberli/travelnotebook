@@ -1,17 +1,13 @@
 package ch.hearc.devmobile.travelnotebook;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
-import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -212,60 +208,73 @@ public class HomeActivity extends Activity {
 		try {
 			List<Voyage> voyages = this.getHelper().getVoyageDao()
 					.queryForAll();
-			Log.d(LOGTAG, "Availlable voayages: " + voyages.size());
 
 			for (Voyage voyage : voyages) {
 
-				int voyageColor = voyage.getColor();
-
 				ForeignCollection<TravelItem> travelItems = voyage
 						.getTravelItems();
-				Log.d(LOGTAG,
-						"Number of travelitems in voyage: "
-								+ travelItems.size());
+
+				LinkedList<LatLng> travelItemPositions = new LinkedList<LatLng>();
 
 				for (TravelItem travelItem : travelItems) {
 
-					LatLng startLocation = travelItem
+					LatLng startLatLng = travelItem
 							.getStartLocationPosition(geocoder);
+					Log.i(LOGTAG, "startLatLng" + startLatLng);
 
-					if (startLocation != null) {
-
-						googleMap.addMarker(new MarkerOptions()
-								.title(travelItem.getStartLocation())
-								.position(startLocation)
-								.snippet("Node: " + travelItem.getTitle()));
-
-						if (!travelItem.isSingleLocation()) {
-							LatLng endLatLng = travelItem
-									.getEndLocationPosition(geocoder);
-
-							if (endLatLng != null) {
-								googleMap
-										.addMarker(new MarkerOptions()
-												.title(travelItem
-														.getEndLocation())
-												.position(endLatLng)
-												.snippet(
-														"Node: "
-																+ travelItem
-																		.getTitle()));
-
-								googleMap.addPolygon(new PolygonOptions()
-										.add(startLocation).add(endLatLng)
-										.strokeColor(voyageColor));
-							} else {
-								Log.i(LOGTAG,
-										"No end position found for travelItem: "
-												+ travelItem);
-							}
+					if (startLatLng != null) {
+						if (travelItemPositions.listIterator() != null
+								&& !travelItemPositions.listIterator().equals(
+										startLatLng)) {
+							travelItemPositions.addLast(startLatLng);
+						} else {
+							Log.i(LOGTAG, "startPosition already in list");
 						}
+
 					} else {
-						Log.i(LOGTAG,
+						Log.w(LOGTAG,
 								"No start position found for travelItem: "
 										+ travelItem);
 					}
+
+					if (!travelItem.isSingleLocation()) {
+						LatLng endLatLng = travelItem
+								.getEndLocationPosition(geocoder);
+
+						if (endLatLng != null) {
+							if (travelItemPositions.listIterator() != null
+									&& !travelItemPositions.listIterator()
+											.equals(endLatLng)) {
+								travelItemPositions.addLast(endLatLng);
+							} else {
+								Log.i(LOGTAG, "endPosition already in list");
+							}
+						} else {
+							Log.w(LOGTAG,
+									"No end position found for travelItem: "
+											+ travelItem);
+						}
+					}
 				}
+
+				// Get the colors associated to the voyage
+				int voyageColor = voyage.getColor();
+				int voyageColorTransparent = Color.argb(180,
+						Color.red(voyageColor), Color.green(voyageColor),
+						Color.blue(voyageColor));
+
+				// get the marker position of the current voyage
+				// if the center of the voyageBounds is not within the bound,
+				// take position in the middle of the voyage
+				LatLng markerPosition = travelItemPositions.getFirst();
+
+				googleMap.addPolygon(new PolygonOptions()
+						.addAll(travelItemPositions)
+						.fillColor(voyageColorTransparent)
+						.strokeColor(voyageColor).geodesic(true));
+
+				googleMap.addMarker(new MarkerOptions()
+						.position(markerPosition).title(voyage.getTitle()));
 
 			}
 		} catch (Exception e) {
