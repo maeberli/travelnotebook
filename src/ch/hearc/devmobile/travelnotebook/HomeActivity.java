@@ -44,6 +44,7 @@ public class HomeActivity extends Activity {
 	 * Static class members
 	 ********************/
 	private static final String LOGTAG = HomeActivity.class.getSimpleName();
+	public static final String NOTEBOOK_ID = "notebookId";
 
 	/********************
 	 * Private members
@@ -102,8 +103,6 @@ public class HomeActivity extends Activity {
 		buildDrawer();
 
 		setUpMapIfNeeded();
-
-		NotebookActivity.createDBEntries(databaseHelper);
 	}
 
 	@Override

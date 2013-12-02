@@ -19,7 +19,6 @@
     <!-- The navigation drawer -->
     <RelativeLayout  android:id="@+id/right_drawer"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/left_drawer"
         android:layout_width="240dp"
         android:layout_height="match_parent"
         android:layout_gravity="right"
@@ -27,7 +26,6 @@
         android:choiceMode="singleChoice"
         android:divider="#666"
         android:dividerHeight="1dp"
-        android:background="#333"
         android:padding="15sp"
         android:orientation="vertical">
     	
