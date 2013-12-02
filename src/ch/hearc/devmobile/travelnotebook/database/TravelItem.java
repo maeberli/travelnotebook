@@ -12,6 +12,7 @@ public class TravelItem {
 	 * Static
 	 ********************/
 	private static final String LOGTAG = TravelItem.class.getSimpleName();
+	public static final String FIELD_VOYAGE = "voyage_id";
 
 	/********************
 	 * Private members
@@ -78,6 +79,10 @@ public class TravelItem {
 	/********************
 	 * Public methods
 	 ********************/
+	public int getId() {
+		return id;
+	}
+	
 	public String getTitle() {
 		return title;
 	}

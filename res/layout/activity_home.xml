@@ -11,7 +11,7 @@
         android:layout_height="match_parent" />
  
     <!-- The navigation drawer -->
-    <RelativeLayout  android:id="@+id/left_drawer"
+    <RelativeLayout  android:id="@+id/right_drawer"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="240dp"
         android:layout_height="match_parent"
@@ -34,7 +34,7 @@
         android:layout_below="@+id/btn_new_notebook"
         android:text="@string/settings" />
     	
-	    <ListView android:id="@+id/left_drawer_list"
+	    <ListView android:id="@+id/right_drawer_list"
 	        android:layout_width="match_parent"
         	android:layout_height="wrap_content"
         	android:layout_below="@+id/btn_settings"

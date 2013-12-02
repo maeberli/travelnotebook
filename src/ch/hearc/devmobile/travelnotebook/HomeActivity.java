@@ -15,6 +15,8 @@ import android.text.Layout;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -29,6 +31,11 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 
 public class HomeActivity extends Activity {
 
+	/********************
+	 * Static
+	 ********************/
+	public static final String NOTEBOOK_ID = "notebookId";
+	
 	/********************
 	 * Private members
 	 ********************/
@@ -53,6 +60,12 @@ public class HomeActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		// Hide application title
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		// Hide status bar	
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		
 		setContentView(R.layout.activity_home);
 
 		buildDrawer();
@@ -85,29 +98,32 @@ public class HomeActivity extends Activity {
 		// Travel list
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawerListViewItems = new ArrayList<MenuElement>();
-		final RelativeLayout drawerPanel = (RelativeLayout) findViewById(R.id.left_drawer);
+		final RelativeLayout drawerPanel = (RelativeLayout) findViewById(R.id.right_drawer);
 		
 				
 				
 		
-		// Init buttons
+		// New notebook button
 		Button btnNewNotebook = (Button) findViewById(R.id.btn_new_notebook);
 		btnNewNotebook.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(HomeActivity.this,
 						NotebookActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 				startActivity(intent);
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);				
 			}
 		});
 		
+		// Settings button
 		Button btnSettings = (Button) findViewById(R.id.btn_settings);
 		btnSettings.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(HomeActivity.this,
 						SettingsActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 				startActivity(intent);
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);				
 			}
@@ -116,7 +132,7 @@ public class HomeActivity extends Activity {
 		
 		
 
-		// Add voyages in the list from de database
+		// Add voyages in the list from the database
 		try {
 			
 			MenuElement voyageMenuElement = null;
@@ -128,7 +144,8 @@ public class HomeActivity extends Activity {
 					public void onClick(View v) {
 						Intent intent = new Intent(HomeActivity.this,
 								NotebookActivity.class);
-						intent.putExtra("notebookId", voyage.getId());
+						intent.putExtra(HomeActivity.this.NOTEBOOK_ID, voyage.getId());
+						intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 						startActivity(intent);
 						HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 					}
@@ -143,7 +160,7 @@ public class HomeActivity extends Activity {
 		
 		
 		// gets ListView defined in activity_main.xml
-		drawerListView = (ListView) findViewById(R.id.left_drawer_list);
+		drawerListView = (ListView) findViewById(R.id.right_drawer_list);
 
 		// Sets the adapter for the list view
 		drawerListView.setAdapter(new MenuElementArrayAdapter(this,
