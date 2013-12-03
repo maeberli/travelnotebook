@@ -13,9 +13,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -37,7 +37,7 @@ public class NotebookActivity extends Activity {
 	 ********************/
 	private static final String LOGTAG = NotebookActivity.class.getSimpleName();
 	public static final String TRAVEL_ITEM_ID = "travelItemId";
-	
+	public static final String NOTEBOOKACTIVITY_VOYAGE_ID = "notebookId";
 
 	/********************
 	 * Private members
@@ -108,7 +108,7 @@ public class NotebookActivity extends Activity {
 					.getTravelItemDao().queryBuilder();
 			Where<TravelItem, Integer> where = queryBuilder.where();
 			where.eq(TravelItem.FIELD_VOYAGE,
-					getIntent().getIntExtra(HomeActivity.NOTEBOOK_ID, 0));
+					getIntent().getIntExtra(NOTEBOOKACTIVITY_VOYAGE_ID, 0));
 
 			for (final TravelItem item : queryBuilder.query()) {
 
@@ -151,20 +151,21 @@ public class NotebookActivity extends Activity {
 	}
 
 	private void initButtons() {
-		
-		// Get the planning button
-				Button btnBackHome = (Button) findViewById(R.id.btn_back_home);
-				btnBackHome.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						 Intent intent = new Intent(NotebookActivity.this, HomeActivity.class);
-						 intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-						 startActivity(intent);
 
-						NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
-					}
-				});
-				
+		// Get the planning button
+		Button btnBackHome = (Button) findViewById(R.id.btn_back_home);
+		btnBackHome.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(NotebookActivity.this,
+						HomeActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+				startActivity(intent);
+
+				NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
+			}
+		});
+
 		// Get the planning button
 		Button btnNewNotebook = (Button) findViewById(R.id.btn_get_planning);
 		btnNewNotebook.setOnClickListener(new OnClickListener() {
@@ -240,7 +241,7 @@ public class NotebookActivity extends Activity {
 		return databaseHelper;
 	}
 
-	private void createDBEntries() {
+	public static void createDBEntries(DatabaseHelper databaseHelper) {
 		Log.i(LOGTAG, "Create example db entries");
 
 		try {
@@ -292,11 +293,11 @@ public class NotebookActivity extends Activity {
 				"Please no kids in avion", startDate.getTime(), endDate
 						.getTime(), "Heathrow Airport, London",
 				"Hamburg Airport", voyage));
-		
+
 		travelItems.add(new TravelItem("Hamburg->ZRH",
 				"Please no kids in avion", startDate.getTime(), endDate
-						.getTime(), "Hamburg Airport",
-				"Zurich, Airport", voyage));
+						.getTime(), "Hamburg Airport", "Zurich, Airport",
+				voyage));
 
 		try {
 			for (TravelItem travelItem : travelItems) {

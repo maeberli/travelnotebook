@@ -2,8 +2,10 @@ package ch.hearc.devmobile.travelnotebook;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -17,8 +19,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -27,8 +27,10 @@ import ch.hearc.devmobile.travelnotebook.database.TravelItem;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
@@ -40,7 +42,6 @@ public class HomeActivity extends Activity {
 	 * Static class members
 	 ********************/
 	private static final String LOGTAG = HomeActivity.class.getSimpleName();
-	public static final String NOTEBOOK_ID = "notebookId";
 
 	/********************
 	 * Private members
@@ -52,6 +53,8 @@ public class HomeActivity extends Activity {
 	private MapView homeMapView = null;
 	private GoogleMap googleMap = null;
 	private Geocoder geocoder;
+
+	private Map<Marker, Voyage> markers;
 
 	/********************
 	 * Public methods
@@ -83,15 +86,17 @@ public class HomeActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		// Hide application title
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		// Hide status bar	
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		
+		// Hide status bar
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		setContentView(R.layout.activity_home);
 
 		geocoder = new Geocoder(this);
+		markers = new HashMap<Marker, Voyage>();
 
 		homeMapView = (MapView) findViewById(R.id.home_map);
 		homeMapView.onCreate(savedInstanceState);
@@ -99,6 +104,8 @@ public class HomeActivity extends Activity {
 		buildDrawer();
 
 		setUpMapIfNeeded();
+
+		NotebookActivity.createDBEntries(getHelper());
 	}
 
 	@Override
@@ -180,10 +187,7 @@ public class HomeActivity extends Activity {
 
 							@Override
 							public void onClick(View v) {
-								Intent intent = new Intent(HomeActivity.this,
-										NotebookActivity.class);
-								intent.putExtra("notebookId", voyage.getId());
-								startActivity(intent);
+								goToNotebookActivity(voyage.getId());
 								HomeActivity.this.drawerLayout
 										.closeDrawer(drawerPanel);
 							}
@@ -215,8 +219,17 @@ public class HomeActivity extends Activity {
 	}
 
 	private void setUpMap() {
-		Log.i(LOGTAG, "SetupMap with polygons and markers");
+		// Initialize events
+		googleMap.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
 
+			@Override
+			public void onInfoWindowClick(Marker marker) {
+				Voyage voyage = markers.get(marker);
+				goToNotebookActivity(voyage.getId());
+			}
+		});
+
+		// show informations.
 		try {
 			List<Voyage> voyages = this.getHelper().getVoyageDao()
 					.queryForAll();
@@ -285,13 +298,23 @@ public class HomeActivity extends Activity {
 						.fillColor(voyageColorTransparent)
 						.strokeColor(voyageColor).geodesic(true));
 
-				googleMap.addMarker(new MarkerOptions()
+				Marker marker = googleMap.addMarker(new MarkerOptions()
 						.position(markerPosition).title(voyage.getTitle()));
+
+				// append the marker and the voyage to the markers list
+				// Allows to associate click events to markers
+				this.markers.put(marker, voyage);
 
 			}
 		} catch (Exception e) {
 			Log.e(LOGTAG, e.getMessage());
 			e.printStackTrace();
 		}
+	}
+
+	private void goToNotebookActivity(int id) {
+		Intent intent = new Intent(HomeActivity.this, NotebookActivity.class);
+		intent.putExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID, id);
+		startActivity(intent);
 	}
 }
