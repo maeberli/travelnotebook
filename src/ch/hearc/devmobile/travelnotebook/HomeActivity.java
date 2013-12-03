@@ -104,8 +104,6 @@ public class HomeActivity extends Activity {
 		buildDrawer();
 
 		setUpMapIfNeeded();
-
-		NotebookActivity.createDBEntries(getHelper());
 	}
 
 	@Override

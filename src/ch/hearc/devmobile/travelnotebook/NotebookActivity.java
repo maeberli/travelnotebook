@@ -2,12 +2,10 @@ package ch.hearc.devmobile.travelnotebook;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -26,9 +24,6 @@ import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.stmt.Where;
 
 public class NotebookActivity extends Activity {
 
@@ -49,6 +44,7 @@ public class NotebookActivity extends Activity {
 	private ListView drawerListView;
 	private DrawerLayout drawerLayout;
 	private RelativeLayout drawerPanel;
+	private Voyage currentVoyage;
 
 	/********************
 	 * Public methods
@@ -74,8 +70,11 @@ public class NotebookActivity extends Activity {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.activity_notebook);
+
 		setUpMapIfNeeded();
 		getDBHelperIfNecessary();
+
+		loadCurrentNotebook();
 
 		buildDrawer();
 	}
@@ -99,46 +98,34 @@ public class NotebookActivity extends Activity {
 		initButtons();
 
 		// Add items in the list from the database
-		try {
 
-			MenuElement itemMenuElement = null;
+		MenuElement itemMenuElement = null;
 
-			// Builds the query
-			QueryBuilder<TravelItem, Integer> queryBuilder = getHelper()
-					.getTravelItemDao().queryBuilder();
-			Where<TravelItem, Integer> where = queryBuilder.where();
-			where.eq(TravelItem.FIELD_VOYAGE,
-					getIntent().getIntExtra(NOTEBOOKACTIVITY_VOYAGE_ID, 0));
+		for (final TravelItem item : currentVoyage.getTravelItems()) {
 
-			for (final TravelItem item : queryBuilder.query()) {
+			itemMenuElement = new MenuElement(item.getTitle(),
+					new OnClickListener() {
 
-				itemMenuElement = new MenuElement(item.getTitle(),
-						new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							// Intent intent = new Intent(
+							// NotebookActivity.this,
+							// NotebookActivity.class);
+							// intent.putExtra(NotebookActivity.this.TRAVEL_ITEM_ID,
+							// item.getId());
+							// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+							// startActivity(intent);
 
-							@Override
-							public void onClick(View v) {
-								// Intent intent = new Intent(
-								// NotebookActivity.this,
-								// NotebookActivity.class);
-								// intent.putExtra(NotebookActivity.this.TRAVEL_ITEM_ID,
-								// item.getId());
-								// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-								// startActivity(intent);
+							Toast.makeText(getApplicationContext(),
+									item.getDescription(), Toast.LENGTH_SHORT)
+									.show();
 
-								Toast.makeText(getApplicationContext(),
-										item.getDescription(),
-										Toast.LENGTH_SHORT).show();
+							NotebookActivity.this.drawerLayout
+									.closeDrawer(drawerPanel);
+						}
 
-								NotebookActivity.this.drawerLayout
-										.closeDrawer(drawerPanel);
-							}
-
-						});
-				drawerListViewItems.add(itemMenuElement);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-			Log.e(LOGTAG, "Travel item query failed !");
+					});
+			drawerListViewItems.add(itemMenuElement);
 		}
 
 		// gets ListView defined in activity_main.xml
@@ -218,95 +205,33 @@ public class NotebookActivity extends Activity {
 		});
 	}
 
+	private void loadCurrentNotebook() {
+		// Add items in the list from the database
+		if (getIntent().hasExtra(NOTEBOOKACTIVITY_VOYAGE_ID)) {
+
+			int voyageId = getIntent().getIntExtra(NOTEBOOKACTIVITY_VOYAGE_ID,
+					-1);
+			if (voyageId != -1) {
+				try {
+					this.currentVoyage = databaseHelper.getVoyageDao()
+							.queryForId(voyageId);
+
+				} catch (SQLException e) {
+					e.printStackTrace();
+					Log.e(LOGTAG, "Voyage query failed !");
+				}
+			} else {
+				Log.e(LOGTAG, "No valid voyage id passed to NotebookActivity!");
+			}
+		} else {
+			Log.e(LOGTAG, "No voyage id passed to NotebookActivity!");
+		}
+	}
+
 	private void setUpMapIfNeeded() {
-		// if (notebookMap == null) {
-		// MapView mapView = (MapView) (findViewById(R.id.notebook_map));
-		//
-		// notebookMap = mapView.getMap();
-		//
-		// if (notebookMap != null) {
-		// setUpMap();
-		// }
-		// }
 	}
 
 	private void setUpMap() {
-	}
-
-	private DatabaseHelper getHelper() {
-		if (databaseHelper == null) {
-			databaseHelper = OpenHelperManager.getHelper(this,
-					DatabaseHelper.class);
-		}
-		return databaseHelper;
-	}
-
-	public static void createDBEntries(DatabaseHelper databaseHelper) {
-		Log.i(LOGTAG, "Create example db entries");
-
-		try {
-			Dao<Voyage, Integer> voyageDao = databaseHelper.getVoyageDao();
-
-			for (Voyage voyage : voyageDao.queryForAll()) {
-				voyageDao.delete(voyage);
-			}
-		} catch (SQLException e) {
-			Log.e(LOGTAG, "Voyage creation error:" + e.getMessage());
-			e.printStackTrace();
-		}
-
-		Calendar startDate = Calendar.getInstance();
-		Calendar endDate = Calendar.getInstance();
-		endDate.add(Calendar.HOUR, 1);
-
-		Voyage voyage = new Voyage("Weekend trip London", Color.BLUE);
-
-		List<TravelItem> travelItems = new ArrayList<TravelItem>();
-
-		travelItems.add(new TravelItem("ZHR-London",
-				"The flight with the numer xy", startDate.getTime(), endDate
-						.getTime(), "Zurich, Airport", "London, Heathrow",
-				voyage));
-
-		travelItems.add(new TravelItem("Bus Transfer to the hotel",
-				"The bus leafes heathrow in terminal 2", startDate.getTime(),
-				endDate.getTime(), "London,Heathrow airport",
-				"Hilton Hotel, London", voyage));
-
-		travelItems.add(new TravelItem("Senior Suite in Hilton Hotel",
-				"Let's enjoy the welness area", startDate.getTime(), endDate
-						.getTime(), "Hilton Hotel, London", voyage));
-
-		travelItems.add(new TravelItem("Chinesse food",
-				"Yea in london i usually eat chinesse food.", startDate
-						.getTime(), "DownTown London", voyage));
-
-		travelItems
-				.add(new TravelItem(
-						"Taxi Transfer Hotel-> Airport",
-						"As a typicall tourist i wan't to take a classic london cab to return to the airport",
-						startDate.getTime(), endDate.getTime(),
-						"Hilton Hotel, London", "Heathrow Airport, London",
-						voyage));
-
-		travelItems.add(new TravelItem("Heathrow->Hamburg",
-				"Please no kids in avion", startDate.getTime(), endDate
-						.getTime(), "Heathrow Airport, London",
-				"Hamburg Airport", voyage));
-
-		travelItems.add(new TravelItem("Hamburg->ZRH",
-				"Please no kids in avion", startDate.getTime(), endDate
-						.getTime(), "Hamburg Airport", "Zurich, Airport",
-				voyage));
-
-		try {
-			for (TravelItem travelItem : travelItems) {
-				databaseHelper.getTravelItemDao().create(travelItem);
-			}
-		} catch (SQLException e) {
-			Log.e(LOGTAG, "Voyage creation error:" + e.getMessage());
-			e.printStackTrace();
-		}
 	}
 
 	private void getDBHelperIfNecessary() {
