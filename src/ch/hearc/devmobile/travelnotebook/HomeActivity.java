@@ -26,6 +26,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
 import ch.hearc.devmobile.travelnotebook.database.TravelItem;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
@@ -45,6 +46,8 @@ public class HomeActivity extends Activity {
 	 ********************/
 	private static final String LOGTAG = HomeActivity.class.getSimpleName();
 	public static final String NOTEBOOK_ID = "notebookId";
+	private static final int NEW_NOTEBOOK_CODE = 100;
+	private static final int SETTINGS_CODE = 200;
 
 	/********************
 	 * Private members
@@ -53,6 +56,7 @@ public class HomeActivity extends Activity {
 	private List<MenuElement> drawerListViewItems;
 	private ListView drawerListView;
 	private DrawerLayout drawerLayout;
+	private RelativeLayout drawerPanel;
 	private MapView homeMapView = null;
 	private GoogleMap googleMap = null;
 	private Geocoder geocoder;
@@ -87,12 +91,13 @@ public class HomeActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		// Hide application title
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		// Hide status bar	
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		
+		// Hide status bar
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		setContentView(R.layout.activity_home);
 
 		geocoder = new Geocoder(this);
@@ -130,6 +135,37 @@ public class HomeActivity extends Activity {
 		homeMapView.onPause();
 	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+
+		if (requestCode == NEW_NOTEBOOK_CODE) {
+			switch (resultCode) {
+			case RESULT_CANCELED:
+				Toast.makeText(this, "Canceled", Toast.LENGTH_LONG).show();
+				break;
+			case NewNotebookActivity.RESULT_SQL_FAIL:
+				Toast.makeText(getApplicationContext(),
+						"Creation failed !", Toast.LENGTH_SHORT).show();
+				break;
+			case RESULT_OK:
+				Toast.makeText(this, "Notebook saved", Toast.LENGTH_LONG)
+						.show();
+				buildDrawer();
+				break;
+			}
+		} else if (requestCode == SETTINGS_CODE) {
+			switch (resultCode) {
+			case RESULT_CANCELED:
+				// NOP
+				break;
+			case RESULT_OK:
+				// TODO Refresh activity
+				break;
+			}
+		}
+	}
+
 	/********************
 	 * Private methods
 	 ********************/
@@ -145,7 +181,7 @@ public class HomeActivity extends Activity {
 		// Travel list
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawerListViewItems = new ArrayList<MenuElement>();
-		final RelativeLayout drawerPanel = (RelativeLayout) findViewById(R.id.right_drawer);
+		drawerPanel = (RelativeLayout) findViewById(R.id.right_drawer);
 
 		// New notebook button
 		Button btnNewNotebook = (Button) findViewById(R.id.btn_new_notebook);
@@ -153,9 +189,9 @@ public class HomeActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(HomeActivity.this,
-						NotebookActivity.class);
+						NewNotebookActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				startActivity(intent);
+				startActivityForResult(intent, NEW_NOTEBOOK_CODE);
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
 		});
@@ -168,7 +204,7 @@ public class HomeActivity extends Activity {
 				Intent intent = new Intent(HomeActivity.this,
 						SettingsActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				startActivity(intent);
+				startActivityForResult(intent, SETTINGS_CODE);
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
 		});
@@ -176,24 +212,9 @@ public class HomeActivity extends Activity {
 		// Add voyages in the list from the database
 		try {
 
-			MenuElement voyageMenuElement = null;
 			for (final Voyage voyage : getHelper().getVoyageDao().queryForAll()) {
 
-				voyageMenuElement = new MenuElement(voyage.getTitle(),
-						new OnClickListener() {
-
-							@Override
-							public void onClick(View v) {
-								Intent intent = new Intent(HomeActivity.this,
-										NotebookActivity.class);
-								intent.putExtra("notebookId", voyage.getId());
-								startActivity(intent);
-								HomeActivity.this.drawerLayout
-										.closeDrawer(drawerPanel);
-							}
-
-						});
-				drawerListViewItems.add(voyageMenuElement);
+				addNoteBookLink(voyage);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -206,6 +227,25 @@ public class HomeActivity extends Activity {
 		drawerListView.setAdapter(new MenuElementArrayAdapter(this,
 				drawerListViewItems));
 
+	}
+
+	private void addNoteBookLink(final Voyage voyage) {
+
+		MenuElement voyageMenuElement = null;
+		voyageMenuElement = new MenuElement(voyage.getTitle(),
+				new OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						Intent intent = new Intent(HomeActivity.this,
+								NotebookActivity.class);
+						intent.putExtra("notebookId", voyage.getId());
+						startActivity(intent);
+						HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
+					}
+
+				});
+		drawerListViewItems.add(voyageMenuElement);
 	}
 
 	private void setUpMapIfNeeded() {

@@ -51,6 +51,11 @@
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyDtirxQV25YK3d4HkiYOixrOhQpIWHp12M" />
+
+        <activity
+            android:name="ch.hearc.devmobile.travelnotebook.NewNotebookActivity"
+            android:label="@string/title_activity_new_notebook" >
+        </activity>
     </application>
 
 </manifest>
