@@ -11,6 +11,8 @@ public class Voyage {
 	 ********************/
 	private static final String LOGTAG = Voyage.class.getSimpleName();
 
+	public static final String FIELD_ID = "id";
+
 	/********************
 	 * Private members
 	 ********************/
@@ -66,7 +68,7 @@ public class Voyage {
 	public void setTravelItems(ForeignCollection<TravelItem> travelItems) {
 		this.travelItems = travelItems;
 	}
-	
+
 	public int getId() {
 		return id;
 	}

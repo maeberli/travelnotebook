@@ -1,17 +1,15 @@
 package ch.hearc.devmobile.travelnotebook;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
-import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -21,8 +19,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -32,8 +28,10 @@ import ch.hearc.devmobile.travelnotebook.database.TravelItem;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
@@ -45,7 +43,6 @@ public class HomeActivity extends Activity {
 	 * Static class members
 	 ********************/
 	private static final String LOGTAG = HomeActivity.class.getSimpleName();
-	public static final String NOTEBOOK_ID = "notebookId";
 	private static final int NEW_NOTEBOOK_CODE = 100;
 	private static final int SETTINGS_CODE = 200;
 
@@ -60,6 +57,8 @@ public class HomeActivity extends Activity {
 	private MapView homeMapView = null;
 	private GoogleMap googleMap = null;
 	private Geocoder geocoder;
+
+	private Map<Marker, Voyage> markers;
 
 	/********************
 	 * Public methods
@@ -101,6 +100,7 @@ public class HomeActivity extends Activity {
 		setContentView(R.layout.activity_home);
 
 		geocoder = new Geocoder(this);
+		markers = new HashMap<Marker, Voyage>();
 
 		homeMapView = (MapView) findViewById(R.id.home_map);
 		homeMapView.onCreate(savedInstanceState);
@@ -259,70 +259,102 @@ public class HomeActivity extends Activity {
 	}
 
 	private void setUpMap() {
-		Log.i(LOGTAG, "SetupMap with polygons and markers");
+		// Initialize events
+		googleMap.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
 
+			@Override
+			public void onInfoWindowClick(Marker marker) {
+				Voyage voyage = markers.get(marker);
+				goToNotebookActivity(voyage.getId());
+			}
+		});
+
+		// show informations.
 		try {
 			List<Voyage> voyages = this.getHelper().getVoyageDao()
 					.queryForAll();
-			Log.d(LOGTAG, "Availlable voayages: " + voyages.size());
 
 			for (Voyage voyage : voyages) {
 
-				int voyageColor = voyage.getColor();
-
 				ForeignCollection<TravelItem> travelItems = voyage
 						.getTravelItems();
-				Log.d(LOGTAG,
-						"Number of travelitems in voyage: "
-								+ travelItems.size());
+
+				LinkedList<LatLng> travelItemPositions = new LinkedList<LatLng>();
 
 				for (TravelItem travelItem : travelItems) {
 
-					LatLng startLocation = travelItem
+					LatLng startLatLng = travelItem
 							.getStartLocationPosition(geocoder);
+					Log.i(LOGTAG, "startLatLng" + startLatLng);
 
-					if (startLocation != null) {
-
-						googleMap.addMarker(new MarkerOptions()
-								.title(travelItem.getStartLocation())
-								.position(startLocation)
-								.snippet("Node: " + travelItem.getTitle()));
-
-						if (!travelItem.isSingleLocation()) {
-							LatLng endLatLng = travelItem
-									.getEndLocationPosition(geocoder);
-
-							if (endLatLng != null) {
-								googleMap
-										.addMarker(new MarkerOptions()
-												.title(travelItem
-														.getEndLocation())
-												.position(endLatLng)
-												.snippet(
-														"Node: "
-																+ travelItem
-																		.getTitle()));
-
-								googleMap.addPolygon(new PolygonOptions()
-										.add(startLocation).add(endLatLng)
-										.strokeColor(voyageColor));
-							} else {
-								Log.i(LOGTAG,
-										"No end position found for travelItem: "
-												+ travelItem);
-							}
+					if (startLatLng != null) {
+						if (travelItemPositions.listIterator() != null
+								&& !travelItemPositions.listIterator().equals(
+										startLatLng)) {
+							travelItemPositions.addLast(startLatLng);
+						} else {
+							Log.i(LOGTAG, "startPosition already in list");
 						}
+
 					} else {
-						Log.i(LOGTAG,
+						Log.w(LOGTAG,
 								"No start position found for travelItem: "
 										+ travelItem);
 					}
+
+					if (!travelItem.isSingleLocation()) {
+						LatLng endLatLng = travelItem
+								.getEndLocationPosition(geocoder);
+
+						if (endLatLng != null) {
+							if (travelItemPositions.listIterator() != null
+									&& !travelItemPositions.listIterator()
+											.equals(endLatLng)) {
+								travelItemPositions.addLast(endLatLng);
+							} else {
+								Log.i(LOGTAG, "endPosition already in list");
+							}
+						} else {
+							Log.w(LOGTAG,
+									"No end position found for travelItem: "
+											+ travelItem);
+						}
+					}
 				}
+
+				// Get the colors associated to the voyage
+				int voyageColor = voyage.getColor();
+				int voyageColorTransparent = Color.argb(180,
+						Color.red(voyageColor), Color.green(voyageColor),
+						Color.blue(voyageColor));
+
+				// get the marker position of the current voyage
+				// if the center of the voyageBounds is not within the bound,
+				// take position in the middle of the voyage
+				LatLng markerPosition = travelItemPositions.getFirst();
+
+				googleMap.addPolygon(new PolygonOptions()
+						.addAll(travelItemPositions)
+						.fillColor(voyageColorTransparent)
+						.strokeColor(voyageColor).geodesic(true));
+
+				Marker marker = googleMap.addMarker(new MarkerOptions()
+						.position(markerPosition).title(voyage.getTitle()));
+
+				// append the marker and the voyage to the markers list
+				// Allows to associate click events to markers
+				this.markers.put(marker, voyage);
 
 			}
 		} catch (Exception e) {
 			Log.e(LOGTAG, e.getMessage());
 			e.printStackTrace();
 		}
+	}
+
+	private void goToNotebookActivity(int id) {
+		Intent intent = new Intent(HomeActivity.this, NotebookActivity.class);
+		intent.putExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID, id);
+		startActivity(intent);
 	}
 }
