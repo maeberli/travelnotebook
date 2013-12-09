@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -17,12 +16,16 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
 import ch.hearc.devmobile.travelnotebook.database.TravelItem;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 
 public class NotebookActivity extends Activity {
@@ -37,7 +40,7 @@ public class NotebookActivity extends Activity {
 	/********************
 	 * Private members
 	 ********************/
-	private GoogleMap notebookMap = null;
+	private GoogleMap googleMap = null;
 	private DatabaseHelper databaseHelper = null;
 
 	private List<MenuElement> drawerListViewItems;
@@ -45,6 +48,8 @@ public class NotebookActivity extends Activity {
 	private DrawerLayout drawerLayout;
 	private RelativeLayout drawerPanel;
 	private Voyage currentVoyage;
+	private MapView notebookMapView;
+	private TextView notebookTitleTextView;
 
 	/********************
 	 * Public methods
@@ -70,12 +75,18 @@ public class NotebookActivity extends Activity {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.activity_notebook);
+		notebookMapView = (MapView) findViewById(R.id.notebook_mapview);
+		notebookMapView.onCreate(savedInstanceState);
+		
+		notebookTitleTextView = (TextView)findViewById(R.id.notebookTitleTextView);
 
 		setUpMapIfNeeded();
 		getDBHelperIfNecessary();
 
-		loadCurrentNotebook();
+		loadCurrentNotebookFromIntent();
 
+		initButtons();
+		initTitle();
 		buildDrawer();
 	}
 
@@ -85,7 +96,24 @@ public class NotebookActivity extends Activity {
 		setUpMapIfNeeded();
 		getDBHelperIfNecessary();
 	}
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		notebookMapView.onDestroy();
 
+		if (databaseHelper != null) {
+			OpenHelperManager.releaseHelper();
+			databaseHelper = null;
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		notebookMapView.onPause();
+	}
+	
 	/********************
 	 * Private methods
 	 ********************/
@@ -95,10 +123,7 @@ public class NotebookActivity extends Activity {
 		drawerListViewItems = new ArrayList<MenuElement>();
 		drawerPanel = (RelativeLayout) findViewById(R.id.right_drawer);
 
-		initButtons();
-
 		// Add items in the list from the database
-
 		MenuElement itemMenuElement = null;
 
 		for (final TravelItem item : currentVoyage.getTravelItems()) {
@@ -138,20 +163,6 @@ public class NotebookActivity extends Activity {
 	}
 
 	private void initButtons() {
-
-		// Get the planning button
-		Button btnBackHome = (Button) findViewById(R.id.btn_back_home);
-		btnBackHome.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(NotebookActivity.this,
-						HomeActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				startActivity(intent);
-
-				NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
-			}
-		});
 
 		// Get the planning button
 		Button btnNewNotebook = (Button) findViewById(R.id.btn_get_planning);
@@ -205,7 +216,7 @@ public class NotebookActivity extends Activity {
 		});
 	}
 
-	private void loadCurrentNotebook() {
+	private void loadCurrentNotebookFromIntent() {
 		// Add items in the list from the database
 		if (getIntent().hasExtra(NOTEBOOKACTIVITY_VOYAGE_ID)) {
 
@@ -228,10 +239,23 @@ public class NotebookActivity extends Activity {
 		}
 	}
 
+	private void initTitle() {
+		String title = currentVoyage.getTitle();
+		notebookTitleTextView.setText(title);
+	}
+
 	private void setUpMapIfNeeded() {
+		if (googleMap == null) {
+			googleMap = notebookMapView.getMap();
+
+			if (googleMap != null) {
+				setUpMap();
+			}
+		}
 	}
 
 	private void setUpMap() {
+		googleMap.addMarker(new MarkerOptions().title("hello World").position(new LatLng(0.0, 0.0)));
 	}
 
 	private void getDBHelperIfNecessary() {

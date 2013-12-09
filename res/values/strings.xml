@@ -9,14 +9,12 @@
     <!-- Home menu actions -->
     <string name="new_notebook">New Notebook</string>
     <string name="settings">Settings</string>
-    
+
     <!-- Notebook menu actions -->
-    <string name="back_home">H</string>
     <string name="get_planning">Get the planning</string>
     <string name="add_travel_item">Add travel note</string>
     <string name="add_planning_item">Add planning note</string>
-
-
+    
     <string name="title_activity_notebook">NotebookActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
 
