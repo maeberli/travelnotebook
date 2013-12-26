@@ -15,10 +15,7 @@ public class Tag {
 	@DatabaseField(generatedId = true)
 	private int id;
 
-	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true)
-	private TravelItem travelItem;
-
-	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true)
+	@DatabaseField(canBeNull = false)
 	private TagType tagType;
 
 	@DatabaseField(canBeNull = true, foreign = true, foreignAutoCreate = true)
@@ -32,22 +29,23 @@ public class Tag {
 		this(null, null);
 	}
 
-	public Tag(TravelItem travelItem, TagType tagType) {
+	public Tag(FlightTagExtendet flightTagExtendet) {
+		this(TagType.PLANE, flightTagExtendet);
+	}
+
+	public Tag(TagType tagType) {
+		this(tagType, null);
+	}
+
+	private Tag(TagType tagType, FlightTagExtendet flightTagExtendet) {
 		this.id = 0;
-		this.travelItem = travelItem;
 		this.tagType = tagType;
+		this.flightTagExtendet = flightTagExtendet;
 	}
 
 	/********************
 	 * Public methods
 	 ********************/
-	public TravelItem getTravelItem() {
-		return travelItem;
-	}
-
-	public void setTravelItem(TravelItem travelItem) {
-		this.travelItem = travelItem;
-	}
 
 	public TagType getTagType() {
 		return tagType;
@@ -70,8 +68,6 @@ public class Tag {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Tag [id=");
 		builder.append(id);
-		builder.append(", travelItem=");
-		builder.append(travelItem);
 		builder.append(", tagType=");
 		builder.append(tagType);
 		builder.append(", flightTagExtendet=");
