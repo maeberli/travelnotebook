@@ -44,10 +44,10 @@ public class TravelItem {
 	@DatabaseField
 	private String endLocation;
 
-	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true)
+	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
 	private Voyage voyage;
 
-	@DatabaseField(canBeNull = false, unique = true, foreign = true, foreignAutoCreate = true)
+	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, unique = true)
 	private Tag tag;
 
 	/********************
