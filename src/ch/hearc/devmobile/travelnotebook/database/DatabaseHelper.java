@@ -25,7 +25,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	private Dao<Image, Integer> imageDao = null;
 	private Dao<FlightTagExtendet, Integer> flightTagExtendetDao = null;
 	private Dao<Tag, Integer> tagDao = null;
-	private Dao<TagType, Integer> tagTypeDao = null;
 	private Dao<TravelItem, Integer> travelItemDao = null;
 	private Dao<Voyage, Integer> voyageDao = null;
 
@@ -91,13 +90,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			tagDao = getDao(Tag.class);
 		}
 		return tagDao;
-	}
-
-	public Dao<TagType, Integer> getTagTypeDao() throws SQLException {
-		if (tagTypeDao == null) {
-			tagTypeDao = getDao(TagType.class);
-		}
-		return tagTypeDao;
 	}
 
 	public Dao<TravelItem, Integer> getTravelItemDao() throws SQLException {
