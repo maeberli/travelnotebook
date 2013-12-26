@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -19,11 +20,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
+import ch.hearc.devmobile.travelnotebook.database.Tag;
+import ch.hearc.devmobile.travelnotebook.database.TagType;
 import ch.hearc.devmobile.travelnotebook.database.TravelItem;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
@@ -36,6 +42,7 @@ public class NotebookActivity extends Activity {
 	private static final String LOGTAG = NotebookActivity.class.getSimpleName();
 	public static final String TRAVEL_ITEM_ID = "travelItemId";
 	public static final String NOTEBOOKACTIVITY_VOYAGE_ID = "notebookId";
+	public static final String NOTEBOOKACTIVITY_RETURN_ERROR = "error";
 
 	/********************
 	 * Private members
@@ -74,16 +81,32 @@ public class NotebookActivity extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+		// Call the initialize method manually (Workaround: should normally not
+		// be necessary:
+		// http://developer.android.com/reference/com/google/android/gms/maps/MapsInitializer.html
+		// )
+		try {
+			MapsInitializer.initialize(this);
+		} catch (GooglePlayServicesNotAvailableException e) {
+			Log.e(LOGTAG, e.getMessage());
+
+			e.printStackTrace();
+		}
+
 		setContentView(R.layout.activity_notebook);
 		notebookMapView = (MapView) findViewById(R.id.notebook_mapview);
 		notebookMapView.onCreate(savedInstanceState);
-		
-		notebookTitleTextView = (TextView)findViewById(R.id.notebookTitleTextView);
 
-		setUpMapIfNeeded();
+		notebookTitleTextView = (TextView) findViewById(R.id.notebookTitleTextView);
+
+		// get the DB Helper first.
 		getDBHelperIfNecessary();
 
+		// Now we can load the notebook to treat in this activity.
 		loadCurrentNotebookFromIntent();
+
+		// The last task is to setup the UI.
+		setUpMapIfNeeded();
 
 		initButtons();
 		initTitle();
@@ -96,6 +119,7 @@ public class NotebookActivity extends Activity {
 		setUpMapIfNeeded();
 		getDBHelperIfNecessary();
 	}
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -113,7 +137,7 @@ public class NotebookActivity extends Activity {
 
 		notebookMapView.onPause();
 	}
-	
+
 	/********************
 	 * Private methods
 	 ********************/
@@ -229,13 +253,13 @@ public class NotebookActivity extends Activity {
 
 				} catch (SQLException e) {
 					e.printStackTrace();
-					Log.e(LOGTAG, "Voyage query failed !");
+					abortActivityWithError("Voyage query failed: SQL exception");
 				}
 			} else {
-				Log.e(LOGTAG, "No valid voyage id passed to NotebookActivity!");
+				abortActivityWithError("No valid voyage id passed to NotebookActivity!");
 			}
 		} else {
-			Log.e(LOGTAG, "No voyage id passed to NotebookActivity!");
+			abortActivityWithError("No voyage id passed to NotebookActivity!");
 		}
 	}
 
@@ -255,7 +279,19 @@ public class NotebookActivity extends Activity {
 	}
 
 	private void setUpMap() {
-		googleMap.addMarker(new MarkerOptions().title("hello World").position(new LatLng(0.0, 0.0)));
+		for (TravelItem travelItem : currentVoyage.getTravelItems()) {
+			MarkerOptions markerOptions = new MarkerOptions();
+
+			Tag tag = travelItem.getTag();
+
+			Log.d(LOGTAG, "treating tag: " + tag.toString());
+			markerOptions.icon(BitmapDescriptorFactory.fromResource(TagType
+					.getIconRessource(tag.getTagType())));
+
+			markerOptions.position(new LatLng(0, 0));
+			googleMap.addMarker(markerOptions);
+		}
+
 	}
 
 	private void getDBHelperIfNecessary() {
@@ -263,6 +299,16 @@ public class NotebookActivity extends Activity {
 			databaseHelper = OpenHelperManager.getHelper(this,
 					DatabaseHelper.class);
 		}
+	}
+
+	private void abortActivityWithError(String error) {
+		Log.e(LOGTAG, error);
+
+		Intent intent = new Intent();
+		intent.putExtra(NOTEBOOKACTIVITY_RETURN_ERROR, error);
+
+		this.setResult(RESULT_CANCELED, intent);
+		this.finish();
 	}
 
 }
