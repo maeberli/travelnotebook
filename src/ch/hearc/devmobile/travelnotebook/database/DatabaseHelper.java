@@ -18,7 +18,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	private static final String DATABASE_NAME = "travelnotebook.db";
 	private static final int DATABASE_VERSION = 3;
 	private static final Class<?> TABLELIST[] = { Post.class, Image.class,
-			FlightTagExtendet.class, Tag.class, TagType.class,
+			FlightTagExtendet.class, Tag.class,
 			TravelItem.class, Voyage.class };
 
 	private Dao<Post, Integer> postDao = null;
