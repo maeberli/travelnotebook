@@ -43,6 +43,7 @@ import com.j256.ormlite.dao.ForeignCollection;
 
 public class HomeActivity extends FragmentActivity {
 
+	private static final int VOYAGE_LINE_COLOR_TRANSPARENCY = 180;
 	/********************
 	 * Static class members
 	 ********************/
@@ -352,9 +353,8 @@ public class HomeActivity extends FragmentActivity {
 
 				// Get the colors associated to the voyage
 				int voyageColor = voyage.getColor();
-				int voyageColorTransparent = Color.argb(180,
-						Color.red(voyageColor), Color.green(voyageColor),
-						Color.blue(voyageColor));
+				int voyageColorTransparent = Utilities.createTransparancyColor(
+						voyageColor, VOYAGE_LINE_COLOR_TRANSPARENCY);
 
 				// get the marker position of the current voyage
 				// if the center of the voyageBounds is not within the bound,
