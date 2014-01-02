@@ -358,7 +358,7 @@ public class NotebookActivity extends FragmentActivity {
 						VOAYAGE_ITEM_LINE_TRANSPARENCY);
 				PolygonOptions polygonOptions = new PolygonOptions();
 				polygonOptions.add(startPosition).add(endPosition)
-						.fillColor(color).strokeColor(color).geodesic(true);
+						.strokeColor(color).geodesic(true);
 
 				googleMap.addPolygon(polygonOptions);
 

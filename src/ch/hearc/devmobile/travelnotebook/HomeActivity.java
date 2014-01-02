@@ -363,8 +363,7 @@ public class HomeActivity extends FragmentActivity {
 
 				googleMap.addPolygon(new PolygonOptions()
 						.addAll(travelItemPositions)
-						.fillColor(voyageColorTransparent)
-						.strokeColor(voyageColor).geodesic(true));
+						.strokeColor(voyageColorTransparent).geodesic(true));
 
 				Marker marker = googleMap.addMarker(new MarkerOptions()
 						.position(markerPosition).title(voyage.getTitle()));
