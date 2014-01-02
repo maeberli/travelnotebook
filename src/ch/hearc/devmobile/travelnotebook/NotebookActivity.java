@@ -4,9 +4,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
@@ -27,14 +27,14 @@ import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 
-public class NotebookActivity extends Activity {
+public class NotebookActivity extends FragmentActivity {
 
 	/********************
 	 * Static
@@ -55,7 +55,7 @@ public class NotebookActivity extends Activity {
 	private DrawerLayout drawerLayout;
 	private RelativeLayout drawerPanel;
 	private Voyage currentVoyage;
-	private MapView notebookMapView;
+	private SupportMapFragment notebookMapView;
 	private TextView notebookTitleTextView;
 
 	/********************
@@ -81,20 +81,10 @@ public class NotebookActivity extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		// Call the initialize method manually (Workaround: should normally not
-		// be necessary:
-		// http://developer.android.com/reference/com/google/android/gms/maps/MapsInitializer.html
-		// )
-		try {
-			MapsInitializer.initialize(this);
-		} catch (GooglePlayServicesNotAvailableException e) {
-			Log.e(LOGTAG, e.getMessage());
-
-			e.printStackTrace();
-		}
-
 		setContentView(R.layout.activity_notebook);
-		notebookMapView = (MapView) findViewById(R.id.notebook_mapview);
+		notebookMapView = (SupportMapFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.notebook_mapview);
+
 		notebookMapView.onCreate(savedInstanceState);
 
 		notebookTitleTextView = (TextView) findViewById(R.id.notebookTitleTextView);
@@ -123,7 +113,6 @@ public class NotebookActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		notebookMapView.onDestroy();
 
 		if (databaseHelper != null) {
 			OpenHelperManager.releaseHelper();
