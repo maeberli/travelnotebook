@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
 		android:layout_alignParentLeft="true"
-        android:text="Notebook name :" />
+        android:text="@string/notebook_name_label" />
     
     <EditText
         android:id="@+id/notebook_name"
@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/notebook_name"
 		android:layout_alignParentLeft="true"
-        android:text="Notebook name :" />
+        android:text="@string/notebook_picker_label" />
     
     <com.larswerkman.holocolorpicker.ColorPicker
     android:id="@+id/picker"

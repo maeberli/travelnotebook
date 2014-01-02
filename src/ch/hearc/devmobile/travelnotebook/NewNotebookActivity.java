@@ -7,6 +7,7 @@ import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
+import com.larswerkman.holocolorpicker.ColorPicker;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -29,7 +30,8 @@ public class NewNotebookActivity extends Activity {
 	 * Private members
 	 ********************/
 	private DatabaseHelper databaseHelper = null;
-	public static final int RESULT_SQL_FAIL = -500;
+	public static final int RESULT_FAIL = 500;
+	public static final int RESULT_SQL_FAIL = 501;
 	public static final String NOTEBOOK_ID_KEY = "notebookId";
 
 	@Override
@@ -65,25 +67,22 @@ public class NewNotebookActivity extends Activity {
 			public void onClick(View v) {
 				try {
 
-					int newID = NewNotebookActivity.this.createNotebook();
-					NewNotebookActivity.this.setResult(RESULT_OK);
+					int id = NewNotebookActivity.this.createNotebook();
+					
+					Intent intent = new Intent();
+					intent.putExtra(NOTEBOOK_ID_KEY, id);
+					
+					NewNotebookActivity.this.setResult(RESULT_OK, intent);
 					NewNotebookActivity.this.finish();
 
 				} catch (SQLException e) {
-
-					Toast.makeText(getApplicationContext(),
-							"Creation failed !", Toast.LENGTH_SHORT).show();
-
 					NewNotebookActivity.this.setResult(RESULT_SQL_FAIL);
 					e.printStackTrace();
 					NewNotebookActivity.this.finish();
 
 				} catch (Exception e) {
-
 					Toast.makeText(getApplicationContext(), e.getMessage(),
 							Toast.LENGTH_SHORT).show();
-					e.printStackTrace();
-
 				}
 
 			}
@@ -93,12 +92,17 @@ public class NewNotebookActivity extends Activity {
 
 	protected int createNotebook() throws Exception {
 		EditText tvName = (EditText) findViewById(R.id.notebook_name);
-		String name = tvName.getText().toString();
+		String name = tvName.getText().toString();		
 		if (name.length() == 0)
 			throw new Exception("Invalide name");
+		
+		ColorPicker cpColor = (ColorPicker) findViewById(R.id.picker);
+		int rgba = cpColor.getColor();
+
 		Dao<Voyage, Integer> voyageDao = databaseHelper.getVoyageDao();
-		Voyage voyage = new Voyage(name, Color.RED);
+		Voyage voyage = new Voyage(name, rgba);
 		voyageDao.create(voyage);
+		
 		return voyage.getId();
 	}
 

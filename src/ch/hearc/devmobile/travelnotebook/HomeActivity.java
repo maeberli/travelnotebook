@@ -147,18 +147,24 @@ public class HomeActivity extends FragmentActivity {
 
 		if (requestCode == NEW_NOTEBOOK_CODE) {
 			switch (resultCode) {
-			case RESULT_CANCELED:
-				Toast.makeText(this, "Canceled", Toast.LENGTH_LONG).show();
-				break;
-			case NewNotebookActivity.RESULT_SQL_FAIL:
-				Toast.makeText(getApplicationContext(), "Creation failed !",
-						Toast.LENGTH_SHORT).show();
-				break;
+			
 			case RESULT_OK:
 				Toast.makeText(this, "Notebook saved", Toast.LENGTH_LONG)
 						.show();
 				buildDrawer();
+				startNotebookActivity(data.getExtras().getInt(NewNotebookActivity.NOTEBOOK_ID_KEY));
 				break;
+				
+			case RESULT_CANCELED:
+				Toast.makeText(this, "Canceled !", Toast.LENGTH_LONG).show();
+				break;
+			case NewNotebookActivity.RESULT_FAIL:
+				Log.e(LOGTAG, "Result fail");
+			case NewNotebookActivity.RESULT_SQL_FAIL:
+				Toast.makeText(getApplicationContext(), "Creation failed !",
+						Toast.LENGTH_SHORT).show();
+				break;
+			
 			}
 		} else if (requestCode == SETTINGS_CODE) {
 			switch (resultCode) {
@@ -198,6 +204,7 @@ public class HomeActivity extends FragmentActivity {
 						NewNotebookActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 				startActivityForResult(intent, NEW_NOTEBOOK_CODE);
+				
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
 		});
@@ -274,7 +281,7 @@ public class HomeActivity extends FragmentActivity {
 			@Override
 			public void onInfoWindowClick(Marker marker) {
 				Voyage voyage = markers.get(marker);
-				goToNotebookActivity(voyage.getId());
+				startNotebookActivity(voyage.getId());
 			}
 		});
 
@@ -285,6 +292,7 @@ public class HomeActivity extends FragmentActivity {
 
 							homeMapView.getView().getViewTreeObserver()
 									.removeOnGlobalLayoutListener(this);
+							
 							googleMap.moveCamera(CameraUpdateFactory
 									.newLatLngBounds(boundsBuilder.build(),
 											MAP_BOUNDS_MARGIN));
@@ -374,12 +382,12 @@ public class HomeActivity extends FragmentActivity {
 
 			}
 		} catch (Exception e) {
-			Log.e(LOGTAG, e.getMessage());
+			Log.e(LOGTAG, e.toString());
 			e.printStackTrace();
 		}
 	}
 
-	private void goToNotebookActivity(int id) {
+	private void startNotebookActivity(int id) {
 		Intent intent = new Intent(HomeActivity.this, NotebookActivity.class);
 		intent.putExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID, id);
 		startActivity(intent);
