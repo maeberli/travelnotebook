@@ -9,9 +9,7 @@ import android.location.Geocoder;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.field.ForeignCollectionField;
 
 public class TravelItem {
 
@@ -46,23 +44,23 @@ public class TravelItem {
 	@DatabaseField
 	private String endLocation;
 
-	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true)
+	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
 	private Voyage voyage;
 
-	@ForeignCollectionField
-	private ForeignCollection<Tag> tags;
+	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, unique = true)
+	private Tag tag;
 
 	/********************
 	 * Constructors
 	 ********************/
 	public TravelItem() {
 		// Needed by ormlite
-		this("", "", new Date(), new Date(), "", "", null);
+		this("", "", new Date(), new Date(), "", "", null, null);
 	}
 
 	public TravelItem(String title, String description, Date startDate,
 			Date endDate, String startLocation, String endLocation,
-			Voyage voyage) {
+			Voyage voyage, Tag tag) {
 		this.id = 0;
 		this.title = title;
 		this.description = description;
@@ -71,17 +69,19 @@ public class TravelItem {
 		this.startLocation = startLocation;
 		this.endLocation = endLocation;
 		this.voyage = voyage;
+		this.tag = tag;
+
 	}
 
 	public TravelItem(String title, String description, Date startDate,
-			Date endDate, String startLocation, Voyage voyage) {
+			Date endDate, String startLocation, Voyage voyage, Tag tag) {
 		this(title, description, startDate, endDate, startLocation, null,
-				voyage);
+				voyage, tag);
 	}
 
 	public TravelItem(String title, String description, Date date,
-			String location, Voyage voyage) {
-		this(title, description, date, null, location, null, voyage);
+			String location, Voyage voyage, Tag tag) {
+		this(title, description, date, null, location, null, voyage, tag);
 	}
 
 	/********************
@@ -90,7 +90,7 @@ public class TravelItem {
 	public int getId() {
 		return id;
 	}
-	
+
 	public String getTitle() {
 		return title;
 	}
@@ -131,7 +131,8 @@ public class TravelItem {
 		this.startLocation = startLocation;
 	}
 
-	public LatLng getStartLocationPosition(Geocoder geocoder) throws IOException {
+	public LatLng getStartLocationPosition(Geocoder geocoder)
+			throws IOException {
 		return getLocation(geocoder, startLocation);
 	}
 
@@ -155,12 +156,12 @@ public class TravelItem {
 		this.voyage = voyage;
 	}
 
-	public ForeignCollection<Tag> getTags() {
-		return tags;
+	public Tag getTag() {
+		return tag;
 	}
 
-	public void setTags(ForeignCollection<Tag> tags) {
-		this.tags = tags;
+	public void setTag(Tag tag) {
+		this.tag = tag;
 	}
 
 	public boolean isSingleTimed() {
@@ -190,8 +191,8 @@ public class TravelItem {
 		builder.append(endLocation);
 		builder.append(", voyage=");
 		builder.append(voyage);
-		builder.append(", tags=");
-		builder.append(tags);
+		builder.append(", tag=");
+		builder.append(tag);
 		builder.append("]");
 		return builder.toString();
 	}

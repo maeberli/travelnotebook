@@ -1,17 +1,21 @@
 package ch.hearc.devmobile.travelnotebook;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
+import android.content.Intent;
+import android.location.Geocoder;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -20,23 +24,38 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
+import ch.hearc.devmobile.travelnotebook.database.Tag;
+import ch.hearc.devmobile.travelnotebook.database.TagType;
 import ch.hearc.devmobile.travelnotebook.database.TravelItem;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.LatLngBounds.Builder;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 
-public class NotebookActivity extends Activity {
+public class NotebookActivity extends FragmentActivity {
 
 	/********************
-	 * Static
+	 * Private Static constants
 	 ********************/
 	private static final String LOGTAG = NotebookActivity.class.getSimpleName();
+	private static final int MAP_BOUNDS_MARGIN = 50;
+	private static final int VOAYAGE_ITEM_LINE_TRANSPARENCY = 50;
+
+	/********************
+	 * Public Static constants
+	 ********************/
 	public static final String TRAVEL_ITEM_ID = "travelItemId";
 	public static final String NOTEBOOKACTIVITY_VOYAGE_ID = "notebookId";
+	public static final String NOTEBOOKACTIVITY_RETURN_ERROR = "error";
 
 	/********************
 	 * Private members
@@ -49,8 +68,9 @@ public class NotebookActivity extends Activity {
 	private DrawerLayout drawerLayout;
 	private RelativeLayout drawerPanel;
 	private Voyage currentVoyage;
-	private MapView notebookMapView;
+	private SupportMapFragment notebookMapView;
 	private TextView notebookTitleTextView;
+	private Geocoder geocoder;
 
 	/********************
 	 * Public methods
@@ -76,15 +96,25 @@ public class NotebookActivity extends Activity {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.activity_notebook);
-		notebookMapView = (MapView) findViewById(R.id.notebook_mapview);
+
+		// Variable instanciation
+		geocoder = new Geocoder(this);
+
+		notebookMapView = (SupportMapFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.notebook_mapview);
+
 		notebookMapView.onCreate(savedInstanceState);
 
 		notebookTitleTextView = (TextView) findViewById(R.id.notebookTitleTextView);
 
-		setUpMapIfNeeded();
+		// get the DB Helper first.
 		getDBHelperIfNecessary();
 
+		// Now we can load the notebook to treat in this activity.
 		loadCurrentNotebookFromIntent();
+
+		// The last task is to setup the UI.
+		setUpMapIfNeeded();
 
 		initButtons();
 		initTitle();
@@ -101,7 +131,6 @@ public class NotebookActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		notebookMapView.onDestroy();
 
 		if (databaseHelper != null) {
 			OpenHelperManager.releaseHelper();
@@ -228,13 +257,13 @@ public class NotebookActivity extends Activity {
 
 				} catch (SQLException e) {
 					e.printStackTrace();
-					Log.e(LOGTAG, "Voyage query failed !");
+					abortActivityWithError("Voyage query failed: SQL exception");
 				}
 			} else {
-				Log.e(LOGTAG, "No valid voyage id passed to NotebookActivity!");
+				abortActivityWithError("No valid voyage id passed to NotebookActivity!");
 			}
 		} else {
-			Log.e(LOGTAG, "No voyage id passed to NotebookActivity!");
+			abortActivityWithError("No voyage id passed to NotebookActivity!");
 		}
 	}
 
@@ -254,8 +283,87 @@ public class NotebookActivity extends Activity {
 	}
 
 	private void setUpMap() {
-		googleMap.addMarker(new MarkerOptions().title("hello World").position(
-				new LatLng(0.0, 0.0)));
+
+		// clear the to begin at 0
+		final Builder boundsBuilder = new LatLngBounds.Builder();
+
+		// initialize map events
+		final View view = this.notebookMapView.getView();
+		if (view.getViewTreeObserver().isAlive()) {
+			view.getViewTreeObserver().addOnGlobalLayoutListener(
+					new OnGlobalLayoutListener() {
+						public void onGlobalLayout() {
+
+							view.getViewTreeObserver()
+									.removeOnGlobalLayoutListener(this);
+							googleMap.moveCamera(CameraUpdateFactory
+									.newLatLngBounds(boundsBuilder.build(),
+											MAP_BOUNDS_MARGIN));
+						}
+					});
+		}
+
+		for (TravelItem travelItem : currentVoyage.getTravelItems()) {
+			displayTraveItemOnMap(travelItem, boundsBuilder);
+		}
+
+	}
+
+	private void displayTraveItemOnMap(TravelItem travelItem,
+			Builder boundsBuilder) {
+		MarkerOptions markerOptions = new MarkerOptions();
+
+		Tag tag = travelItem.getTag();
+
+		// Append icon of the tag to the marker
+		BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(TagType
+				.getIconRessource(tag.getTagType()));
+		String title = travelItem.getTitle();
+
+		markerOptions.icon(icon).title(title);
+
+		// Set marker positions if the only one position is available
+		if (travelItem.isSingleLocation()) {
+			try {
+				LatLng startPosition = travelItem
+						.getStartLocationPosition(geocoder);
+
+				boundsBuilder.include(startPosition);
+
+				markerOptions.position(startPosition);
+				googleMap.addMarker(markerOptions);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			// Set the two markers and trace the line between the the markers.
+			try {
+				LatLng startPosition = travelItem
+						.getStartLocationPosition(geocoder);
+				LatLng endPosition = travelItem
+						.getEndLocationPosition(geocoder);
+
+				boundsBuilder.include(startPosition);
+				boundsBuilder.include(endPosition);
+
+				// append marker only on start position
+				markerOptions.position(startPosition);
+				googleMap.addMarker(markerOptions);
+
+				// append line between end and start position
+				int color = Utilities.createTransparancyColor(
+						this.currentVoyage.getColor(),
+						VOAYAGE_ITEM_LINE_TRANSPARENCY);
+				PolygonOptions polygonOptions = new PolygonOptions();
+				polygonOptions.add(startPosition).add(endPosition)
+						.fillColor(color).strokeColor(color).geodesic(true);
+
+				googleMap.addPolygon(polygonOptions);
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private void getDBHelperIfNecessary() {
@@ -263,6 +371,16 @@ public class NotebookActivity extends Activity {
 			databaseHelper = OpenHelperManager.getHelper(this,
 					DatabaseHelper.class);
 		}
+	}
+
+	private void abortActivityWithError(String error) {
+		Log.e(LOGTAG, error);
+
+		Intent intent = new Intent();
+		intent.putExtra(NOTEBOOKACTIVITY_RETURN_ERROR, error);
+
+		this.setResult(RESULT_CANCELED, intent);
+		this.finish();
 	}
 
 }

@@ -7,16 +7,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -27,24 +28,29 @@ import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
 import ch.hearc.devmobile.travelnotebook.database.TravelItem;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
-import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.LatLngBounds.Builder;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.ForeignCollection;
 
-public class HomeActivity extends Activity {
+public class HomeActivity extends FragmentActivity {
 
+	private static final int VOYAGE_LINE_COLOR_TRANSPARENCY = 180;
 	/********************
 	 * Static class members
 	 ********************/
 	private static final String LOGTAG = HomeActivity.class.getSimpleName();
 	private static final int NEW_NOTEBOOK_CODE = 100;
 	private static final int SETTINGS_CODE = 200;
+	private static final int MAP_BOUNDS_MARGIN = 50;
 
 	/********************
 	 * Private members
@@ -54,7 +60,7 @@ public class HomeActivity extends Activity {
 	private ListView drawerListView;
 	private DrawerLayout drawerLayout;
 	private RelativeLayout drawerPanel;
-	private MapView homeMapView = null;
+	private SupportMapFragment homeMapView = null;
 	private GoogleMap googleMap = null;
 	private Geocoder geocoder;
 
@@ -102,7 +108,8 @@ public class HomeActivity extends Activity {
 		geocoder = new Geocoder(this);
 		markers = new HashMap<Marker, Voyage>();
 
-		homeMapView = (MapView) findViewById(R.id.home_map);
+		homeMapView = (SupportMapFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.home_map);
 		homeMapView.onCreate(savedInstanceState);
 
 		buildDrawer();
@@ -120,7 +127,6 @@ public class HomeActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		homeMapView.onDestroy();
 
 		if (databaseHelper != null) {
 			OpenHelperManager.releaseHelper();
@@ -154,8 +160,8 @@ public class HomeActivity extends Activity {
 				break;
 			case NewNotebookActivity.RESULT_FAIL:
 			case NewNotebookActivity.RESULT_SQL_FAIL:
-				Toast.makeText(getApplicationContext(),
-						"Creation failed !", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "Creation failed !",
+						Toast.LENGTH_SHORT).show();
 				break;
 			
 			}
@@ -264,6 +270,9 @@ public class HomeActivity extends Activity {
 	}
 
 	private void setUpMap() {
+		// bounds builder to get outer bounds of each position.
+		final Builder boundsBuilder = new LatLngBounds.Builder();
+
 		// Initialize events
 		googleMap.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
 
@@ -273,6 +282,20 @@ public class HomeActivity extends Activity {
 				goToNotebookActivity(voyage.getId());
 			}
 		});
+
+		if (this.homeMapView.getView().getViewTreeObserver().isAlive()) {
+			homeMapView.getView().getViewTreeObserver()
+					.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+						public void onGlobalLayout() {
+
+							homeMapView.getView().getViewTreeObserver()
+									.removeOnGlobalLayoutListener(this);
+							googleMap.moveCamera(CameraUpdateFactory
+									.newLatLngBounds(boundsBuilder.build(),
+											MAP_BOUNDS_MARGIN));
+						}
+					});
+		}
 
 		// show informations.
 		try {
@@ -297,6 +320,9 @@ public class HomeActivity extends Activity {
 								&& !travelItemPositions.listIterator().equals(
 										startLatLng)) {
 							travelItemPositions.addLast(startLatLng);
+
+							// Append startPosition to bounds list
+							boundsBuilder.include(startLatLng);
 						} else {
 							Log.i(LOGTAG, "startPosition already in list");
 						}
@@ -316,6 +342,9 @@ public class HomeActivity extends Activity {
 									&& !travelItemPositions.listIterator()
 											.equals(endLatLng)) {
 								travelItemPositions.addLast(endLatLng);
+
+								// Append endPosition to bounds list
+								boundsBuilder.include(endLatLng);
 							} else {
 								Log.i(LOGTAG, "endPosition already in list");
 							}
@@ -329,9 +358,8 @@ public class HomeActivity extends Activity {
 
 				// Get the colors associated to the voyage
 				int voyageColor = voyage.getColor();
-				int voyageColorTransparent = Color.argb(180,
-						Color.red(voyageColor), Color.green(voyageColor),
-						Color.blue(voyageColor));
+				int voyageColorTransparent = Utilities.createTransparancyColor(
+						voyageColor, VOYAGE_LINE_COLOR_TRANSPARENCY);
 
 				// get the marker position of the current voyage
 				// if the center of the voyageBounds is not within the bound,

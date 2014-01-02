@@ -39,20 +39,22 @@ public class DBcreationHelper {
 		travelItems.add(new TravelItem("ZHR-London",
 				"The flight with the numer xy", startDate.getTime(), endDate
 						.getTime(), "Zurich, Airport", "London, Heathrow",
-				voyage));
+				voyage, new Tag(TagType.PLANE)));
 
 		travelItems.add(new TravelItem("Bus Transfer to the hotel",
 				"The bus leafes heathrow in terminal 2", startDate.getTime(),
 				endDate.getTime(), "London,Heathrow airport",
-				"Hilton Hotel, London", voyage));
+				"Hilton Hotel, London", voyage, new Tag(TagType.BUS)));
 
 		travelItems.add(new TravelItem("Senior Suite in Hilton Hotel",
 				"Let's enjoy the welness area", startDate.getTime(), endDate
-						.getTime(), "Hilton Hotel, London", voyage));
+						.getTime(), "Hilton Hotel, London", voyage, new Tag(
+						TagType.HOTEL)));
 
 		travelItems.add(new TravelItem("Chinesse food",
 				"Yea in london i usually eat chinesse food.", startDate
-						.getTime(), "DownTown London", voyage));
+						.getTime(), "DownTown London", voyage, new Tag(
+						TagType.FOOD)));
 
 		travelItems
 				.add(new TravelItem(
@@ -60,17 +62,17 @@ public class DBcreationHelper {
 						"As a typicall tourist i wan't to take a classic london cab to return to the airport",
 						startDate.getTime(), endDate.getTime(),
 						"Hilton Hotel, London", "Heathrow Airport, London",
-						voyage));
+						voyage, new Tag(TagType.TAXI)));
 
 		travelItems.add(new TravelItem("Heathrow->Hamburg",
 				"Please no kids in avion", startDate.getTime(), endDate
 						.getTime(), "Heathrow Airport, London",
-				"Hamburg Airport", voyage));
+				"Hamburg Airport", voyage, new Tag(TagType.PLANE)));
 
 		travelItems.add(new TravelItem("Hamburg->ZRH",
 				"Please no kids in avion", startDate.getTime(), endDate
 						.getTime(), "Hamburg Airport", "Zurich, Airport",
-				voyage));
+				voyage, new Tag(TagType.PLANE)));
 
 		try {
 			for (TravelItem travelItem : travelItems) {
