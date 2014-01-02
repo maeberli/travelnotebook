@@ -9,6 +9,7 @@ import com.j256.ormlite.dao.Dao;
 import com.larswerkman.holocolorpicker.ColorPicker;
 
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
+import ch.hearc.devmobile.travelnotebook.database.Tag;
 import ch.hearc.devmobile.travelnotebook.database.TravelItem;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
 import android.os.Bundle;
@@ -107,9 +108,10 @@ public class NewOnTravelItemActivity extends Activity {
 		String startLocation = null;
 		String endLocation = null;
 		Voyage voyage = null;
+		Tag tag = null;
 
 		Dao<TravelItem, Integer> itemDao = databaseHelper.getTravelItemDao();
-		TravelItem item = new TravelItem(title, description, startDate, endDate, startLocation, endLocation, voyage);
+		TravelItem item = new TravelItem(title, description, startDate, endDate, startLocation, endLocation, voyage, tag);
 		itemDao.create(item);
 		
 		return item.getId();
