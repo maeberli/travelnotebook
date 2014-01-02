@@ -141,18 +141,23 @@ public class HomeActivity extends Activity {
 
 		if (requestCode == NEW_NOTEBOOK_CODE) {
 			switch (resultCode) {
-			case RESULT_CANCELED:
-				Toast.makeText(this, "Canceled", Toast.LENGTH_LONG).show();
-				break;
-			case NewNotebookActivity.RESULT_SQL_FAIL:
-				Toast.makeText(getApplicationContext(),
-						"Creation failed !", Toast.LENGTH_SHORT).show();
-				break;
+			
 			case RESULT_OK:
 				Toast.makeText(this, "Notebook saved", Toast.LENGTH_LONG)
 						.show();
 				buildDrawer();
+				goToNotebookActivity(data.getExtras().getInt(NewNotebookActivity.NOTEBOOK_ID_KEY));
 				break;
+				
+			case RESULT_CANCELED:
+				Toast.makeText(this, "Canceled !", Toast.LENGTH_LONG).show();
+				break;
+			case NewNotebookActivity.RESULT_FAIL:
+			case NewNotebookActivity.RESULT_SQL_FAIL:
+				Toast.makeText(getApplicationContext(),
+						"Creation failed !", Toast.LENGTH_SHORT).show();
+				break;
+			
 			}
 		} else if (requestCode == SETTINGS_CODE) {
 			switch (resultCode) {
@@ -347,7 +352,7 @@ public class HomeActivity extends Activity {
 
 			}
 		} catch (Exception e) {
-			Log.e(LOGTAG, e.getMessage());
+			Log.e(LOGTAG, e.toString());
 			e.printStackTrace();
 		}
 	}

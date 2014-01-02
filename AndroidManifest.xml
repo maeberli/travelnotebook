@@ -56,6 +56,10 @@
             android:name="ch.hearc.devmobile.travelnotebook.NewNotebookActivity"
             android:label="@string/title_activity_new_notebook" >
         </activity>
+        <activity
+            android:name="ch.hearc.devmobile.travelnotebook.NewOnTravelItemActivity"
+            android:label="@string/title_activity_new_on_travel_item" >
+        </activity>
     </application>
 
 </manifest>

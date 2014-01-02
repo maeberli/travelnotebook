@@ -1,19 +1,20 @@
 package ch.hearc.devmobile.travelnotebook;
 
 import java.sql.SQLException;
-
-import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
-import ch.hearc.devmobile.travelnotebook.database.Voyage;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.larswerkman.holocolorpicker.ColorPicker;
 
+import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
+import ch.hearc.devmobile.travelnotebook.database.TravelItem;
+import ch.hearc.devmobile.travelnotebook.database.Voyage;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
-import android.util.Log;
+import android.text.Editable;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
@@ -21,10 +22,9 @@ import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-public class NewNotebookActivity extends Activity {
+public class NewOnTravelItemActivity extends Activity {
 
 	/********************
 	 * Private members
@@ -32,7 +32,7 @@ public class NewNotebookActivity extends Activity {
 	private DatabaseHelper databaseHelper = null;
 	public static final int RESULT_FAIL = 500;
 	public static final int RESULT_SQL_FAIL = 501;
-	public static final String NOTEBOOK_ID_KEY = "notebookId";
+	public static final String ITEM_ID_KEY = "itemId";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,19 +44,18 @@ public class NewNotebookActivity extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		setContentView(R.layout.activity_new_notebook);
+		setContentView(R.layout.activity_new_on_travel_item);
 
 		databaseHelper = OpenHelperManager
 				.getHelper(this, DatabaseHelper.class);
-		
+
 		// Cancel button
 		Button btnCancel = (Button) findViewById(R.id.btn_cancel);
 		btnCancel.setOnClickListener(new OnClickListener() {
-			
 			@Override
 			public void onClick(View v) {
-				NewNotebookActivity.this.setResult(RESULT_CANCELED);
-				NewNotebookActivity.this.finish();
+				NewOnTravelItemActivity.this.setResult(RESULT_CANCELED);
+				NewOnTravelItemActivity.this.finish();
 			}
 		});
 
@@ -66,19 +65,18 @@ public class NewNotebookActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				try {
+					int id = NewOnTravelItemActivity.this.createItem();
 
-					int id = NewNotebookActivity.this.createNotebook();
-					
 					Intent intent = new Intent();
-					intent.putExtra(NOTEBOOK_ID_KEY, id);
-					
-					NewNotebookActivity.this.setResult(RESULT_OK, intent);
-					NewNotebookActivity.this.finish();
+					intent.putExtra(ITEM_ID_KEY, id);
+
+					NewOnTravelItemActivity.this.setResult(RESULT_OK, intent);
+					NewOnTravelItemActivity.this.finish();
 
 				} catch (SQLException e) {
-					NewNotebookActivity.this.setResult(RESULT_SQL_FAIL);
+					NewOnTravelItemActivity.this.setResult(RESULT_SQL_FAIL);
 					e.printStackTrace();
-					NewNotebookActivity.this.finish();
+					NewOnTravelItemActivity.this.finish();
 
 				} catch (Exception e) {
 					Toast.makeText(getApplicationContext(), e.getMessage(),
@@ -87,29 +85,40 @@ public class NewNotebookActivity extends Activity {
 
 			}
 		});
-
 	}
 
-	protected int createNotebook() throws Exception {
-		EditText tvName = (EditText) findViewById(R.id.notebook_name);
-		String name = tvName.getText().toString();		
-		if (name.length() == 0)
+	protected int createItem() throws Exception {
+		EditText etTitle = (EditText) findViewById(R.id.item_title);
+		String title = etTitle.getText().toString();		
+		if (title.length() == 0)
 			throw new Exception("Invalide name");
 		
-		ColorPicker cpColor = (ColorPicker) findViewById(R.id.picker);
-		int rgba = cpColor.getColor();
-
-		Dao<Voyage, Integer> voyageDao = databaseHelper.getVoyageDao();
-		Voyage voyage = new Voyage(name, rgba);
-		voyageDao.create(voyage);
+		EditText etDescription = (EditText) findViewById(R.id.item_description);
+		String description = etDescription.getText().toString();
 		
-		return voyage.getId();
+		EditText etStartDate = (EditText) findViewById(R.id.item_start_date);
+		String strStartDate = etStartDate.getText().toString();
+				
+		
+	    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+		Date startDate = formatter.parse(strStartDate);
+		
+		Date endDate = null;
+		String startLocation = null;
+		String endLocation = null;
+		Voyage voyage = null;
+
+		Dao<TravelItem, Integer> itemDao = databaseHelper.getTravelItemDao();
+		TravelItem item = new TravelItem(title, description, startDate, endDate, startLocation, endLocation, voyage);
+		itemDao.create(item);
+		
+		return item.getId();
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.new_notebook, menu);
+		getMenuInflater().inflate(R.menu.new_on_travel_item, menu);
 		return true;
 	}
 

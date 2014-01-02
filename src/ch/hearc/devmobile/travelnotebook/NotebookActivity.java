@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -77,8 +78,8 @@ public class NotebookActivity extends Activity {
 		setContentView(R.layout.activity_notebook);
 		notebookMapView = (MapView) findViewById(R.id.notebook_mapview);
 		notebookMapView.onCreate(savedInstanceState);
-		
-		notebookTitleTextView = (TextView)findViewById(R.id.notebookTitleTextView);
+
+		notebookTitleTextView = (TextView) findViewById(R.id.notebookTitleTextView);
 
 		setUpMapIfNeeded();
 		getDBHelperIfNecessary();
@@ -96,6 +97,7 @@ public class NotebookActivity extends Activity {
 		setUpMapIfNeeded();
 		getDBHelperIfNecessary();
 	}
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -113,7 +115,7 @@ public class NotebookActivity extends Activity {
 
 		notebookMapView.onPause();
 	}
-	
+
 	/********************
 	 * Private methods
 	 ********************/
@@ -165,8 +167,8 @@ public class NotebookActivity extends Activity {
 	private void initButtons() {
 
 		// Get the planning button
-		Button btnNewNotebook = (Button) findViewById(R.id.btn_get_planning);
-		btnNewNotebook.setOnClickListener(new OnClickListener() {
+		Button btnGetPlanning = (Button) findViewById(R.id.btn_get_planning);
+		btnGetPlanning.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// Intent intent = new Intent(NotebookActivity.this,
@@ -203,14 +205,11 @@ public class NotebookActivity extends Activity {
 		btnAddTravelItem.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// Intent intent = new Intent(NotebookActivity.this,
-				// PlanningActivity.class);
-				// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				// startActivity(intent);
-
-				Toast.makeText(getApplicationContext(), "Add travel item",
-						Toast.LENGTH_SHORT).show();
-
+				Intent intent = new Intent(NotebookActivity.this,
+						NewOnTravelItemActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+				startActivity(intent);
+				
 				NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
 		});
@@ -255,7 +254,8 @@ public class NotebookActivity extends Activity {
 	}
 
 	private void setUpMap() {
-		googleMap.addMarker(new MarkerOptions().title("hello World").position(new LatLng(0.0, 0.0)));
+		googleMap.addMarker(new MarkerOptions().title("hello World").position(
+				new LatLng(0.0, 0.0)));
 	}
 
 	private void getDBHelperIfNecessary() {
