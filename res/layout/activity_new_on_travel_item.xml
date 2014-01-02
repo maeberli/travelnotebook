@@ -47,11 +47,28 @@
         android:inputType="textMultiLine" />
     
     <TextView
+        android:id="@+id/tv_tag_label"
+        android:labelFor="@+id/item_tag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/item_description"
+		android:layout_alignParentLeft="true"
+		android:layout_marginTop="10dp"
+        android:text="@string/travel_item_tag_label" />
+    
+    <Spinner
+    	android:id="@+id/item_tag"
+    	android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:layout_below="@+id/tv_tag_label"
+        android:ems="10" />
+    
+    <TextView
         android:id="@+id/tv_start_date_label"
         android:labelFor="@+id/item_start_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/item_description"
+        android:layout_below="@+id/item_tag"
 		android:layout_alignParentLeft="true"
 		android:layout_marginTop="10dp"
         android:text="@string/travel_item_start_date_label" />

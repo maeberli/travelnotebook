@@ -27,6 +27,7 @@
     <!-- New travel item -->
     <string name="travel_item_title_label">Note title :</string>
     <string name="travel_item_description_label">Description :</string>
+    <string name="travel_item_tag_label">Type :</string>
     <string name="travel_item_start_date_label">Start date :</string>
     <string name="travel_item_end_date_label">End date :</string>
     <string name="travel_item_start_location_label">Start address :</string>

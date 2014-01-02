@@ -49,6 +49,7 @@ public class NotebookActivity extends FragmentActivity {
 	private static final String LOGTAG = NotebookActivity.class.getSimpleName();
 	private static final int MAP_BOUNDS_MARGIN = 50;
 	private static final int VOAYAGE_ITEM_LINE_TRANSPARENCY = 50;
+	private static final int NEW_ITEM_CODE = 110;
 
 	/********************
 	 * Public Static constants
@@ -144,6 +145,35 @@ public class NotebookActivity extends FragmentActivity {
 
 		notebookMapView.onPause();
 	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		if (requestCode == NEW_ITEM_CODE) {
+			switch (resultCode) {
+			
+			case RESULT_OK:
+				Toast.makeText(this, "Item saved", Toast.LENGTH_LONG)
+						.show();
+				buildDrawer();
+				break;
+				
+			case RESULT_CANCELED:
+				Toast.makeText(this, "Canceled !", Toast.LENGTH_LONG).show();
+				break;
+			case NewOnTravelItemActivity.RESULT_FAIL:
+				Log.e(LOGTAG, "result fail");
+				// unused for now
+				break;
+			case NewNotebookActivity.RESULT_SQL_FAIL:
+				Log.e(LOGTAG, "Sql creation fail");
+				Toast.makeText(getApplicationContext(), "Creation failed !",
+						Toast.LENGTH_SHORT).show();
+				break;
+			}
+		}
+	}
 
 	/********************
 	 * Private methods
@@ -237,7 +267,9 @@ public class NotebookActivity extends FragmentActivity {
 				Intent intent = new Intent(NotebookActivity.this,
 						NewOnTravelItemActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				startActivity(intent);
+				intent.putExtra(NOTEBOOKACTIVITY_VOYAGE_ID,
+				NotebookActivity.this.currentVoyage.getId());
+				startActivityForResult(intent, NEW_ITEM_CODE);
 				
 				NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
@@ -382,5 +414,4 @@ public class NotebookActivity extends FragmentActivity {
 		this.setResult(RESULT_CANCELED, intent);
 		this.finish();
 	}
-
 }
