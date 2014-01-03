@@ -3,6 +3,7 @@ package ch.hearc.devmobile.travelnotebook;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -34,9 +35,11 @@ public class NewOnTravelItemActivity extends Activity {
 	 ********************/
 
 	private static final String LOGTAG = NewOnTravelItemActivity.class.getSimpleName();
+	private static final String DATE_FORMAT = "dd/MM/yyyy";
 
 	private DatabaseHelper databaseHelper = null;
 	private Voyage currentVoyage;
+	private SimpleDateFormat dateFormatter;
 
 	/********************
 	 * Public members
@@ -58,7 +61,10 @@ public class NewOnTravelItemActivity extends Activity {
 
 		databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 
-		loadCurrentNotebookFromIntent();
+		currentVoyage = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG);
+		
+		// Date formatter tool
+		dateFormatter = new SimpleDateFormat( DATE_FORMAT, Locale.getDefault() );
 
 		// Cancel button
 		Button btnCancel = (Button) findViewById(R.id.btn_cancel);
@@ -97,6 +103,11 @@ public class NewOnTravelItemActivity extends Activity {
 
 			}
 		});
+		
+		// Sets default value to the start date
+		EditText etStartDate = (EditText) findViewById(R.id.item_start_date);
+		Date now = new Date();
+		etStartDate.setText(dateFormatter.format( now.getTime() ));
 
 		// Add tags in the spinner
 		Spinner spTag = (Spinner) findViewById(R.id.item_tag);
@@ -115,23 +126,20 @@ public class NewOnTravelItemActivity extends Activity {
 		// Gets the description
 		EditText etDescription = (EditText) findViewById(R.id.item_description);
 		String description = etDescription.getText().toString();
-
-		// Date formatter tool
-		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-
+		
 		// Gets the start date [not null]
 		EditText etStartDate = (EditText) findViewById(R.id.item_start_date);
 		String strStartDate = etStartDate.getText().toString();
 		if (strStartDate.length() == 0)
 			throw new Exception("Invalide start date");
-		Date startDate = formatter.parse(strStartDate);
+		Date startDate = dateFormatter.parse(strStartDate);
 
 		// Gets the end date
-		EditText etEndDate = (EditText) findViewById(R.id.item_start_date);
+		EditText etEndDate = (EditText) findViewById(R.id.item_end_date);
 		String strEndDate = etEndDate.getText().toString();
 		Date endDate = null;
 		if (strEndDate.length() != 0)
-			endDate = formatter.parse(strStartDate);
+			endDate = dateFormatter.parse(strStartDate);
 
 		// Gets the start location [not null]
 		EditText etStartLocation = (EditText) findViewById(R.id.item_start_location);
@@ -148,7 +156,7 @@ public class NewOnTravelItemActivity extends Activity {
 		String strTag = spTag.getSelectedItem().toString();
 		Tag tag = new Tag(TagType.valueOf(strTag));
 
-		// Creats the item
+		// Creates the item
 		Dao<TravelItem, Integer> itemDao = databaseHelper.getTravelItemDao();
 		TravelItem item = new TravelItem(title, description, startDate, endDate, startLocation, endLocation, currentVoyage, tag);
 		Log.i(LOGTAG, item.toString());
@@ -163,40 +171,4 @@ public class NewOnTravelItemActivity extends Activity {
 		getMenuInflater().inflate(R.menu.new_on_travel_item, menu);
 		return true;
 	}
-
-	// Copy from NotebookActivity :(
-	private void loadCurrentNotebookFromIntent() {
-		// Add items in the list from the database
-		if (getIntent().hasExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID)) {
-			int voyageId = getIntent().getIntExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID, -1);
-			if (voyageId != -1) {
-				try {
-					this.currentVoyage = databaseHelper.getVoyageDao().queryForId(voyageId);
-
-				}
-				catch (SQLException e) {
-					e.printStackTrace();
-					abortActivityWithError("Voyage query failed: SQL exception");
-				}
-			}
-			else {
-				abortActivityWithError("No valid voyage id passed to NotebookActivity!");
-			}
-		}
-		else {
-			Log.e(LOGTAG, "==== INTENT HAS NO EXTRA ====");
-			abortActivityWithError("No voyage id passed to NotebookActivity!");
-		}
-	}
-
-	private void abortActivityWithError(String error) {
-		Log.e(LOGTAG, error);
-
-		Intent intent = new Intent();
-		intent.putExtra(NotebookActivity.NOTEBOOKACTIVITY_RETURN_ERROR, error);
-
-		this.setResult(RESULT_CANCELED, intent);
-		this.finish();
-	}
-
 }

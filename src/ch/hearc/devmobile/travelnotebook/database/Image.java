@@ -7,6 +7,7 @@ public class Image {
 	/********************
 	 * Static
 	 ********************/
+	@SuppressWarnings("unused")
 	private static final String LOGTAG = Image.class.getSimpleName();
 
 	/********************

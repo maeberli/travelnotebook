@@ -7,6 +7,7 @@ public class Tag {
 	/********************
 	 * Static
 	 ********************/
+	@SuppressWarnings("unused")
 	private static final String LOGTAG = Tag.class.getSimpleName();
 
 	/********************

@@ -9,6 +9,7 @@ public class Voyage {
 	/********************
 	 * Static
 	 ********************/
+	@SuppressWarnings("unused")
 	private static final String LOGTAG = Voyage.class.getSimpleName();
 
 	public static final String FIELD_ID = "id";

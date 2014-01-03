@@ -9,6 +9,7 @@ public class Post {
 	/********************
 	 * Static
 	 ********************/
+	@SuppressWarnings("unused")
 	private static final String LOGTAG = Post.class.getSimpleName();
 
 	/********************

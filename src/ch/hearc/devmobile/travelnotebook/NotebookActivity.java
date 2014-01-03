@@ -123,7 +123,7 @@ public class NotebookActivity extends FragmentActivity {
 		getDBHelper();
 
 		// Now we can load the notebook to treat in this activity.
-		loadCurrentNotebookFromIntent();
+		currentVoyage = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG);
 
 		// The last task is to setup the UI.
 		setUpMapIfNeeded();
@@ -278,30 +278,6 @@ public class NotebookActivity extends FragmentActivity {
 				NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
 		});
-	}
-
-	private void loadCurrentNotebookFromIntent() {
-		// Add items in the list from the database
-		if (getIntent().hasExtra(NOTEBOOKACTIVITY_VOYAGE_ID)) {
-
-			int voyageId = getIntent().getIntExtra(NOTEBOOKACTIVITY_VOYAGE_ID, -1);
-			if (voyageId != -1) {
-				try {
-					this.currentVoyage = databaseHelper.getVoyageDao().queryForId(voyageId);
-
-				}
-				catch (SQLException e) {
-					e.printStackTrace();
-					abortActivityWithError("Voyage query failed: SQL exception");
-				}
-			}
-			else {
-				abortActivityWithError("No valid voyage id passed to NotebookActivity!");
-			}
-		}
-		else {
-			abortActivityWithError("No voyage id passed to NotebookActivity!");
-		}
 	}
 
 	private void initTitle() {
@@ -493,15 +469,5 @@ public class NotebookActivity extends FragmentActivity {
 			databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 		}
 		return databaseHelper;
-	}
-
-	private void abortActivityWithError(String error) {
-		Log.e(LOGTAG, error);
-
-		Intent intent = new Intent();
-		intent.putExtra(NOTEBOOKACTIVITY_RETURN_ERROR, error);
-
-		this.setResult(RESULT_CANCELED, intent);
-		this.finish();
 	}
 }

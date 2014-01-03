@@ -7,6 +7,7 @@ public class FlightTagExtendet {
 	/********************
 	 * Static
 	 ********************/
+	@SuppressWarnings("unused")
 	private static final String LOGTAG = FlightTagExtendet.class.getSimpleName();
 
 	/********************

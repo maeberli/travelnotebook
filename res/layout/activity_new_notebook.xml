@@ -10,6 +10,7 @@
 
     <TextView
         android:id="@+id/tv_name_label"
+        android:labelFor="@+id/notebook_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -22,9 +23,8 @@
         android:layout_height="wrap_content"
 		android:layout_below="@+id/tv_name_label"
         android:layout_centerHorizontal="true"
-        android:ems="10" >
-        <requestFocus />
-    </EditText>
+        android:ems="10" 
+        android:inputType="text" />
     
     <TextView
         android:id="@+id/tv_picker_label"
