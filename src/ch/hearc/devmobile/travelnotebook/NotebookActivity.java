@@ -124,7 +124,7 @@ public class NotebookActivity extends FragmentActivity {
 		getDBHelperIfNecessary();
 
 		// Now we can load the notebook to treat in this activity.
-		loadCurrentNotebookFromIntent();
+		currentVoyage = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG);
 
 		// The last task is to setup the UI.
 		setUpMapIfNeeded();

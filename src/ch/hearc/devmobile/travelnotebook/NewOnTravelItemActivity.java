@@ -8,7 +8,6 @@ import java.util.Locale;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -62,7 +61,7 @@ public class NewOnTravelItemActivity extends Activity {
 
 		databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 
-		loadCurrentNotebookFromIntent();
+		currentVoyage = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG);
 		
 		// Date formatter tool
 		dateFormatter = new SimpleDateFormat( DATE_FORMAT, Locale.getDefault() );
@@ -172,39 +171,4 @@ public class NewOnTravelItemActivity extends Activity {
 		getMenuInflater().inflate(R.menu.new_on_travel_item, menu);
 		return true;
 	}
-
-	// Copy from NotebookActivity :(
-	private void loadCurrentNotebookFromIntent() {
-		// Add items in the list from the database
-		if (getIntent().hasExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID)) {
-			int voyageId = getIntent().getIntExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID, -1);
-			if (voyageId != -1) {
-				try {
-					this.currentVoyage = databaseHelper.getVoyageDao().queryForId(voyageId);
-
-				}
-				catch (SQLException e) {
-					e.printStackTrace();
-					abortActivityWithError("Voyage query failed: SQL exception");
-				}
-			}
-			else {
-				abortActivityWithError("No valid voyage id passed to NotebookActivity!");
-			}
-		}
-		else {
-			abortActivityWithError("No voyage id passed to NotebookActivity!");
-		}
-	}
-
-	private void abortActivityWithError(String error) {
-		Log.e(LOGTAG, error);
-
-		Intent intent = new Intent();
-		intent.putExtra(NotebookActivity.NOTEBOOKACTIVITY_RETURN_ERROR, error);
-
-		this.setResult(RESULT_CANCELED, intent);
-		this.finish();
-	}
-
 }
