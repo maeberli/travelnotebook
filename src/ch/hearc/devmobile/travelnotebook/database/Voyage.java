@@ -1,5 +1,9 @@
 package ch.hearc.devmobile.travelnotebook.database;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
@@ -28,6 +32,9 @@ public class Voyage {
 
 	@ForeignCollectionField
 	private ForeignCollection<TravelItem> travelItems;
+	
+	@ForeignCollectionField
+	private ForeignCollection<PlanningItem> planningItems;
 
 	/********************
 	 * Constructors
@@ -68,6 +75,21 @@ public class Voyage {
 
 	public void setTravelItems(ForeignCollection<TravelItem> travelItems) {
 		this.travelItems = travelItems;
+	}
+	
+	public ForeignCollection<PlanningItem> getPlanningItems() {
+		return planningItems;
+	}
+
+	public void setPlanningItems(ForeignCollection<PlanningItem> planningItems) {
+		this.planningItems = planningItems;
+	}
+	
+	public Collection<Item> getItems() {
+		Collection<Item> items = new ArrayList<Item>();
+		items.addAll(planningItems);
+		items.addAll(travelItems);
+		return items;
 	}
 
 	public int getId() {

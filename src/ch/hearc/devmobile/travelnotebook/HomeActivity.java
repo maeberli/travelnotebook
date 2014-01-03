@@ -24,7 +24,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
-import ch.hearc.devmobile.travelnotebook.database.TravelItem;
+import ch.hearc.devmobile.travelnotebook.database.PlanningItem;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -303,11 +303,11 @@ public class HomeActivity extends FragmentActivity {
 
 			for (Voyage voyage : voyages) {
 
-				ForeignCollection<TravelItem> travelItems = voyage.getTravelItems();
+				ForeignCollection<PlanningItem> travelItems = voyage.getTravelItems();
 
 				LinkedList<LatLng> travelItemPositions = new LinkedList<LatLng>();
 
-				for (TravelItem travelItem : travelItems) {
+				for (PlanningItem travelItem : travelItems) {
 
 					LatLng startLatLng = travelItem.getStartLocationPosition(geocoder);
 					Log.i(LOGTAG, "startLatLng" + startLatLng);

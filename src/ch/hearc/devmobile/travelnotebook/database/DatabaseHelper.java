@@ -17,13 +17,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 	private static final String DATABASE_NAME = "travelnotebook.db";
 	private static final int DATABASE_VERSION = 3;
-	private static final Class<?> TABLELIST[] = { Post.class, Image.class, FlightTagExtendet.class, Tag.class, TravelItem.class, Voyage.class };
+	private static final Class<?> TABLELIST[] = { Post.class, Image.class, FlightTagExtendet.class, Tag.class, PlanningItem.class, Voyage.class };
 
 	private Dao<Post, Integer> postDao = null;
 	private Dao<Image, Integer> imageDao = null;
 	private Dao<FlightTagExtendet, Integer> flightTagExtendetDao = null;
 	private Dao<Tag, Integer> tagDao = null;
-	private Dao<TravelItem, Integer> travelItemDao = null;
+	private Dao<PlanningItem, Integer> travelItemDao = null;
 	private Dao<Voyage, Integer> voyageDao = null;
 
 	public DatabaseHelper(Context context) {
@@ -90,9 +90,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		return tagDao;
 	}
 
-	public Dao<TravelItem, Integer> getTravelItemDao() throws SQLException {
+	public Dao<PlanningItem, Integer> getTravelItemDao() throws SQLException {
 		if (travelItemDao == null) {
-			travelItemDao = getDao(TravelItem.class);
+			travelItemDao = getDao(PlanningItem.class);
 		}
 		return travelItemDao;
 	}

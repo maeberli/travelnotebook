@@ -27,7 +27,7 @@ import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
 import ch.hearc.devmobile.travelnotebook.database.Tag;
 import ch.hearc.devmobile.travelnotebook.database.TagType;
-import ch.hearc.devmobile.travelnotebook.database.TravelItem;
+import ch.hearc.devmobile.travelnotebook.database.PlanningItem;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -81,8 +81,8 @@ public class NotebookActivity extends FragmentActivity {
 	private Geocoder geocoder;
 
 	private Marker lastClickedMarker;
-	private Map<Marker, TravelItem> markers;
-	private Map<TravelItem, Polygon> polygons;
+	private Map<Marker, PlanningItem> markers;
+	private Map<PlanningItem, Polygon> polygons;
 
 	/********************
 	 * Public methods
@@ -110,8 +110,8 @@ public class NotebookActivity extends FragmentActivity {
 
 		// Variable instanciation
 		geocoder = new Geocoder(this);
-		markers = new HashMap<Marker, TravelItem>();
-		polygons = new HashMap<TravelItem, Polygon>();
+		markers = new HashMap<Marker, PlanningItem>();
+		polygons = new HashMap<PlanningItem, Polygon>();
 		lastClickedMarker = null;
 
 		notebookMapView = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.notebook_mapview);
@@ -173,7 +173,7 @@ public class NotebookActivity extends FragmentActivity {
 			case RESULT_CANCELED:
 				Toast.makeText(this, "Canceled !", Toast.LENGTH_LONG).show();
 				break;
-			case NewOnTravelItemActivity.RESULT_FAIL:
+			case NewPlanningItemActivity.RESULT_FAIL:
 				Log.e(LOGTAG, "result fail");
 				// unused for now
 				break;
@@ -197,7 +197,7 @@ public class NotebookActivity extends FragmentActivity {
 		// Add items in the list from the database
 		MenuElement itemMenuElement = null;
 
-		for (final TravelItem item : currentVoyage.getTravelItems()) {
+		for (final PlanningItem item : currentVoyage.getTravelItems()) {
 
 			itemMenuElement = new MenuElement(item.getTitle(), new OnClickListener() {
 
@@ -251,12 +251,10 @@ public class NotebookActivity extends FragmentActivity {
 		btnAddPlanningItem.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// Intent intent = new Intent(NotebookActivity.this,
-				// PlanningActivity.class);
-				// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				// startActivity(intent);
-
-				Toast.makeText(getApplicationContext(), "Add planning item", Toast.LENGTH_SHORT).show();
+				Intent intent = new Intent( NotebookActivity.this, NewPlanningItemActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+				intent.putExtra(NOTEBOOKACTIVITY_VOYAGE_ID, NotebookActivity.this.currentVoyage.getId());
+				startActivityForResult(intent, NEW_ITEM_CODE);
 
 				NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
@@ -267,7 +265,7 @@ public class NotebookActivity extends FragmentActivity {
 		btnAddTravelItem.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(NotebookActivity.this, NewOnTravelItemActivity.class);
+				Intent intent = new Intent(NotebookActivity.this, NewTravelItemActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 				intent.putExtra(NOTEBOOKACTIVITY_VOYAGE_ID, NotebookActivity.this.currentVoyage.getId());
 				startActivityForResult(intent, NEW_ITEM_CODE);
@@ -346,7 +344,7 @@ public class NotebookActivity extends FragmentActivity {
 
 			@Override
 			public void onInfoWindowClick(Marker marker) {
-				TravelItem travelItem = markers.get(marker);
+				PlanningItem travelItem = markers.get(marker);
 				startTravelIemActivity(travelItem.getId());
 			}
 		});
@@ -354,13 +352,13 @@ public class NotebookActivity extends FragmentActivity {
 		// Clear the markers list, will be reinitialized directly after.
 		markers.clear();
 
-		for (TravelItem travelItem : currentVoyage.getTravelItems()) {
+		for (PlanningItem travelItem : currentVoyage.getTravelItems()) {
 			displayTraveItemOnMap(travelItem, boundsBuilder);
 		}
 
 	}
 
-	private void displayTraveItemOnMap(TravelItem travelItem, Builder boundsBuilder) {
+	private void displayTraveItemOnMap(PlanningItem travelItem, Builder boundsBuilder) {
 		MarkerOptions markerOptions = new MarkerOptions();
 
 		Tag tag = travelItem.getTag();
@@ -424,7 +422,7 @@ public class NotebookActivity extends FragmentActivity {
 
 	private void startTravelIemActivity(int id) {
 
-		TravelItem travelItem = null;
+		PlanningItem travelItem = null;
 		try {
 			travelItem = databaseHelper.getTravelItemDao().queryForId(id);
 
@@ -440,7 +438,7 @@ public class NotebookActivity extends FragmentActivity {
 		// save the lastClicked marker (necessary for the unselection)
 		lastClickedMarker = marker;
 
-		TravelItem travelItem = markers.get(marker);
+		PlanningItem travelItem = markers.get(marker);
 		if (travelItem != null) {
 			Polygon polygon = polygons.get(travelItem);
 			if (polygon != null) {
@@ -451,7 +449,7 @@ public class NotebookActivity extends FragmentActivity {
 	}
 
 	private void unselectMarker() {
-		TravelItem travelItem = markers.get(lastClickedMarker);
+		PlanningItem travelItem = markers.get(lastClickedMarker);
 		if (travelItem != null) {
 			Polygon polygon = polygons.get(travelItem);
 			if (polygon != null) {
