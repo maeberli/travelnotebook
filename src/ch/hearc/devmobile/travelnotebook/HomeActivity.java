@@ -147,14 +147,15 @@ public class HomeActivity extends FragmentActivity {
 
 		if (requestCode == NEW_NOTEBOOK_CODE) {
 			switch (resultCode) {
-			
+
 			case RESULT_OK:
 				Toast.makeText(this, "Notebook saved", Toast.LENGTH_LONG)
 						.show();
 				buildDrawer();
-				startNotebookActivity(data.getExtras().getInt(NewNotebookActivity.NOTEBOOK_ID_KEY));
+				startNotebookActivity(data.getExtras().getInt(
+						NewNotebookActivity.NOTEBOOK_ID_KEY));
 				break;
-				
+
 			case RESULT_CANCELED:
 				Toast.makeText(this, "Canceled !", Toast.LENGTH_LONG).show();
 				break;
@@ -164,7 +165,7 @@ public class HomeActivity extends FragmentActivity {
 				Toast.makeText(getApplicationContext(), "Creation failed !",
 						Toast.LENGTH_SHORT).show();
 				break;
-			
+
 			}
 		} else if (requestCode == SETTINGS_CODE) {
 			switch (resultCode) {
@@ -204,7 +205,7 @@ public class HomeActivity extends FragmentActivity {
 						NewNotebookActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 				startActivityForResult(intent, NEW_NOTEBOOK_CODE);
-				
+
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
 		});
@@ -292,10 +293,20 @@ public class HomeActivity extends FragmentActivity {
 
 							homeMapView.getView().getViewTreeObserver()
 									.removeOnGlobalLayoutListener(this);
-							
-							googleMap.moveCamera(CameraUpdateFactory
-									.newLatLngBounds(boundsBuilder.build(),
-											MAP_BOUNDS_MARGIN));
+
+							LatLngBounds latLngBounds = null;
+
+							try {
+								latLngBounds = boundsBuilder.build();
+							} catch (IllegalStateException e) {
+
+								Log.i(LOGTAG,
+										"No LatLng in boundsBuilder: will not center the map");
+							}
+							if (latLngBounds != null)
+								googleMap.moveCamera(CameraUpdateFactory
+										.newLatLngBounds(latLngBounds,
+												MAP_BOUNDS_MARGIN));
 						}
 					});
 		}
