@@ -1,6 +1,5 @@
 package ch.hearc.devmobile.travelnotebook;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +52,7 @@ public class NotebookActivity extends FragmentActivity {
 	 * Private Static constants
 	 ********************/
 	private static final String LOGTAG = NotebookActivity.class.getSimpleName();
-	private static final int MAP_BOUNDS_MARGIN = 50;
+	private static final int MAP_BOUNDS_MARGIN = 100;
 	private static final int VOAYAGE_ITEM_LINE_TRANSPARENCY = 50;
 	private static final int VOAYAGE_ITEM_LINE_TRANSPARENCY_SELECTED = 255;
 	private static final int NEW_ITEM_CODE = 110;
@@ -377,7 +376,7 @@ public class NotebookActivity extends FragmentActivity {
 		// Clear the markers list, will be reinitialized directly after.
 		markers.clear();
 		polygons.clear();
-		
+
 		googleMap.clear();
 
 		for (TravelItem travelItem : currentVoyage.getTravelItems()) {
@@ -411,52 +410,41 @@ public class NotebookActivity extends FragmentActivity {
 
 		// Set marker positions if the only one position is available
 		if (travelItem.isSingleLocation()) {
-			try {
-				LatLng startPosition = travelItem.getStartLocationPosition(geocoder);
+			LatLng startPosition = travelItem.getStartLocationPosition(geocoder);
 
-				boundsBuilder.include(startPosition);
+			boundsBuilder.include(startPosition);
 
-				markerOptions.position(startPosition);
+			markerOptions.position(startPosition);
 
-				// append marker to the google map
-				Marker marker = googleMap.addMarker(markerOptions);
+			// append marker to the google map
+			Marker marker = googleMap.addMarker(markerOptions);
 
-				// Append markers to the marker map
-				markers.put(marker, travelItem);
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
+			// Append markers to the marker map
+			markers.put(marker, travelItem);
 		}
 		else {
 			// Set the two markers and trace the line between the the markers.
-			try {
-				LatLng startPosition = travelItem.getStartLocationPosition(geocoder);
-				LatLng endPosition = travelItem.getEndLocationPosition(geocoder);
+			LatLng startPosition = travelItem.getStartLocationPosition(geocoder);
+			LatLng endPosition = travelItem.getEndLocationPosition(geocoder);
 
-				boundsBuilder.include(startPosition);
-				boundsBuilder.include(endPosition);
+			boundsBuilder.include(startPosition);
+			boundsBuilder.include(endPosition);
 
-				// append marker only on start position
-				markerOptions.position(startPosition);
+			// append marker only on start position
+			markerOptions.position(startPosition);
 
-				// append line between end and start position
-				int color = Utilities.createTransparancyColor(this.currentVoyage.getColor(), VOAYAGE_ITEM_LINE_TRANSPARENCY);
-				PolygonOptions polygonOptions = new PolygonOptions();
-				polygonOptions.add(startPosition).add(endPosition).strokeColor(color).geodesic(true);
+			// append line between end and start position
+			int color = Utilities.createTransparancyColor(this.currentVoyage.getColor(), VOAYAGE_ITEM_LINE_TRANSPARENCY);
+			PolygonOptions polygonOptions = new PolygonOptions();
+			polygonOptions.add(startPosition).add(endPosition).strokeColor(color).geodesic(true);
 
-				// append marker and polygon to the google map.
-				Marker marker = googleMap.addMarker(markerOptions);
-				Polygon polygon = googleMap.addPolygon(polygonOptions);
+			// append marker and polygon to the google map.
+			Marker marker = googleMap.addMarker(markerOptions);
+			Polygon polygon = googleMap.addPolygon(polygonOptions);
 
-				// Append markers to the marker map and same for the polygon
-				markers.put(marker, travelItem);
-				polygons.put(travelItem, polygon);
-
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
+			// Append markers to the marker map and same for the polygon
+			markers.put(marker, travelItem);
+			polygons.put(travelItem, polygon);
 		}
 	}
 

@@ -126,7 +126,7 @@ public class TravelItem {
 		this.startLocation = startLocation;
 	}
 
-	public LatLng getStartLocationPosition(Geocoder geocoder) throws IOException {
+	public LatLng getStartLocationPosition(Geocoder geocoder) {
 		return getLocation(geocoder, startLocation);
 	}
 
@@ -134,7 +134,7 @@ public class TravelItem {
 		return endLocation;
 	}
 
-	public LatLng getEndLocationPosition(Geocoder geocoder) throws IOException {
+	public LatLng getEndLocationPosition(Geocoder geocoder) {
 		return getLocation(geocoder, endLocation);
 	}
 
@@ -194,17 +194,24 @@ public class TravelItem {
 	/********************
 	 * Private methods
 	 ********************/
-	private static LatLng getLocation(Geocoder geocoder, String name) throws IOException {
-		List<Address> addresses = geocoder.getFromLocationName(name, MAXGEOCODERRESULTS);
+	private static LatLng getLocation(Geocoder geocoder, String name) {
+		List<Address> addresses;
+		try {
+			addresses = geocoder.getFromLocationName(name, MAXGEOCODERRESULTS);
+			Log.d(LOGTAG, "Addresses found for " + name + ": " + addresses.size());
 
-		Log.d(LOGTAG, "Addresses found for " + name + ": " + addresses.size());
+			if (addresses.size() > 0) {
+				LatLng location = addressToLatLng(addresses.get(0));
 
-		if (addresses.size() > 0) {
-			LatLng location = addressToLatLng(addresses.get(0));
-
-			Log.d(LOGTAG, "Geocoded location of " + name + ": " + location);
-			return location;
+				Log.d(LOGTAG, "Geocoded location of " + name + ": " + location);
+				return location;
+			}
 		}
+		catch (IOException e) {
+			Log.i(LOGTAG, "Address <" + name + "> not found. Return Lat: 0, Long:0 .");
+			return new LatLng(0, 0);
+		}
+
 		return null;
 	}
 

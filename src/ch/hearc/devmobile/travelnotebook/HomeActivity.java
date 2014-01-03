@@ -23,7 +23,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-import ch.hearc.devmobile.travelnotebook.database.DBcreationHelper;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
 import ch.hearc.devmobile.travelnotebook.database.TravelItem;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
@@ -31,6 +30,7 @@ import ch.hearc.devmobile.travelnotebook.database.Voyage;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -50,7 +50,7 @@ public class HomeActivity extends FragmentActivity {
 	private static final String LOGTAG = HomeActivity.class.getSimpleName();
 	private static final int NEW_NOTEBOOK_CODE = 100;
 	private static final int SETTINGS_CODE = 200;
-	private static final int MAP_BOUNDS_MARGIN = 50;
+	private static final int MAP_BOUNDS_MARGIN = 100;
 
 	/********************
 	 * Private members
@@ -120,6 +120,11 @@ public class HomeActivity extends FragmentActivity {
 		super.onResume();
 
 		homeMapView.onResume();
+
+		Builder boundsBuilder = new LatLngBounds.Builder();
+		createOnGlobalLayoutListener(boundsBuilder);
+		buildMapElements(boundsBuilder);
+		homeMapView.getView().requestLayout();
 	}
 
 	@Override
@@ -149,6 +154,7 @@ public class HomeActivity extends FragmentActivity {
 			case RESULT_OK:
 				Toast.makeText(this, "Notebook saved", Toast.LENGTH_LONG).show();
 				buildDrawer();
+
 				startNotebookActivity(data.getExtras().getInt(NewNotebookActivity.NOTEBOOK_ID_KEY));
 				break;
 
@@ -277,100 +283,115 @@ public class HomeActivity extends FragmentActivity {
 			}
 		});
 
+		createOnGlobalLayoutListener(boundsBuilder);
+
+		googleMap.setOnMapLoadedCallback(new OnMapLoadedCallback() {
+
+			@Override
+			public void onMapLoaded() {
+				Log.d(LOGTAG, "On map loaded.");
+			}
+
+		});
+
+		buildMapElements(boundsBuilder);
+	}
+
+	private void buildMapElements(Builder boundsBuilder) {
+		// Clear the markers list, will be reinitialized directly after.
+		markers.clear();
+
+		googleMap.clear();
+
+		List<Voyage> voyages = null;
+		try {
+			voyages = this.getDBHelper().getVoyageDao().queryForAll();
+			for (Voyage voyage : voyages) {
+				displayVoyageOnMap(voyage, boundsBuilder);
+			}
+		}
+		catch (SQLException e) {
+			Log.w(LOGTAG, "SQL Exception while accessing on Voyage Elements: " + e.getMessage());
+		}
+	}
+
+	private void displayVoyageOnMap(Voyage voyage, Builder boundsBuilder) {
+		ForeignCollection<TravelItem> travelItems = voyage.getTravelItems();
+
+		LinkedList<LatLng> travelItemPositions = new LinkedList<LatLng>();
+
+		for (TravelItem travelItem : travelItems) {
+
+			LatLng startLatLng = travelItem.getStartLocationPosition(geocoder);
+			Log.i(LOGTAG, "startLatLng" + startLatLng);
+
+			if (travelItemPositions.listIterator() != null && !travelItemPositions.listIterator().equals(startLatLng)) {
+				travelItemPositions.addLast(startLatLng);
+
+				// Append startPosition to bounds list
+				boundsBuilder.include(startLatLng);
+			}
+			else {
+				Log.i(LOGTAG, "startPosition already in list");
+			}
+
+			if (!travelItem.isSingleLocation()) {
+				LatLng endLatLng = travelItem.getEndLocationPosition(geocoder);
+
+				if (travelItemPositions.listIterator() != null && !travelItemPositions.listIterator().equals(endLatLng)) {
+					travelItemPositions.addLast(endLatLng);
+
+					// Append endPosition to bounds list
+					boundsBuilder.include(endLatLng);
+				}
+				else {
+					Log.i(LOGTAG, "endPosition already in list");
+				}
+			}
+		}
+
+		// Get the colors associated to the voyage
+		int voyageColor = voyage.getColor();
+		int voyageColorTransparent = Utilities.createTransparancyColor(voyageColor, VOYAGE_LINE_COLOR_TRANSPARENCY);
+
+		// get the marker position of the current voyage
+		LatLng markerPosition = new LatLng(0.0, 0.0);
+		if (travelItemPositions.size() > 0) {
+			markerPosition = travelItemPositions.getFirst();
+			googleMap.addPolygon(new PolygonOptions().addAll(travelItemPositions).strokeColor(voyageColorTransparent).geodesic(true));
+		}
+
+		Marker marker = googleMap.addMarker(new MarkerOptions().position(markerPosition).title(voyage.getTitle()));
+
+		// append the marker and the voyage to the markers list
+		// Allows to associate click events to markers
+		this.markers.put(marker, voyage);
+	}
+
+	private void centerMap(final Builder boundsBuilder) {
+
+		LatLngBounds latLngBounds = null;
+
+		try {
+			latLngBounds = boundsBuilder.build();
+		}
+		catch (IllegalStateException e) {
+
+			Log.i(LOGTAG, "No LatLng in boundsBuilder: will not center the map");
+		}
+		if (latLngBounds != null)
+			googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, MAP_BOUNDS_MARGIN));
+	}
+
+	private void createOnGlobalLayoutListener(final Builder boundsBuilder) {
+
 		if (this.homeMapView.getView().getViewTreeObserver().isAlive()) {
 			homeMapView.getView().getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
 				public void onGlobalLayout() {
-
 					homeMapView.getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-					LatLngBounds latLngBounds = null;
-
-					try {
-						latLngBounds = boundsBuilder.build();
-					}
-					catch (IllegalStateException e) {
-
-						Log.i(LOGTAG, "No LatLng in boundsBuilder: will not center the map");
-					}
-					if (latLngBounds != null)
-						googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, MAP_BOUNDS_MARGIN));
+					centerMap(boundsBuilder);
 				}
 			});
-		}
-
-		// show informations.
-		try {
-			List<Voyage> voyages = this.getDBHelper().getVoyageDao().queryForAll();
-
-			for (Voyage voyage : voyages) {
-
-				ForeignCollection<TravelItem> travelItems = voyage.getTravelItems();
-
-				LinkedList<LatLng> travelItemPositions = new LinkedList<LatLng>();
-
-				for (TravelItem travelItem : travelItems) {
-
-					LatLng startLatLng = travelItem.getStartLocationPosition(geocoder);
-					Log.i(LOGTAG, "startLatLng" + startLatLng);
-
-					if (startLatLng != null) {
-						if (travelItemPositions.listIterator() != null && !travelItemPositions.listIterator().equals(startLatLng)) {
-							travelItemPositions.addLast(startLatLng);
-
-							// Append startPosition to bounds list
-							boundsBuilder.include(startLatLng);
-						}
-						else {
-							Log.i(LOGTAG, "startPosition already in list");
-						}
-
-					}
-					else {
-						Log.w(LOGTAG, "No start position found for travelItem: " + travelItem);
-					}
-
-					if (!travelItem.isSingleLocation()) {
-						LatLng endLatLng = travelItem.getEndLocationPosition(geocoder);
-
-						if (endLatLng != null) {
-							if (travelItemPositions.listIterator() != null && !travelItemPositions.listIterator().equals(endLatLng)) {
-								travelItemPositions.addLast(endLatLng);
-
-								// Append endPosition to bounds list
-								boundsBuilder.include(endLatLng);
-							}
-							else {
-								Log.i(LOGTAG, "endPosition already in list");
-							}
-						}
-						else {
-							Log.w(LOGTAG, "No end position found for travelItem: " + travelItem);
-						}
-					}
-				}
-
-				// Get the colors associated to the voyage
-				int voyageColor = voyage.getColor();
-				int voyageColorTransparent = Utilities.createTransparancyColor(voyageColor, VOYAGE_LINE_COLOR_TRANSPARENCY);
-
-				// get the marker position of the current voyage
-				// if the center of the voyageBounds is not within the bound,
-				// take position in the middle of the voyage
-				LatLng markerPosition = travelItemPositions.getFirst();
-
-				googleMap.addPolygon(new PolygonOptions().addAll(travelItemPositions).strokeColor(voyageColorTransparent).geodesic(true));
-
-				Marker marker = googleMap.addMarker(new MarkerOptions().position(markerPosition).title(voyage.getTitle()));
-
-				// append the marker and the voyage to the markers list
-				// Allows to associate click events to markers
-				this.markers.put(marker, voyage);
-
-			}
-		}
-		catch (Exception e) {
-			Log.e(LOGTAG, e.toString());
-			e.printStackTrace();
 		}
 	}
 
