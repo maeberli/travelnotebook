@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_layout"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,152 +9,149 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".NewOnTravelItemActivity" >
 
-    <TextView
-        android:id="@+id/tv_title_label"
-        android:labelFor="@+id/item_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-		android:layout_alignParentLeft="true"
-        android:text="@string/travel_item_title_label" />
-    
-    <EditText
-        android:id="@+id/item_title"
+	<ScrollView
+	    android:id="@+id/data_scroll_view"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+	    android:layout_alignParentRight="true"
+	    android:layout_alignParentTop="true"
+	    android:layout_above="@+id/btn_layout" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" 
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/tv_title_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/item_title"
+                android:text="@string/travel_item_title_label" />
+
+            <EditText
+                android:id="@+id/item_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text" >
+
+                <requestFocus />
+            </EditText>
+
+            <TextView
+                android:id="@+id/tv_description_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:labelFor="@+id/item_description"
+                android:text="@string/travel_item_description_label" />
+
+            <EditText
+                android:id="@+id/item_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textMultiLine" />
+
+            <TextView
+                android:id="@+id/tv_tag_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:layout_marginTop="10dp"
+                android:labelFor="@+id/item_tag"
+                android:text="@string/travel_item_tag_label" />
+
+            <Spinner
+                android:id="@+id/item_tag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10" />
+
+            <TextView
+                android:id="@+id/tv_start_date_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:labelFor="@+id/item_start_date"
+                android:text="@string/travel_item_start_date_label" />
+
+            <EditText
+                android:id="@+id/item_start_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="date" />
+
+            <TextView
+                android:id="@+id/tv_end_date_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:labelFor="@+id/item_end_date"
+                android:text="@string/travel_item_end_date_label" />
+
+            <EditText
+                android:id="@+id/item_end_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="date" />
+
+            <TextView
+                android:id="@+id/tv_start_location_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:labelFor="@+id/item_start_location"
+                android:text="@string/travel_item_start_location_label" />
+
+            <EditText
+                android:id="@+id/item_start_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text" />
+
+            <TextView
+                android:id="@+id/tv_end_location_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:labelFor="@+id/item_end_location"
+                android:text="@string/travel_item_end_location_label" />
+
+            <EditText
+                android:id="@+id/item_end_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text" />
+        </LinearLayout>
+    </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/btn_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-		android:layout_below="@+id/tv_title_label"
-        android:layout_centerHorizontal="true"
-        android:ems="10" 
-        android:inputType="text">
-        <requestFocus />
-    </EditText>
-    
-    <TextView
-        android:id="@+id/tv_description_label"
-        android:labelFor="@+id/item_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/item_title"
-		android:layout_alignParentLeft="true"
-		android:layout_marginTop="10dp"
-        android:text="@string/travel_item_description_label" />
+        android:layout_alignParentLeft="true"
+	    android:layout_alignParentRight="true"
+	    android:layout_alignParentBottom="true" >
 
-    <EditText
-        android:id="@+id/item_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_description_label"
-        android:ems="10"
-        android:inputType="textMultiLine" />
-    
-    <TextView
-        android:id="@+id/tv_tag_label"
-        android:labelFor="@+id/item_tag"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/item_description"
-		android:layout_alignParentLeft="true"
-		android:layout_marginTop="10dp"
-        android:text="@string/travel_item_tag_label" />
-    
-    <Spinner
-    	android:id="@+id/item_tag"
-    	android:layout_width="match_parent"
-    	android:layout_height="wrap_content"
-    	android:layout_below="@+id/tv_tag_label"
-        android:ems="10" />
-    
-    <TextView
-        android:id="@+id/tv_start_date_label"
-        android:labelFor="@+id/item_start_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/item_tag"
-		android:layout_alignParentLeft="true"
-		android:layout_marginTop="10dp"
-        android:text="@string/travel_item_start_date_label" />
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/save" />
 
-    <EditText
-        android:id="@+id/item_start_date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_start_date_label"
-        android:ems="10"
-        android:inputType="date" />
-    
-     <TextView
-        android:id="@+id/tv_end_date_label"
-        android:labelFor="@+id/item_end_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/item_start_date"
-		android:layout_alignParentLeft="true"
-		android:layout_marginTop="10dp"
-        android:text="@string/travel_item_end_date_label" />
-
-    <EditText
-        android:id="@+id/item_end_date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_end_date_label"
-        android:ems="10"
-        android:inputType="date" />
-    
-    <TextView
-        android:id="@+id/tv_start_location_label"
-        android:labelFor="@+id/item_start_location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/item_end_date"
-		android:layout_alignParentLeft="true"
-		android:layout_marginTop="10dp"
-        android:text="@string/travel_item_start_location_label" />
-
-    <EditText
-        android:id="@+id/item_start_location"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_start_location_label"
-        android:ems="10"
-        android:inputType="text" />
-    
-     <TextView
-        android:id="@+id/tv_end_location_label"
-        android:labelFor="@+id/item_end_location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/item_start_location"
-		android:layout_alignParentLeft="true"
-		android:layout_marginTop="10dp"
-        android:text="@string/travel_item_end_location_label" />
-
-    <EditText
-        android:id="@+id/item_end_location"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_end_location_label"
-        android:ems="10"
-        android:inputType="text" />
-    
-    <RelativeLayout 
-    	android:layout_width="match_parent"
-    	android:layout_height="wrap_content"
-    	android:layout_alignParentBottom="true"
-        >
-	    <Button
-	        android:id="@+id/btn_save"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-        	android:layout_centerHorizontal="true"
-	        android:text="@string/save" />
-	
-	    <Button
-	        android:id="@+id/btn_cancel"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_toLeftOf="@+id/btn_save"
-	        android:text="@string/cancel" />
-
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btn_save"
+            android:text="@string/cancel" />
     </RelativeLayout>
-
 </RelativeLayout>

@@ -24,9 +24,7 @@
 		android:layout_below="@+id/tv_name_label"
         android:layout_centerHorizontal="true"
         android:ems="10" 
-        android:inputType="text" >
-        <requestFocus />
-    </EditText>
+        android:inputType="text" />
     
     <TextView
         android:id="@+id/tv_picker_label"
