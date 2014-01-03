@@ -249,9 +249,8 @@ public class HomeActivity extends FragmentActivity {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(HomeActivity.this, NotebookActivity.class);
-				intent.putExtra("notebookId", voyage.getId());
-				startActivity(intent);
+				startNotebookActivity(voyage.getId());
+				
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
 
