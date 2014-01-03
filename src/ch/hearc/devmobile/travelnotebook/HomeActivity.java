@@ -202,9 +202,7 @@ public class HomeActivity extends FragmentActivity {
 		btnNewNotebook.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(HomeActivity.this, NewNotebookActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				startActivityForResult(intent, NEW_NOTEBOOK_CODE);
+				startNewNotebookActivity();
 
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
@@ -215,9 +213,8 @@ public class HomeActivity extends FragmentActivity {
 		btnSettings.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				startActivityForResult(intent, SETTINGS_CODE);
+				startSettingsActivity();
+
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
 		});
@@ -250,7 +247,7 @@ public class HomeActivity extends FragmentActivity {
 			@Override
 			public void onClick(View v) {
 				startNotebookActivity(voyage.getId());
-				
+
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
 
@@ -398,5 +395,17 @@ public class HomeActivity extends FragmentActivity {
 		Intent intent = new Intent(HomeActivity.this, NotebookActivity.class);
 		intent.putExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID, id);
 		startActivity(intent);
+	}
+
+	private void startSettingsActivity() {
+		Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		startActivityForResult(intent, SETTINGS_CODE);
+	}
+
+	private void startNewNotebookActivity() {
+		Intent intent = new Intent(HomeActivity.this, NewNotebookActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		startActivityForResult(intent, NEW_NOTEBOOK_CODE);
 	}
 }
