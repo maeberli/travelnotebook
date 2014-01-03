@@ -277,30 +277,6 @@ public class NotebookActivity extends FragmentActivity {
 		});
 	}
 
-	private void loadCurrentNotebookFromIntent() {
-		// Add items in the list from the database
-		if (getIntent().hasExtra(NOTEBOOKACTIVITY_VOYAGE_ID)) {
-
-			int voyageId = getIntent().getIntExtra(NOTEBOOKACTIVITY_VOYAGE_ID, -1);
-			if (voyageId != -1) {
-				try {
-					this.currentVoyage = databaseHelper.getVoyageDao().queryForId(voyageId);
-
-				}
-				catch (SQLException e) {
-					e.printStackTrace();
-					abortActivityWithError("Voyage query failed: SQL exception");
-				}
-			}
-			else {
-				abortActivityWithError("No valid voyage id passed to NotebookActivity!");
-			}
-		}
-		else {
-			abortActivityWithError("No voyage id passed to NotebookActivity!");
-		}
-	}
-
 	private void initTitle() {
 		String title = currentVoyage.getTitle();
 		notebookTitleTextView.setText(title);
@@ -490,15 +466,5 @@ public class NotebookActivity extends FragmentActivity {
 		if (databaseHelper == null) {
 			databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 		}
-	}
-
-	private void abortActivityWithError(String error) {
-		Log.e(LOGTAG, error);
-
-		Intent intent = new Intent();
-		intent.putExtra(NOTEBOOKACTIVITY_RETURN_ERROR, error);
-
-		this.setResult(RESULT_CANCELED, intent);
-		this.finish();
 	}
 }
