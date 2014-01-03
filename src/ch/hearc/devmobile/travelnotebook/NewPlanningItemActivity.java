@@ -22,19 +22,19 @@ import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
 import ch.hearc.devmobile.travelnotebook.database.Tag;
 import ch.hearc.devmobile.travelnotebook.database.TagType;
-import ch.hearc.devmobile.travelnotebook.database.TravelItem;
+import ch.hearc.devmobile.travelnotebook.database.PlanningItem;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 
-public class NewOnTravelItemActivity extends Activity {
+public class NewPlanningItemActivity extends Activity {
 
 	/********************
 	 * Private members
 	 ********************/
 
-	private static final String LOGTAG = NewOnTravelItemActivity.class.getSimpleName();
+	private static final String LOGTAG = NewPlanningItemActivity.class.getSimpleName();
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
 
 	private DatabaseHelper databaseHelper = null;
@@ -57,7 +57,7 @@ public class NewOnTravelItemActivity extends Activity {
 		// Hide status bar
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		setContentView(R.layout.activity_new_on_travel_item);
+		setContentView(R.layout.activity_new_planning_item);
 
 		databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 
@@ -71,8 +71,8 @@ public class NewOnTravelItemActivity extends Activity {
 		btnCancel.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				NewOnTravelItemActivity.this.setResult(RESULT_CANCELED);
-				NewOnTravelItemActivity.this.finish();
+				NewPlanningItemActivity.this.setResult(RESULT_CANCELED);
+				NewPlanningItemActivity.this.finish();
 			}
 		});
 
@@ -82,19 +82,19 @@ public class NewOnTravelItemActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				try {
-					int id = NewOnTravelItemActivity.this.createItem();
+					int id = NewPlanningItemActivity.this.createItem();
 
 					Intent intent = new Intent();
 					intent.putExtra(ITEM_ID_KEY, id);
 
-					NewOnTravelItemActivity.this.setResult(RESULT_OK, intent);
-					NewOnTravelItemActivity.this.finish();
+					NewPlanningItemActivity.this.setResult(RESULT_OK, intent);
+					NewPlanningItemActivity.this.finish();
 
 				}
 				catch (SQLException e) {
-					NewOnTravelItemActivity.this.setResult(RESULT_SQL_FAIL);
+					NewPlanningItemActivity.this.setResult(RESULT_SQL_FAIL);
 					e.printStackTrace();
-					NewOnTravelItemActivity.this.finish();
+					NewPlanningItemActivity.this.finish();
 
 				}
 				catch (Exception e) {
@@ -157,8 +157,8 @@ public class NewOnTravelItemActivity extends Activity {
 		Tag tag = new Tag(TagType.valueOf(strTag));
 
 		// Creates the item
-		Dao<TravelItem, Integer> itemDao = databaseHelper.getTravelItemDao();
-		TravelItem item = new TravelItem(title, description, startDate, endDate, startLocation, endLocation, currentVoyage, tag);
+		Dao<PlanningItem, Integer> itemDao = databaseHelper.getTravelItemDao();
+		PlanningItem item = new PlanningItem(title, description, startDate, endDate, startLocation, endLocation, currentVoyage, tag);
 		Log.i(LOGTAG, item.toString());
 		itemDao.create(item);
 

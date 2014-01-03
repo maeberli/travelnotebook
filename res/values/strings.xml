@@ -18,12 +18,12 @@
     <string name="title_activity_notebook">NotebookActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="title_activity_new_notebook">NewNotebookActivity</string>
-    <string name="title_activity_new_on_travel_item">NewOnTravelItemActivity</string>
-    
+    <string name="title_activity_new_planning_item">NewOnTravelItemActivity</string>
+
     <!-- New notebook -->
     <string name="notebook_name_label">Notebook name :</string>
     <string name="notebook_picker_label">Notebook name :</string>
-    
+
     <!-- New travel item -->
     <string name="travel_item_title_label">Note title :</string>
     <string name="travel_item_description_label">Description :</string>
@@ -32,5 +32,6 @@
     <string name="travel_item_end_date_label">End date :</string>
     <string name="travel_item_start_location_label">Start address :</string>
     <string name="travel_item_end_location_label">End address :</string>
+    <string name="title_activity_new_travel_item">NewTravelItemActivity</string>
 
 </resources>
