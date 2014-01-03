@@ -1,12 +1,14 @@
 package ch.hearc.devmobile.travelnotebook;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -25,6 +27,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
+import ch.hearc.devmobile.travelnotebook.database.Item;
+import ch.hearc.devmobile.travelnotebook.database.NotSingleLocation_I;
 import ch.hearc.devmobile.travelnotebook.database.Tag;
 import ch.hearc.devmobile.travelnotebook.database.TagType;
 import ch.hearc.devmobile.travelnotebook.database.PlanningItem;
@@ -34,6 +38,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -53,7 +58,7 @@ public class NotebookActivity extends FragmentActivity {
 	 * Private Static constants
 	 ********************/
 	private static final String LOGTAG = NotebookActivity.class.getSimpleName();
-	private static final int MAP_BOUNDS_MARGIN = 50;
+	private static final int MAP_BOUNDS_MARGIN = 100;
 	private static final int VOAYAGE_ITEM_LINE_TRANSPARENCY = 50;
 	private static final int VOAYAGE_ITEM_LINE_TRANSPARENCY_SELECTED = 255;
 	private static final int NEW_ITEM_CODE = 110;
@@ -81,8 +86,8 @@ public class NotebookActivity extends FragmentActivity {
 	private Geocoder geocoder;
 
 	private Marker lastClickedMarker;
-	private Map<Marker, PlanningItem> markers;
-	private Map<PlanningItem, Polygon> polygons;
+	private Map<Marker, Item> markers;
+	private Map<Item, Polygon> polygons;
 
 	/********************
 	 * Public methods
@@ -110,8 +115,8 @@ public class NotebookActivity extends FragmentActivity {
 
 		// Variable instanciation
 		geocoder = new Geocoder(this);
-		markers = new HashMap<Marker, PlanningItem>();
-		polygons = new HashMap<PlanningItem, Polygon>();
+		markers = new HashMap<Marker, Item>();
+		polygons = new HashMap<Item, Polygon>();
 		lastClickedMarker = null;
 
 		notebookMapView = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.notebook_mapview);
@@ -121,7 +126,7 @@ public class NotebookActivity extends FragmentActivity {
 		notebookTitleTextView = (TextView) findViewById(R.id.notebookTitleTextView);
 
 		// get the DB Helper first.
-		getDBHelperIfNecessary();
+		getDBHelper();
 
 		// Now we can load the notebook to treat in this activity.
 		currentVoyage = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG);
@@ -138,7 +143,7 @@ public class NotebookActivity extends FragmentActivity {
 	protected void onResume() {
 		super.onResume();
 		setUpMapIfNeeded();
-		getDBHelperIfNecessary();
+		getDBHelper();
 	}
 
 	@Override
@@ -168,6 +173,10 @@ public class NotebookActivity extends FragmentActivity {
 			case RESULT_OK:
 				Toast.makeText(this, "Item saved", Toast.LENGTH_LONG).show();
 				buildDrawer();
+
+				Builder boundsBuilder = new LatLngBounds.Builder();
+				buildMapElements(boundsBuilder);
+				centerMap(boundsBuilder);
 				break;
 
 			case RESULT_CANCELED:
@@ -197,20 +206,12 @@ public class NotebookActivity extends FragmentActivity {
 		// Add items in the list from the database
 		MenuElement itemMenuElement = null;
 
-		for (final PlanningItem item : currentVoyage.getTravelItems()) {
+		for (final Item item : currentVoyage.getItems()) {
 
 			itemMenuElement = new MenuElement(item.getTitle(), new OnClickListener() {
 
 				@Override
 				public void onClick(View v) {
-					// Intent intent = new Intent(
-					// NotebookActivity.this,
-					// NotebookActivity.class);
-					// intent.putExtra(NotebookActivity.this.TRAVEL_ITEM_ID,
-					// item.getId());
-					// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-					// startActivity(intent);
-
 					startTravelIemActivity(item.getId());
 
 					NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
@@ -235,14 +236,9 @@ public class NotebookActivity extends FragmentActivity {
 		btnGetPlanning.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// Intent intent = new Intent(NotebookActivity.this,
-				// PlanningActivity.class);
-				// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				// startActivity(intent);
+				startPlanningActivity();
 
-				Toast.makeText(getApplicationContext(), "Planning", Toast.LENGTH_SHORT).show();
-
-				NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
+				drawerLayout.closeDrawer(drawerPanel);
 			}
 		});
 
@@ -251,12 +247,9 @@ public class NotebookActivity extends FragmentActivity {
 		btnAddPlanningItem.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent( NotebookActivity.this, NewPlanningItemActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				intent.putExtra(NOTEBOOKACTIVITY_VOYAGE_ID, NotebookActivity.this.currentVoyage.getId());
-				startActivityForResult(intent, NEW_ITEM_CODE);
+				startNewPlanningItem();
 
-				NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
+				drawerLayout.closeDrawer(drawerPanel);
 			}
 		});
 
@@ -265,12 +258,9 @@ public class NotebookActivity extends FragmentActivity {
 		btnAddTravelItem.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(NotebookActivity.this, NewTravelItemActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				intent.putExtra(NOTEBOOKACTIVITY_VOYAGE_ID, NotebookActivity.this.currentVoyage.getId());
-				startActivityForResult(intent, NEW_ITEM_CODE);
+				startNewTravelItemActivity();
 
-				NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
+				drawerLayout.closeDrawer(drawerPanel);
 			}
 		});
 	}
@@ -302,17 +292,7 @@ public class NotebookActivity extends FragmentActivity {
 				public void onGlobalLayout() {
 
 					view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-					LatLngBounds latLngBounds = null;
-					try {
-						latLngBounds = boundsBuilder.build();
-					}
-					catch (IllegalStateException e) {
-						Log.i(LOGTAG, "No LatLng in boundsBuilder: will not center the map");
-					}
-
-					if (latLngBounds != null)
-						googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, MAP_BOUNDS_MARGIN));
+					centerMap(boundsBuilder);
 				}
 			});
 		}
@@ -344,94 +324,118 @@ public class NotebookActivity extends FragmentActivity {
 
 			@Override
 			public void onInfoWindowClick(Marker marker) {
-				PlanningItem travelItem = markers.get(marker);
-				startTravelIemActivity(travelItem.getId());
+				Item item = markers.get(marker);
+				startTravelIemActivity(item.getId());
 			}
 		});
 
-		// Clear the markers list, will be reinitialized directly after.
-		markers.clear();
+		googleMap.setOnMapLongClickListener(new OnMapLongClickListener() {
 
-		for (PlanningItem travelItem : currentVoyage.getTravelItems()) {
-			displayTraveItemOnMap(travelItem, boundsBuilder);
-		}
+			@Override
+			public void onMapLongClick(LatLng latLng) {
+				createPopupDialog().show();
+			}
+		});
+
+		buildMapElements(boundsBuilder);
 
 	}
 
-	private void displayTraveItemOnMap(PlanningItem travelItem, Builder boundsBuilder) {
+	private void buildMapElements(Builder boundsBuilder) {
+		// Clear the markers list, will be reinitialized directly after.
+		markers.clear();
+		polygons.clear();
+
+		googleMap.clear();
+
+		for (Item item : currentVoyage.getItems()) {
+			displayTraveItemOnMap(item, boundsBuilder);
+		}
+	}
+
+	private void centerMap(Builder boundsBuilder) {
+		LatLngBounds latLngBounds = null;
+		try {
+			latLngBounds = boundsBuilder.build();
+		}
+		catch (IllegalStateException e) {
+			Log.i(LOGTAG, "No LatLng in boundsBuilder: will not center the map");
+		}
+
+		if (latLngBounds != null)
+			googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, MAP_BOUNDS_MARGIN));
+	}
+
+	private void displayTraveItemOnMap(Item item, Builder boundsBuilder) {
 		MarkerOptions markerOptions = new MarkerOptions();
 
-		Tag tag = travelItem.getTag();
+		Tag tag = item.getTag();
 
 		// Append icon of the tag to the marker
 		BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(TagType.getIconRessource(tag.getTagType()));
-		String title = travelItem.getTitle();
+		String title = item.getTitle();
 
 		markerOptions.icon(icon).title(title);
 
 		// Set marker positions if the only one position is available
-		if (travelItem.isSingleLocation()) {
-			try {
-				LatLng startPosition = travelItem.getStartLocationPosition(geocoder);
+		if (!item.isSingleLocation() && item instanceof NotSingleLocation_I) {
+			// Set the two markers and trace the line between the the markers.
+			LatLng startPosition = item.getStartLocationPosition(geocoder);
+			LatLng endPosition = ((NotSingleLocation_I)item).getEndLocationPosition(geocoder);
 
-				boundsBuilder.include(startPosition);
+			boundsBuilder.include(startPosition);
+			boundsBuilder.include(endPosition);
 
-				markerOptions.position(startPosition);
+			// append marker only on start position
+			markerOptions.position(startPosition);
 
-				// append marker to the google map
-				Marker marker = googleMap.addMarker(markerOptions);
+			// append line between end and start position
+			int color = Utilities.createTransparancyColor(this.currentVoyage.getColor(), VOAYAGE_ITEM_LINE_TRANSPARENCY);
+			PolygonOptions polygonOptions = new PolygonOptions();
+			polygonOptions.add(startPosition).add(endPosition).strokeColor(color).geodesic(true);
 
-				// Append markers to the marker map
-				markers.put(marker, travelItem);
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
+			// append marker and polygon to the google map.
+			Marker marker = googleMap.addMarker(markerOptions);
+			Polygon polygon = googleMap.addPolygon(polygonOptions);
+
+			// Append markers to the marker map and same for the polygon
+			markers.put(marker, item);
+			polygons.put(item, polygon);
 		}
 		else {
-			// Set the two markers and trace the line between the the markers.
-			try {
-				LatLng startPosition = travelItem.getStartLocationPosition(geocoder);
-				LatLng endPosition = travelItem.getEndLocationPosition(geocoder);
+			LatLng startPosition = item.getStartLocationPosition(geocoder);
 
-				boundsBuilder.include(startPosition);
-				boundsBuilder.include(endPosition);
+			boundsBuilder.include(startPosition);
 
-				// append marker only on start position
-				markerOptions.position(startPosition);
+			markerOptions.position(startPosition);
 
-				// append line between end and start position
-				int color = Utilities.createTransparancyColor(this.currentVoyage.getColor(), VOAYAGE_ITEM_LINE_TRANSPARENCY);
-				PolygonOptions polygonOptions = new PolygonOptions();
-				polygonOptions.add(startPosition).add(endPosition).strokeColor(color).geodesic(true);
+			// append marker to the google map
+			Marker marker = googleMap.addMarker(markerOptions);
 
-				// append marker and polygon to the google map.
-				Marker marker = googleMap.addMarker(markerOptions);
-				Polygon polygon = googleMap.addPolygon(polygonOptions);
-
-				// Append markers to the marker map and same for the polygon
-				markers.put(marker, travelItem);
-				polygons.put(travelItem, polygon);
-
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
+			// Append markers to the marker map
+			markers.put(marker, item);
 		}
 	}
 
-	private void startTravelIemActivity(int id) {
-
-		PlanningItem travelItem = null;
-		try {
-			travelItem = databaseHelper.getTravelItemDao().queryForId(id);
-
-			Toast.makeText(getApplicationContext(), travelItem.getDescription(), Toast.LENGTH_SHORT).show();
-		}
-		catch (SQLException e) {
-			Log.i(LOGTAG, "No travelItem with id " + id + " found.");
-		}
-
+	private Dialog createPopupDialog() {
+		// Build the dialog and set up the button click handlers
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setItems(R.array.notebookactivity_popupactions, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				switch (which) {
+				case 0:
+					startNewPlanningItem();
+					break;
+				case 1:
+					startNewTravelItemActivity();
+					break;
+				default:
+					Log.i(LOGTAG, "No action found for item: " + which);
+				}
+			}
+		});
+		builder.setTitle(R.string.title_actiondialog);
+		return builder.create();
 	}
 
 	private void selectMarker(Marker marker) {
@@ -460,9 +464,56 @@ public class NotebookActivity extends FragmentActivity {
 		lastClickedMarker = null;
 	}
 
-	private void getDBHelperIfNecessary() {
+	private DatabaseHelper getDBHelper() {
 		if (databaseHelper == null) {
 			databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 		}
+		return databaseHelper;
+	}
+
+	private void startTravelIemActivity(int id) {
+		// Intent intent = new Intent(
+		// NotebookActivity.this,
+		// NotebookActivity.class);
+		// intent.putExtra(NotebookActivity.this.TRAVEL_ITEM_ID,
+		// item.getId());
+		// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		// startActivity(intent);
+
+		TravelItem travelItem = null;
+		try {
+			travelItem = databaseHelper.getTravelItemDao().queryForId(id);
+
+			Toast.makeText(getApplicationContext(), travelItem.getDescription(), Toast.LENGTH_SHORT).show();
+		}
+		catch (SQLException e) {
+			Log.i(LOGTAG, "No travelItem with id " + id + " found.");
+		}
+
+	}
+
+	private void startPlanningActivity() {
+		// Intent intent = new Intent(NotebookActivity.this,
+		// PlanningActivity.class);
+		// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		// startActivity(intent);
+
+		Toast.makeText(getApplicationContext(), "Planning", Toast.LENGTH_SHORT).show();
+	}
+
+	private void startNewPlanningItem() {
+		// Intent intent = new Intent(NotebookActivity.this,
+		// PlanningActivity.class);
+		// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		// startActivity(intent);
+
+		Toast.makeText(getApplicationContext(), "Add planning item", Toast.LENGTH_SHORT).show();
+	}
+
+	private void startNewTravelItemActivity() {
+		Intent intent = new Intent(NotebookActivity.this, NewOnTravelItemActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		intent.putExtra(NOTEBOOKACTIVITY_VOYAGE_ID, currentVoyage.getId());
+		startActivityForResult(intent, NEW_ITEM_CODE);
 	}
 }

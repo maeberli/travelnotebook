@@ -1,6 +1,5 @@
 package ch.hearc.devmobile.travelnotebook.database;
 
-import java.io.IOException;
 import java.util.Date;
 
 import android.location.Geocoder;
@@ -8,7 +7,7 @@ import android.location.Geocoder;
 import com.google.android.gms.maps.model.LatLng;
 import com.j256.ormlite.field.DatabaseField;
 
-public class PlanningItem extends Item{
+public class PlanningItem extends Item implements NotSingleLocation_I, NotSingleDate_I {
 
 	/********************
 	 * Static
@@ -69,7 +68,7 @@ public class PlanningItem extends Item{
 		return endLocation;
 	}
 
-	public LatLng getEndLocationPosition(Geocoder geocoder) throws IOException {
+	public LatLng getEndLocationPosition(Geocoder geocoder) {
 		return getLocation(geocoder, endLocation);
 	}
 

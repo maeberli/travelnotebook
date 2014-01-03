@@ -1,7 +1,6 @@
 package ch.hearc.devmobile.travelnotebook.database;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 import com.j256.ormlite.dao.ForeignCollection;

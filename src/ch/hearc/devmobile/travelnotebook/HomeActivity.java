@@ -2,11 +2,15 @@ package ch.hearc.devmobile.travelnotebook;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -24,12 +28,15 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
+import ch.hearc.devmobile.travelnotebook.database.Item;
+import ch.hearc.devmobile.travelnotebook.database.NotSingleLocation_I;
 import ch.hearc.devmobile.travelnotebook.database.PlanningItem;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -49,7 +56,7 @@ public class HomeActivity extends FragmentActivity {
 	private static final String LOGTAG = HomeActivity.class.getSimpleName();
 	private static final int NEW_NOTEBOOK_CODE = 100;
 	private static final int SETTINGS_CODE = 200;
-	private static final int MAP_BOUNDS_MARGIN = 50;
+	private static final int MAP_BOUNDS_MARGIN = 100;
 
 	/********************
 	 * Private members
@@ -119,6 +126,11 @@ public class HomeActivity extends FragmentActivity {
 		super.onResume();
 
 		homeMapView.onResume();
+
+		Builder boundsBuilder = new LatLngBounds.Builder();
+		createOnGlobalLayoutListener(boundsBuilder);
+		buildMapElements(boundsBuilder);
+		homeMapView.getView().requestLayout();
 	}
 
 	@Override
@@ -148,6 +160,7 @@ public class HomeActivity extends FragmentActivity {
 			case RESULT_OK:
 				Toast.makeText(this, "Notebook saved", Toast.LENGTH_LONG).show();
 				buildDrawer();
+
 				startNotebookActivity(data.getExtras().getInt(NewNotebookActivity.NOTEBOOK_ID_KEY));
 				break;
 
@@ -177,7 +190,7 @@ public class HomeActivity extends FragmentActivity {
 	/********************
 	 * Private methods
 	 ********************/
-	private DatabaseHelper getHelper() {
+	private DatabaseHelper getDBHelper() {
 		if (databaseHelper == null) {
 			databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 		}
@@ -195,9 +208,7 @@ public class HomeActivity extends FragmentActivity {
 		btnNewNotebook.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(HomeActivity.this, NewNotebookActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				startActivityForResult(intent, NEW_NOTEBOOK_CODE);
+				startNewNotebookActivity();
 
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
@@ -208,9 +219,8 @@ public class HomeActivity extends FragmentActivity {
 		btnSettings.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				startActivityForResult(intent, SETTINGS_CODE);
+				startSettingsActivity();
+
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
 		});
@@ -218,7 +228,7 @@ public class HomeActivity extends FragmentActivity {
 		// Add voyages in the list from the database
 		try {
 
-			for (final Voyage voyage : getHelper().getVoyageDao().queryForAll()) {
+			for (final Voyage voyage : getDBHelper().getVoyageDao().queryForAll()) {
 
 				addNoteBookLink(voyage);
 			}
@@ -242,9 +252,8 @@ public class HomeActivity extends FragmentActivity {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(HomeActivity.this, NotebookActivity.class);
-				intent.putExtra("notebookId", voyage.getId());
-				startActivity(intent);
+				startNotebookActivity(voyage.getId());
+
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
 
@@ -276,106 +285,145 @@ public class HomeActivity extends FragmentActivity {
 			}
 		});
 
+		createOnGlobalLayoutListener(boundsBuilder);
+
+		googleMap.setOnMapLongClickListener(new OnMapLongClickListener() {
+
+			@Override
+			public void onMapLongClick(LatLng position) {
+				// startNewNotebookActivity();
+				createPopupDialog().show();
+			}
+		});
+
+		buildMapElements(boundsBuilder);
+	}
+
+	private void buildMapElements(Builder boundsBuilder) {
+		// Clear the markers list, will be reinitialized directly after.
+		markers.clear();
+
+		googleMap.clear();
+
+		List<Voyage> voyages = null;
+		try {
+			voyages = this.getDBHelper().getVoyageDao().queryForAll();
+			for (Voyage voyage : voyages) {
+				displayVoyageOnMap(voyage, boundsBuilder);
+			}
+		}
+		catch (SQLException e) {
+			Log.w(LOGTAG, "SQL Exception while accessing on Voyage Elements: " + e.getMessage());
+		}
+	}
+
+	private void displayVoyageOnMap(Voyage voyage, Builder boundsBuilder) {
+		Collection<Item> travelItems = voyage.getItems();
+
+		LinkedList<LatLng> travelItemPositions = new LinkedList<LatLng>();
+
+				for (Item item : travelItems) {
+
+			LatLng startLatLng = item.getStartLocationPosition(geocoder);
+			Log.i(LOGTAG, "startLatLng" + startLatLng);
+
+			if (travelItemPositions.listIterator() != null && !travelItemPositions.listIterator().equals(startLatLng)) {
+				travelItemPositions.addLast(startLatLng);
+
+				// Append startPosition to bounds list
+				boundsBuilder.include(startLatLng);
+			}
+			else {
+				Log.i(LOGTAG, "startPosition already in list");
+			}
+
+			if (!item.isSingleLocation() && item instanceof NotSingleLocation_I) {
+				LatLng endLatLng = ((NotSingleLocation_I)item).getEndLocationPosition(geocoder);
+
+				if (travelItemPositions.listIterator() != null && !travelItemPositions.listIterator().equals(endLatLng)) {
+					travelItemPositions.addLast(endLatLng);
+
+					// Append endPosition to bounds list
+					boundsBuilder.include(endLatLng);
+				}
+				else {
+					Log.i(LOGTAG, "endPosition already in list");
+				}
+			}
+		}
+
+		// Get the colors associated to the voyage
+		int voyageColor = voyage.getColor();
+		int voyageColorTransparent = Utilities.createTransparancyColor(voyageColor, VOYAGE_LINE_COLOR_TRANSPARENCY);
+
+		// get the marker position of the current voyage
+		LatLng markerPosition = new LatLng(0.0, 0.0);
+		if (travelItemPositions.size() > 0) {
+			markerPosition = travelItemPositions.getFirst();
+			googleMap.addPolygon(new PolygonOptions().addAll(travelItemPositions).strokeColor(voyageColorTransparent).geodesic(true));
+		}
+
+		Marker marker = googleMap.addMarker(new MarkerOptions().position(markerPosition).title(voyage.getTitle()));
+
+		// append the marker and the voyage to the markers list
+		// Allows to associate click events to markers
+		this.markers.put(marker, voyage);
+	}
+
+	private void centerMap(final Builder boundsBuilder) {
+
+		LatLngBounds latLngBounds = null;
+
+		try {
+			latLngBounds = boundsBuilder.build();
+		}
+		catch (IllegalStateException e) {
+
+			Log.i(LOGTAG, "No LatLng in boundsBuilder: will not center the map");
+		}
+		if (latLngBounds != null)
+			googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, MAP_BOUNDS_MARGIN));
+	}
+
+	private void createOnGlobalLayoutListener(final Builder boundsBuilder) {
+
 		if (this.homeMapView.getView().getViewTreeObserver().isAlive()) {
 			homeMapView.getView().getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
 				public void onGlobalLayout() {
-
 					homeMapView.getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-					LatLngBounds latLngBounds = null;
-
-					try {
-						latLngBounds = boundsBuilder.build();
-					}
-					catch (IllegalStateException e) {
-
-						Log.i(LOGTAG, "No LatLng in boundsBuilder: will not center the map");
-					}
-					if (latLngBounds != null)
-						googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, MAP_BOUNDS_MARGIN));
+					centerMap(boundsBuilder);
 				}
 			});
 		}
+	}
 
-		// show informations.
-		try {
-			List<Voyage> voyages = this.getHelper().getVoyageDao().queryForAll();
-
-			for (Voyage voyage : voyages) {
-
-				ForeignCollection<PlanningItem> travelItems = voyage.getTravelItems();
-
-				LinkedList<LatLng> travelItemPositions = new LinkedList<LatLng>();
-
-				for (PlanningItem travelItem : travelItems) {
-
-					LatLng startLatLng = travelItem.getStartLocationPosition(geocoder);
-					Log.i(LOGTAG, "startLatLng" + startLatLng);
-
-					if (startLatLng != null) {
-						if (travelItemPositions.listIterator() != null && !travelItemPositions.listIterator().equals(startLatLng)) {
-							travelItemPositions.addLast(startLatLng);
-
-							// Append startPosition to bounds list
-							boundsBuilder.include(startLatLng);
-						}
-						else {
-							Log.i(LOGTAG, "startPosition already in list");
-						}
-
-					}
-					else {
-						Log.w(LOGTAG, "No start position found for travelItem: " + travelItem);
-					}
-
-					if (!travelItem.isSingleLocation()) {
-						LatLng endLatLng = travelItem.getEndLocationPosition(geocoder);
-
-						if (endLatLng != null) {
-							if (travelItemPositions.listIterator() != null && !travelItemPositions.listIterator().equals(endLatLng)) {
-								travelItemPositions.addLast(endLatLng);
-
-								// Append endPosition to bounds list
-								boundsBuilder.include(endLatLng);
-							}
-							else {
-								Log.i(LOGTAG, "endPosition already in list");
-							}
-						}
-						else {
-							Log.w(LOGTAG, "No end position found for travelItem: " + travelItem);
-						}
-					}
-				}
-
-				// Get the colors associated to the voyage
-				int voyageColor = voyage.getColor();
-				int voyageColorTransparent = Utilities.createTransparancyColor(voyageColor, VOYAGE_LINE_COLOR_TRANSPARENCY);
-
-				// get the marker position of the current voyage
-				// if the center of the voyageBounds is not within the bound,
-				// take position in the middle of the voyage
-				LatLng markerPosition = travelItemPositions.getFirst();
-
-				googleMap.addPolygon(new PolygonOptions().addAll(travelItemPositions).strokeColor(voyageColorTransparent).geodesic(true));
-
-				Marker marker = googleMap.addMarker(new MarkerOptions().position(markerPosition).title(voyage.getTitle()));
-
-				// append the marker and the voyage to the markers list
-				// Allows to associate click events to markers
-				this.markers.put(marker, voyage);
-
+	private Dialog createPopupDialog() {
+		// Build the dialog and set up the button click handlers
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setItems(R.array.homeactivity_popupactions, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				startNewNotebookActivity();
 			}
-		}
-		catch (Exception e) {
-			Log.e(LOGTAG, e.toString());
-			e.printStackTrace();
-		}
+		});
+		builder.setTitle(R.string.title_actiondialog);
+		return builder.create();
 	}
 
 	private void startNotebookActivity(int id) {
 		Intent intent = new Intent(HomeActivity.this, NotebookActivity.class);
 		intent.putExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID, id);
 		startActivity(intent);
+	}
+
+	private void startSettingsActivity() {
+		Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		startActivityForResult(intent, SETTINGS_CODE);
+	}
+
+	private void startNewNotebookActivity() {
+		Intent intent = new Intent(HomeActivity.this, NewNotebookActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		startActivityForResult(intent, NEW_NOTEBOOK_CODE);
 	}
 }

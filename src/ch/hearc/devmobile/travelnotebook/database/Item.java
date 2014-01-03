@@ -19,7 +19,7 @@ public abstract class Item {
 	private static final String LOGTAG = PlanningItem.class.getSimpleName();
 	private static final int MAXGEOCODERRESULTS = 1;
 	public static final String FIELD_VOYAGE = "voyage_id";
-	
+
 	/********************
 	 * Private members
 	 ********************/
@@ -34,16 +34,16 @@ public abstract class Item {
 
 	@DatabaseField
 	protected Date startDate;
-	
+
 	@DatabaseField
 	protected String startLocation;
-	
+
 	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
 	protected Voyage voyage;
 
 	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, unique = true)
 	protected Tag tag;
-	
+
 	/********************
 	 * Public methods
 	 ********************/
@@ -74,7 +74,7 @@ public abstract class Item {
 	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
 	}
-	
+
 	public String getStartLocation() {
 		return startLocation;
 	}
@@ -83,10 +83,10 @@ public abstract class Item {
 		this.startLocation = startLocation;
 	}
 
-	public LatLng getStartLocationPosition(Geocoder geocoder) throws IOException {
+	public LatLng getStartLocationPosition(Geocoder geocoder) {
 		return getLocation(geocoder, startLocation);
 	}
-	
+
 	public Voyage getVoyage() {
 		return voyage;
 	}
@@ -102,7 +102,7 @@ public abstract class Item {
 	public void setTag(Tag tag) {
 		this.tag = tag;
 	}
-	
+
 	public boolean isSingleTimed() {
 		return false;
 	}
@@ -110,24 +110,29 @@ public abstract class Item {
 	public boolean isSingleLocation() {
 		return false;
 	}
-	
+
 	public abstract int getIcon();
-	
+
 	/********************
 	 * Protected methods
 	 ********************/
-	protected static LatLng getLocation(Geocoder geocoder, String name) throws IOException {
-		List<Address> addresses = geocoder.getFromLocationName(name, MAXGEOCODERRESULTS);
+	protected static LatLng getLocation(Geocoder geocoder, String name) {
 
-		Log.d(LOGTAG, "Addresses found for " + name + ": " + addresses.size());
+		try {
+			List<Address> addresses = geocoder.getFromLocationName(name, MAXGEOCODERRESULTS);
+			Log.d(LOGTAG, "Addresses found for " + name + ": " + addresses.size());
 
-		if (addresses.size() > 0) {
-			LatLng location = addressToLatLng(addresses.get(0));
+			if (addresses.size() > 0) {
+				LatLng location = addressToLatLng(addresses.get(0));
 
-			Log.d(LOGTAG, "Geocoded location of " + name + ": " + location);
-			return location;
+				Log.d(LOGTAG, "Geocoded location of " + name + ": " + location);
+				return location;
+			}
 		}
-		return null;
+		catch (IOException e) {
+			Log.e(LOGTAG, "Adress <" + name + "> not found. Return lat: 0, long: 0");
+		}
+		return new LatLng(0, 0);
 	}
 
 	/********************
@@ -136,5 +141,5 @@ public abstract class Item {
 	private static LatLng addressToLatLng(Address address) {
 		return new LatLng(address.getLatitude(), address.getLongitude());
 	}
-	
+
 }
