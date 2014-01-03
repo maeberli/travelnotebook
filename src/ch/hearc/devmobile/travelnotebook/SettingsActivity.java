@@ -20,24 +20,24 @@ public class SettingsActivity extends Activity {
 		getMenuInflater().inflate(R.menu.settings, menu);
 		return true;
 	}
-	
+
 	/********************
 	 * Protected methods
 	 ********************/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		// Hide application title
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		// Hide status bar	
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		
+		// Hide status bar
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		setContentView(R.layout.activity_settings);
-				
+
 		Button btnSave = (Button) findViewById(R.id.save_settings);
 		btnSave.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				SettingsActivity.this.saveSettings();

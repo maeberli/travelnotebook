@@ -104,8 +104,7 @@ public class NotebookActivity extends FragmentActivity {
 		// Hide application title
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		// Hide status bar
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.activity_notebook);
 
@@ -115,8 +114,7 @@ public class NotebookActivity extends FragmentActivity {
 		polygons = new HashMap<TravelItem, Polygon>();
 		lastClickedMarker = null;
 
-		notebookMapView = (SupportMapFragment) getSupportFragmentManager()
-				.findFragmentById(R.id.notebook_mapview);
+		notebookMapView = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.notebook_mapview);
 
 		notebookMapView.onCreate(savedInstanceState);
 
@@ -181,8 +179,7 @@ public class NotebookActivity extends FragmentActivity {
 				break;
 			case NewNotebookActivity.RESULT_SQL_FAIL:
 				Log.e(LOGTAG, "Sql creation fail");
-				Toast.makeText(getApplicationContext(), "Creation failed !",
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "Creation failed !", Toast.LENGTH_SHORT).show();
 				break;
 			}
 		}
@@ -202,26 +199,24 @@ public class NotebookActivity extends FragmentActivity {
 
 		for (final TravelItem item : currentVoyage.getTravelItems()) {
 
-			itemMenuElement = new MenuElement(item.getTitle(),
-					new OnClickListener() {
+			itemMenuElement = new MenuElement(item.getTitle(), new OnClickListener() {
 
-						@Override
-						public void onClick(View v) {
-							// Intent intent = new Intent(
-							// NotebookActivity.this,
-							// NotebookActivity.class);
-							// intent.putExtra(NotebookActivity.this.TRAVEL_ITEM_ID,
-							// item.getId());
-							// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-							// startActivity(intent);
+				@Override
+				public void onClick(View v) {
+					// Intent intent = new Intent(
+					// NotebookActivity.this,
+					// NotebookActivity.class);
+					// intent.putExtra(NotebookActivity.this.TRAVEL_ITEM_ID,
+					// item.getId());
+					// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+					// startActivity(intent);
 
-							startTravelIemActivity(item.getId());
+					startTravelIemActivity(item.getId());
 
-							NotebookActivity.this.drawerLayout
-									.closeDrawer(drawerPanel);
-						}
+					NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
+				}
 
-					});
+			});
 			drawerListViewItems.add(itemMenuElement);
 		}
 
@@ -229,8 +224,7 @@ public class NotebookActivity extends FragmentActivity {
 		drawerListView = (ListView) findViewById(R.id.right_drawer_list);
 
 		// Sets the adapter for the list view
-		drawerListView.setAdapter(new MenuElementArrayAdapter(this,
-				drawerListViewItems));
+		drawerListView.setAdapter(new MenuElementArrayAdapter(this, drawerListViewItems));
 
 	}
 
@@ -246,8 +240,7 @@ public class NotebookActivity extends FragmentActivity {
 				// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 				// startActivity(intent);
 
-				Toast.makeText(getApplicationContext(), "Planning",
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "Planning", Toast.LENGTH_SHORT).show();
 
 				NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
@@ -263,8 +256,7 @@ public class NotebookActivity extends FragmentActivity {
 				// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 				// startActivity(intent);
 
-				Toast.makeText(getApplicationContext(), "Add planning item",
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "Add planning item", Toast.LENGTH_SHORT).show();
 
 				NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
@@ -275,11 +267,9 @@ public class NotebookActivity extends FragmentActivity {
 		btnAddTravelItem.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(NotebookActivity.this,
-						NewOnTravelItemActivity.class);
+				Intent intent = new Intent(NotebookActivity.this, NewOnTravelItemActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				intent.putExtra(NOTEBOOKACTIVITY_VOYAGE_ID,
-						NotebookActivity.this.currentVoyage.getId());
+				intent.putExtra(NOTEBOOKACTIVITY_VOYAGE_ID, NotebookActivity.this.currentVoyage.getId());
 				startActivityForResult(intent, NEW_ITEM_CODE);
 
 				NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
@@ -291,21 +281,22 @@ public class NotebookActivity extends FragmentActivity {
 		// Add items in the list from the database
 		if (getIntent().hasExtra(NOTEBOOKACTIVITY_VOYAGE_ID)) {
 
-			int voyageId = getIntent().getIntExtra(NOTEBOOKACTIVITY_VOYAGE_ID,
-					-1);
+			int voyageId = getIntent().getIntExtra(NOTEBOOKACTIVITY_VOYAGE_ID, -1);
 			if (voyageId != -1) {
 				try {
-					this.currentVoyage = databaseHelper.getVoyageDao()
-							.queryForId(voyageId);
+					this.currentVoyage = databaseHelper.getVoyageDao().queryForId(voyageId);
 
-				} catch (SQLException e) {
+				}
+				catch (SQLException e) {
 					e.printStackTrace();
 					abortActivityWithError("Voyage query failed: SQL exception");
 				}
-			} else {
+			}
+			else {
 				abortActivityWithError("No valid voyage id passed to NotebookActivity!");
 			}
-		} else {
+		}
+		else {
 			abortActivityWithError("No voyage id passed to NotebookActivity!");
 		}
 	}
@@ -333,27 +324,23 @@ public class NotebookActivity extends FragmentActivity {
 		// initialize map events
 		final View view = this.notebookMapView.getView();
 		if (view.getViewTreeObserver().isAlive()) {
-			view.getViewTreeObserver().addOnGlobalLayoutListener(
-					new OnGlobalLayoutListener() {
-						public void onGlobalLayout() {
+			view.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+				public void onGlobalLayout() {
 
-							view.getViewTreeObserver()
-									.removeOnGlobalLayoutListener(this);
+					view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-							LatLngBounds latLngBounds = null;
-							try {
-								latLngBounds = boundsBuilder.build();
-							} catch (IllegalStateException e) {
-								Log.i(LOGTAG,
-										"No LatLng in boundsBuilder: will not center the map");
-							}
+					LatLngBounds latLngBounds = null;
+					try {
+						latLngBounds = boundsBuilder.build();
+					}
+					catch (IllegalStateException e) {
+						Log.i(LOGTAG, "No LatLng in boundsBuilder: will not center the map");
+					}
 
-							if (latLngBounds != null)
-								googleMap.moveCamera(CameraUpdateFactory
-										.newLatLngBounds(latLngBounds,
-												MAP_BOUNDS_MARGIN));
-						}
-					});
+					if (latLngBounds != null)
+						googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, MAP_BOUNDS_MARGIN));
+				}
+			});
 		}
 
 		googleMap.setOnMarkerClickListener(new OnMarkerClickListener() {
@@ -397,15 +384,13 @@ public class NotebookActivity extends FragmentActivity {
 
 	}
 
-	private void displayTraveItemOnMap(TravelItem travelItem,
-			Builder boundsBuilder) {
+	private void displayTraveItemOnMap(TravelItem travelItem, Builder boundsBuilder) {
 		MarkerOptions markerOptions = new MarkerOptions();
 
 		Tag tag = travelItem.getTag();
 
 		// Append icon of the tag to the marker
-		BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(TagType
-				.getIconRessource(tag.getTagType()));
+		BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(TagType.getIconRessource(tag.getTagType()));
 		String title = travelItem.getTitle();
 
 		markerOptions.icon(icon).title(title);
@@ -413,8 +398,7 @@ public class NotebookActivity extends FragmentActivity {
 		// Set marker positions if the only one position is available
 		if (travelItem.isSingleLocation()) {
 			try {
-				LatLng startPosition = travelItem
-						.getStartLocationPosition(geocoder);
+				LatLng startPosition = travelItem.getStartLocationPosition(geocoder);
 
 				boundsBuilder.include(startPosition);
 
@@ -425,16 +409,16 @@ public class NotebookActivity extends FragmentActivity {
 
 				// Append markers to the marker map
 				markers.put(marker, travelItem);
-			} catch (IOException e) {
+			}
+			catch (IOException e) {
 				e.printStackTrace();
 			}
-		} else {
+		}
+		else {
 			// Set the two markers and trace the line between the the markers.
 			try {
-				LatLng startPosition = travelItem
-						.getStartLocationPosition(geocoder);
-				LatLng endPosition = travelItem
-						.getEndLocationPosition(geocoder);
+				LatLng startPosition = travelItem.getStartLocationPosition(geocoder);
+				LatLng endPosition = travelItem.getEndLocationPosition(geocoder);
 
 				boundsBuilder.include(startPosition);
 				boundsBuilder.include(endPosition);
@@ -443,12 +427,9 @@ public class NotebookActivity extends FragmentActivity {
 				markerOptions.position(startPosition);
 
 				// append line between end and start position
-				int color = Utilities.createTransparancyColor(
-						this.currentVoyage.getColor(),
-						VOAYAGE_ITEM_LINE_TRANSPARENCY);
+				int color = Utilities.createTransparancyColor(this.currentVoyage.getColor(), VOAYAGE_ITEM_LINE_TRANSPARENCY);
 				PolygonOptions polygonOptions = new PolygonOptions();
-				polygonOptions.add(startPosition).add(endPosition)
-						.strokeColor(color).geodesic(true);
+				polygonOptions.add(startPosition).add(endPosition).strokeColor(color).geodesic(true);
 
 				// append marker and polygon to the google map.
 				Marker marker = googleMap.addMarker(markerOptions);
@@ -458,7 +439,8 @@ public class NotebookActivity extends FragmentActivity {
 				markers.put(marker, travelItem);
 				polygons.put(travelItem, polygon);
 
-			} catch (IOException e) {
+			}
+			catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
@@ -470,9 +452,9 @@ public class NotebookActivity extends FragmentActivity {
 		try {
 			travelItem = databaseHelper.getTravelItemDao().queryForId(id);
 
-			Toast.makeText(getApplicationContext(),
-					travelItem.getDescription(), Toast.LENGTH_SHORT).show();
-		} catch (SQLException e) {
+			Toast.makeText(getApplicationContext(), travelItem.getDescription(), Toast.LENGTH_SHORT).show();
+		}
+		catch (SQLException e) {
 			Log.i(LOGTAG, "No travelItem with id " + id + " found.");
 		}
 
@@ -486,9 +468,7 @@ public class NotebookActivity extends FragmentActivity {
 		if (travelItem != null) {
 			Polygon polygon = polygons.get(travelItem);
 			if (polygon != null) {
-				int color = Utilities.createTransparancyColor(
-						currentVoyage.getColor(),
-						VOAYAGE_ITEM_LINE_TRANSPARENCY_SELECTED);
+				int color = Utilities.createTransparancyColor(currentVoyage.getColor(), VOAYAGE_ITEM_LINE_TRANSPARENCY_SELECTED);
 				polygon.setStrokeColor(color);
 			}
 		}
@@ -499,9 +479,7 @@ public class NotebookActivity extends FragmentActivity {
 		if (travelItem != null) {
 			Polygon polygon = polygons.get(travelItem);
 			if (polygon != null) {
-				int color = Utilities.createTransparancyColor(
-						currentVoyage.getColor(),
-						VOAYAGE_ITEM_LINE_TRANSPARENCY);
+				int color = Utilities.createTransparancyColor(currentVoyage.getColor(), VOAYAGE_ITEM_LINE_TRANSPARENCY);
 				polygon.setStrokeColor(color);
 			}
 		}
@@ -510,8 +488,7 @@ public class NotebookActivity extends FragmentActivity {
 
 	private void getDBHelperIfNecessary() {
 		if (databaseHelper == null) {
-			databaseHelper = OpenHelperManager.getHelper(this,
-					DatabaseHelper.class);
+			databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 		}
 	}
 

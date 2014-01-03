@@ -17,9 +17,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 	private static final String DATABASE_NAME = "travelnotebook.db";
 	private static final int DATABASE_VERSION = 3;
-	private static final Class<?> TABLELIST[] = { Post.class, Image.class,
-			FlightTagExtendet.class, Tag.class,
-			TravelItem.class, Voyage.class };
+	private static final Class<?> TABLELIST[] = { Post.class, Image.class, FlightTagExtendet.class, Tag.class, TravelItem.class, Voyage.class };
 
 	private Dao<Post, Integer> postDao = null;
 	private Dao<Image, Integer> imageDao = null;
@@ -39,7 +37,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			for (Class<?> cl : TABLELIST) {
 				TableUtils.createTable(connectionSource, cl);
 			}
-		} catch (SQLException e) {
+		}
+		catch (SQLException e) {
 			Log.e(LOGTAG, "Can't create database", e);
 			throw new RuntimeException(e);
 		}
@@ -47,8 +46,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	}
 
 	@Override
-	public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource,
-			int oldVersion, int newVersion) {
+	public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVersion, int newVersion) {
 		try {
 			Log.i(LOGTAG, "onUpgrade");
 
@@ -57,7 +55,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			}
 
 			onCreate(db, connectionSource);
-		} catch (SQLException e) {
+		}
+		catch (SQLException e) {
 			Log.e(DatabaseHelper.class.getName(), "Can't drop databases", e);
 			throw new RuntimeException(e);
 		}
@@ -77,8 +76,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		return imageDao;
 	}
 
-	public Dao<FlightTagExtendet, Integer> getFlightTagExtendetDao()
-			throws SQLException {
+	public Dao<FlightTagExtendet, Integer> getFlightTagExtendetDao() throws SQLException {
 		if (flightTagExtendetDao == null) {
 			flightTagExtendetDao = getDao(FlightTagExtendet.class);
 		}

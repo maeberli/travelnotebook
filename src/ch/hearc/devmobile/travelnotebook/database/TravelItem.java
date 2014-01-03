@@ -58,9 +58,7 @@ public class TravelItem {
 		this("", "", new Date(), new Date(), "", "", null, null);
 	}
 
-	public TravelItem(String title, String description, Date startDate,
-			Date endDate, String startLocation, String endLocation,
-			Voyage voyage, Tag tag) {
+	public TravelItem(String title, String description, Date startDate, Date endDate, String startLocation, String endLocation, Voyage voyage, Tag tag) {
 		this.id = 0;
 		this.title = title;
 		this.description = description;
@@ -73,14 +71,11 @@ public class TravelItem {
 
 	}
 
-	public TravelItem(String title, String description, Date startDate,
-			Date endDate, String startLocation, Voyage voyage, Tag tag) {
-		this(title, description, startDate, endDate, startLocation, null,
-				voyage, tag);
+	public TravelItem(String title, String description, Date startDate, Date endDate, String startLocation, Voyage voyage, Tag tag) {
+		this(title, description, startDate, endDate, startLocation, null, voyage, tag);
 	}
 
-	public TravelItem(String title, String description, Date date,
-			String location, Voyage voyage, Tag tag) {
+	public TravelItem(String title, String description, Date date, String location, Voyage voyage, Tag tag) {
 		this(title, description, date, null, location, null, voyage, tag);
 	}
 
@@ -131,8 +126,7 @@ public class TravelItem {
 		this.startLocation = startLocation;
 	}
 
-	public LatLng getStartLocationPosition(Geocoder geocoder)
-			throws IOException {
+	public LatLng getStartLocationPosition(Geocoder geocoder) throws IOException {
 		return getLocation(geocoder, startLocation);
 	}
 
@@ -200,10 +194,8 @@ public class TravelItem {
 	/********************
 	 * Private methods
 	 ********************/
-	private static LatLng getLocation(Geocoder geocoder, String name)
-			throws IOException {
-		List<Address> addresses = geocoder.getFromLocationName(name,
-				MAXGEOCODERRESULTS);
+	private static LatLng getLocation(Geocoder geocoder, String name) throws IOException {
+		List<Address> addresses = geocoder.getFromLocationName(name, MAXGEOCODERRESULTS);
 
 		Log.d(LOGTAG, "Addresses found for " + name + ": " + addresses.size());
 

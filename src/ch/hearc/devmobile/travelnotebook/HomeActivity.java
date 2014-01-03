@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -100,16 +99,14 @@ public class HomeActivity extends FragmentActivity {
 		// Hide application title
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		// Hide status bar
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.activity_home);
 
 		geocoder = new Geocoder(this);
 		markers = new HashMap<Marker, Voyage>();
 
-		homeMapView = (SupportMapFragment) getSupportFragmentManager()
-				.findFragmentById(R.id.home_map);
+		homeMapView = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.home_map);
 		homeMapView.onCreate(savedInstanceState);
 
 		buildDrawer();
@@ -149,11 +146,9 @@ public class HomeActivity extends FragmentActivity {
 			switch (resultCode) {
 
 			case RESULT_OK:
-				Toast.makeText(this, "Notebook saved", Toast.LENGTH_LONG)
-						.show();
+				Toast.makeText(this, "Notebook saved", Toast.LENGTH_LONG).show();
 				buildDrawer();
-				startNotebookActivity(data.getExtras().getInt(
-						NewNotebookActivity.NOTEBOOK_ID_KEY));
+				startNotebookActivity(data.getExtras().getInt(NewNotebookActivity.NOTEBOOK_ID_KEY));
 				break;
 
 			case RESULT_CANCELED:
@@ -162,12 +157,12 @@ public class HomeActivity extends FragmentActivity {
 			case NewNotebookActivity.RESULT_FAIL:
 				Log.e(LOGTAG, "Result fail");
 			case NewNotebookActivity.RESULT_SQL_FAIL:
-				Toast.makeText(getApplicationContext(), "Creation failed !",
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "Creation failed !", Toast.LENGTH_SHORT).show();
 				break;
 
 			}
-		} else if (requestCode == SETTINGS_CODE) {
+		}
+		else if (requestCode == SETTINGS_CODE) {
 			switch (resultCode) {
 			case RESULT_CANCELED:
 				// NOP
@@ -184,8 +179,7 @@ public class HomeActivity extends FragmentActivity {
 	 ********************/
 	private DatabaseHelper getHelper() {
 		if (databaseHelper == null) {
-			databaseHelper = OpenHelperManager.getHelper(this,
-					DatabaseHelper.class);
+			databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 		}
 		return databaseHelper;
 	}
@@ -201,8 +195,7 @@ public class HomeActivity extends FragmentActivity {
 		btnNewNotebook.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(HomeActivity.this,
-						NewNotebookActivity.class);
+				Intent intent = new Intent(HomeActivity.this, NewNotebookActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 				startActivityForResult(intent, NEW_NOTEBOOK_CODE);
 
@@ -215,8 +208,7 @@ public class HomeActivity extends FragmentActivity {
 		btnSettings.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(HomeActivity.this,
-						SettingsActivity.class);
+				Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 				startActivityForResult(intent, SETTINGS_CODE);
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
@@ -230,7 +222,8 @@ public class HomeActivity extends FragmentActivity {
 
 				addNoteBookLink(voyage);
 			}
-		} catch (SQLException e) {
+		}
+		catch (SQLException e) {
 			e.printStackTrace();
 		}
 
@@ -238,27 +231,24 @@ public class HomeActivity extends FragmentActivity {
 		drawerListView = (ListView) findViewById(R.id.right_drawer_list);
 
 		// Sets the adapter for the list view
-		drawerListView.setAdapter(new MenuElementArrayAdapter(this,
-				drawerListViewItems));
+		drawerListView.setAdapter(new MenuElementArrayAdapter(this, drawerListViewItems));
 
 	}
 
 	private void addNoteBookLink(final Voyage voyage) {
 
 		MenuElement voyageMenuElement = null;
-		voyageMenuElement = new MenuElement(voyage.getTitle(),
-				new OnClickListener() {
+		voyageMenuElement = new MenuElement(voyage.getTitle(), new OnClickListener() {
 
-					@Override
-					public void onClick(View v) {
-						Intent intent = new Intent(HomeActivity.this,
-								NotebookActivity.class);
-						intent.putExtra("notebookId", voyage.getId());
-						startActivity(intent);
-						HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
-					}
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(HomeActivity.this, NotebookActivity.class);
+				intent.putExtra("notebookId", voyage.getId());
+				startActivity(intent);
+				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
+			}
 
-				});
+		});
 		drawerListViewItems.add(voyageMenuElement);
 	}
 
@@ -287,112 +277,97 @@ public class HomeActivity extends FragmentActivity {
 		});
 
 		if (this.homeMapView.getView().getViewTreeObserver().isAlive()) {
-			homeMapView.getView().getViewTreeObserver()
-					.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-						public void onGlobalLayout() {
+			homeMapView.getView().getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+				public void onGlobalLayout() {
 
-							homeMapView.getView().getViewTreeObserver()
-									.removeOnGlobalLayoutListener(this);
+					homeMapView.getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-							LatLngBounds latLngBounds = null;
+					LatLngBounds latLngBounds = null;
 
-							try {
-								latLngBounds = boundsBuilder.build();
-							} catch (IllegalStateException e) {
+					try {
+						latLngBounds = boundsBuilder.build();
+					}
+					catch (IllegalStateException e) {
 
-								Log.i(LOGTAG,
-										"No LatLng in boundsBuilder: will not center the map");
-							}
-							if (latLngBounds != null)
-								googleMap.moveCamera(CameraUpdateFactory
-										.newLatLngBounds(latLngBounds,
-												MAP_BOUNDS_MARGIN));
-						}
-					});
+						Log.i(LOGTAG, "No LatLng in boundsBuilder: will not center the map");
+					}
+					if (latLngBounds != null)
+						googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, MAP_BOUNDS_MARGIN));
+				}
+			});
 		}
 
 		// show informations.
 		try {
-			List<Voyage> voyages = this.getHelper().getVoyageDao()
-					.queryForAll();
+			List<Voyage> voyages = this.getHelper().getVoyageDao().queryForAll();
 
 			for (Voyage voyage : voyages) {
 
-				ForeignCollection<TravelItem> travelItems = voyage
-						.getTravelItems();
+				ForeignCollection<TravelItem> travelItems = voyage.getTravelItems();
 
 				LinkedList<LatLng> travelItemPositions = new LinkedList<LatLng>();
 
 				for (TravelItem travelItem : travelItems) {
 
-					LatLng startLatLng = travelItem
-							.getStartLocationPosition(geocoder);
+					LatLng startLatLng = travelItem.getStartLocationPosition(geocoder);
 					Log.i(LOGTAG, "startLatLng" + startLatLng);
 
 					if (startLatLng != null) {
-						if (travelItemPositions.listIterator() != null
-								&& !travelItemPositions.listIterator().equals(
-										startLatLng)) {
+						if (travelItemPositions.listIterator() != null && !travelItemPositions.listIterator().equals(startLatLng)) {
 							travelItemPositions.addLast(startLatLng);
 
 							// Append startPosition to bounds list
 							boundsBuilder.include(startLatLng);
-						} else {
+						}
+						else {
 							Log.i(LOGTAG, "startPosition already in list");
 						}
 
-					} else {
-						Log.w(LOGTAG,
-								"No start position found for travelItem: "
-										+ travelItem);
+					}
+					else {
+						Log.w(LOGTAG, "No start position found for travelItem: " + travelItem);
 					}
 
 					if (!travelItem.isSingleLocation()) {
-						LatLng endLatLng = travelItem
-								.getEndLocationPosition(geocoder);
+						LatLng endLatLng = travelItem.getEndLocationPosition(geocoder);
 
 						if (endLatLng != null) {
-							if (travelItemPositions.listIterator() != null
-									&& !travelItemPositions.listIterator()
-											.equals(endLatLng)) {
+							if (travelItemPositions.listIterator() != null && !travelItemPositions.listIterator().equals(endLatLng)) {
 								travelItemPositions.addLast(endLatLng);
 
 								// Append endPosition to bounds list
 								boundsBuilder.include(endLatLng);
-							} else {
+							}
+							else {
 								Log.i(LOGTAG, "endPosition already in list");
 							}
-						} else {
-							Log.w(LOGTAG,
-									"No end position found for travelItem: "
-											+ travelItem);
+						}
+						else {
+							Log.w(LOGTAG, "No end position found for travelItem: " + travelItem);
 						}
 					}
 				}
 
 				// Get the colors associated to the voyage
 				int voyageColor = voyage.getColor();
-				int voyageColorTransparent = Utilities.createTransparancyColor(
-						voyageColor, VOYAGE_LINE_COLOR_TRANSPARENCY);
+				int voyageColorTransparent = Utilities.createTransparancyColor(voyageColor, VOYAGE_LINE_COLOR_TRANSPARENCY);
 
 				// get the marker position of the current voyage
 				// if the center of the voyageBounds is not within the bound,
 				// take position in the middle of the voyage
 				LatLng markerPosition = travelItemPositions.getFirst();
 
-				googleMap.addPolygon(new PolygonOptions()
-						.addAll(travelItemPositions)
-						.strokeColor(voyageColorTransparent).geodesic(true));
+				googleMap.addPolygon(new PolygonOptions().addAll(travelItemPositions).strokeColor(voyageColorTransparent).geodesic(true));
 
-				Marker marker = googleMap.addMarker(new MarkerOptions()
-						.position(markerPosition).title(voyage.getTitle()));
+				Marker marker = googleMap.addMarker(new MarkerOptions().position(markerPosition).title(voyage.getTitle()));
 
 				// append the marker and the voyage to the markers list
 				// Allows to associate click events to markers
 				this.markers.put(marker, voyage);
 
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			Log.e(LOGTAG, e.toString());
 			e.printStackTrace();
 		}

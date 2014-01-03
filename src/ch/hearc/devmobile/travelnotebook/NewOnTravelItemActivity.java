@@ -4,42 +4,40 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.dao.Dao;
-import com.larswerkman.holocolorpicker.ColorPicker;
-
-import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
-import ch.hearc.devmobile.travelnotebook.database.Tag;
-import ch.hearc.devmobile.travelnotebook.database.TagType;
-import ch.hearc.devmobile.travelnotebook.database.TravelItem;
-import ch.hearc.devmobile.travelnotebook.database.Voyage;
-import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
-import android.text.Editable;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
+import ch.hearc.devmobile.travelnotebook.database.Tag;
+import ch.hearc.devmobile.travelnotebook.database.TagType;
+import ch.hearc.devmobile.travelnotebook.database.TravelItem;
+import ch.hearc.devmobile.travelnotebook.database.Voyage;
+
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
 
 public class NewOnTravelItemActivity extends Activity {
 
 	/********************
 	 * Private members
 	 ********************/
-	
+
 	private static final String LOGTAG = NewOnTravelItemActivity.class.getSimpleName();
 
 	private DatabaseHelper databaseHelper = null;
 	private Voyage currentVoyage;
-	
+
 	/********************
 	 * Public members
 	 ********************/
@@ -54,14 +52,12 @@ public class NewOnTravelItemActivity extends Activity {
 		// Hide application title
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		// Hide status bar
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.activity_new_on_travel_item);
 
-		databaseHelper = OpenHelperManager
-				.getHelper(this, DatabaseHelper.class);
-		
+		databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
+
 		loadCurrentNotebookFromIntent();
 
 		// Cancel button
@@ -88,39 +84,40 @@ public class NewOnTravelItemActivity extends Activity {
 					NewOnTravelItemActivity.this.setResult(RESULT_OK, intent);
 					NewOnTravelItemActivity.this.finish();
 
-				} catch (SQLException e) {
+				}
+				catch (SQLException e) {
 					NewOnTravelItemActivity.this.setResult(RESULT_SQL_FAIL);
 					e.printStackTrace();
 					NewOnTravelItemActivity.this.finish();
 
-				} catch (Exception e) {
-					Toast.makeText(getApplicationContext(), e.getMessage(),
-							Toast.LENGTH_SHORT).show();
+				}
+				catch (Exception e) {
+					Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
 				}
 
 			}
 		});
-		
+
 		// Add tags in the spinner
-		Spinner spTag =  (Spinner) findViewById(R.id.item_tag);
+		Spinner spTag = (Spinner) findViewById(R.id.item_tag);
 		spTag.setAdapter(new ArrayAdapter<TagType>(this, android.R.layout.simple_list_item_1, TagType.values()));
-		
+
 	}
 
 	protected int createItem() throws Exception {
-		
+
 		// Gets the title [not null]
 		EditText etTitle = (EditText) findViewById(R.id.item_title);
-		String title = etTitle.getText().toString();		
+		String title = etTitle.getText().toString();
 		if (title.length() == 0)
 			throw new Exception("Invalide name");
-		
+
 		// Gets the description
 		EditText etDescription = (EditText) findViewById(R.id.item_description);
 		String description = etDescription.getText().toString();
-		
+
 		// Date formatter tool
-	    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
 		// Gets the start date [not null]
 		EditText etStartDate = (EditText) findViewById(R.id.item_start_date);
@@ -128,35 +125,35 @@ public class NewOnTravelItemActivity extends Activity {
 		if (strStartDate.length() == 0)
 			throw new Exception("Invalide start date");
 		Date startDate = formatter.parse(strStartDate);
-		
+
 		// Gets the end date
 		EditText etEndDate = (EditText) findViewById(R.id.item_start_date);
 		String strEndDate = etEndDate.getText().toString();
 		Date endDate = null;
 		if (strEndDate.length() != 0)
 			endDate = formatter.parse(strStartDate);
-			
+
 		// Gets the start location [not null]
 		EditText etStartLocation = (EditText) findViewById(R.id.item_start_location);
-		String startLocation = etStartLocation.getText().toString();		
+		String startLocation = etStartLocation.getText().toString();
 		if (startLocation.length() == 0)
 			throw new Exception("Invalide location");
-		
-		// Gets the end location	
+
+		// Gets the end location
 		EditText etEndLocation = (EditText) findViewById(R.id.item_end_location);
 		String endLocation = etEndLocation.getText().toString();
-		
+
 		// Gets the tag
 		Spinner spTag = (Spinner) findViewById(R.id.item_tag);
 		String strTag = spTag.getSelectedItem().toString();
 		Tag tag = new Tag(TagType.valueOf(strTag));
-		
+
 		// Creats the item
 		Dao<TravelItem, Integer> itemDao = databaseHelper.getTravelItemDao();
 		TravelItem item = new TravelItem(title, description, startDate, endDate, startLocation, endLocation, currentVoyage, tag);
 		Log.i(LOGTAG, item.toString());
 		itemDao.create(item);
-		
+
 		return item.getId();
 	}
 
@@ -166,31 +163,32 @@ public class NewOnTravelItemActivity extends Activity {
 		getMenuInflater().inflate(R.menu.new_on_travel_item, menu);
 		return true;
 	}
-	
+
 	// Copy from NotebookActivity :(
 	private void loadCurrentNotebookFromIntent() {
 		// Add items in the list from the database
 		if (getIntent().hasExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID)) {
-			int voyageId = getIntent().getIntExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID,
-					-1);
+			int voyageId = getIntent().getIntExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID, -1);
 			if (voyageId != -1) {
 				try {
-					this.currentVoyage = databaseHelper.getVoyageDao()
-							.queryForId(voyageId);
+					this.currentVoyage = databaseHelper.getVoyageDao().queryForId(voyageId);
 
-				} catch (SQLException e) {
+				}
+				catch (SQLException e) {
 					e.printStackTrace();
 					abortActivityWithError("Voyage query failed: SQL exception");
 				}
-			} else {
+			}
+			else {
 				abortActivityWithError("No valid voyage id passed to NotebookActivity!");
 			}
-		} else {
+		}
+		else {
 			Log.e(LOGTAG, "==== INTENT HAS NO EXTRA ====");
 			abortActivityWithError("No voyage id passed to NotebookActivity!");
 		}
 	}
-	
+
 	private void abortActivityWithError(String error) {
 		Log.e(LOGTAG, error);
 
