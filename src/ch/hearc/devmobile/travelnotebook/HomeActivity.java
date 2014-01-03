@@ -7,6 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -30,7 +33,7 @@ import ch.hearc.devmobile.travelnotebook.database.Voyage;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback;
+import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -281,13 +284,13 @@ public class HomeActivity extends FragmentActivity {
 
 		createOnGlobalLayoutListener(boundsBuilder);
 
-		googleMap.setOnMapLoadedCallback(new OnMapLoadedCallback() {
+		googleMap.setOnMapLongClickListener(new OnMapLongClickListener() {
 
 			@Override
-			public void onMapLoaded() {
-				Log.d(LOGTAG, "On map loaded.");
+			public void onMapLongClick(LatLng position) {
+				// startNewNotebookActivity();
+				createPopupDialog().show();
 			}
-
 		});
 
 		buildMapElements(boundsBuilder);
@@ -389,6 +392,17 @@ public class HomeActivity extends FragmentActivity {
 				}
 			});
 		}
+	}
+
+	private Dialog createPopupDialog() {
+		// Build the dialog and set up the button click handlers
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setItems(R.array.homeactivity_popupactions, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				startNewNotebookActivity();
+			}
+		});
+		return builder.create();
 	}
 
 	private void startNotebookActivity(int id) {
