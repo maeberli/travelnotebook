@@ -40,7 +40,7 @@ public class NewOnTravelItemActivity extends Activity {
 
 	private DatabaseHelper databaseHelper = null;
 	private Voyage currentVoyage;
-	private SimpleDateFormat DateFormatter;
+	private SimpleDateFormat dateFormatter;
 
 	/********************
 	 * Public members
@@ -65,7 +65,7 @@ public class NewOnTravelItemActivity extends Activity {
 		loadCurrentNotebookFromIntent();
 		
 		// Date formatter tool
-		DateFormatter = new SimpleDateFormat( DATE_FORMAT, Locale.getDefault() );
+		dateFormatter = new SimpleDateFormat( DATE_FORMAT, Locale.getDefault() );
 
 		// Cancel button
 		Button btnCancel = (Button) findViewById(R.id.btn_cancel);
@@ -107,11 +107,8 @@ public class NewOnTravelItemActivity extends Activity {
 		
 		// Sets default value to the start date
 		EditText etStartDate = (EditText) findViewById(R.id.item_start_date);
-		Time now = new Time();
-		now.setToNow();
-		Log.e(LOGTAG, now.toString());
-		Log.w(LOGTAG, now.format(DATE_FORMAT));
-		etStartDate.setText(now.format(DATE_FORMAT));
+		Date now = new Date();
+		etStartDate.setText(dateFormatter.format( now.getTime() ));
 
 		// Add tags in the spinner
 		Spinner spTag = (Spinner) findViewById(R.id.item_tag);
@@ -136,14 +133,14 @@ public class NewOnTravelItemActivity extends Activity {
 		String strStartDate = etStartDate.getText().toString();
 		if (strStartDate.length() == 0)
 			throw new Exception("Invalide start date");
-		Date startDate = DateFormatter.parse(strStartDate);
+		Date startDate = dateFormatter.parse(strStartDate);
 
 		// Gets the end date
 		EditText etEndDate = (EditText) findViewById(R.id.item_end_date);
 		String strEndDate = etEndDate.getText().toString();
 		Date endDate = null;
 		if (strEndDate.length() != 0)
-			endDate = DateFormatter.parse(strStartDate);
+			endDate = dateFormatter.parse(strStartDate);
 
 		// Gets the start location [not null]
 		EditText etStartLocation = (EditText) findViewById(R.id.item_start_location);
