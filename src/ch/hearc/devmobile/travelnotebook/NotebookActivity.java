@@ -121,7 +121,7 @@ public class NotebookActivity extends FragmentActivity {
 		notebookTitleTextView = (TextView) findViewById(R.id.notebookTitleTextView);
 
 		// get the DB Helper first.
-		getDBHelperIfNecessary();
+		getDBHelper();
 
 		// Now we can load the notebook to treat in this activity.
 		loadCurrentNotebookFromIntent();
@@ -138,7 +138,7 @@ public class NotebookActivity extends FragmentActivity {
 	protected void onResume() {
 		super.onResume();
 		setUpMapIfNeeded();
-		getDBHelperIfNecessary();
+		getDBHelper();
 	}
 
 	@Override
@@ -486,10 +486,11 @@ public class NotebookActivity extends FragmentActivity {
 		lastClickedMarker = null;
 	}
 
-	private void getDBHelperIfNecessary() {
+	private DatabaseHelper getDBHelper() {
 		if (databaseHelper == null) {
 			databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 		}
+		return databaseHelper;
 	}
 
 	private void abortActivityWithError(String error) {

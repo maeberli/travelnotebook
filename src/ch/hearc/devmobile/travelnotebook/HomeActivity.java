@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+import ch.hearc.devmobile.travelnotebook.database.DBcreationHelper;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
 import ch.hearc.devmobile.travelnotebook.database.TravelItem;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
@@ -177,7 +178,7 @@ public class HomeActivity extends FragmentActivity {
 	/********************
 	 * Private methods
 	 ********************/
-	private DatabaseHelper getHelper() {
+	private DatabaseHelper getDBHelper() {
 		if (databaseHelper == null) {
 			databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 		}
@@ -218,7 +219,7 @@ public class HomeActivity extends FragmentActivity {
 		// Add voyages in the list from the database
 		try {
 
-			for (final Voyage voyage : getHelper().getVoyageDao().queryForAll()) {
+			for (final Voyage voyage : getDBHelper().getVoyageDao().queryForAll()) {
 
 				addNoteBookLink(voyage);
 			}
@@ -299,7 +300,7 @@ public class HomeActivity extends FragmentActivity {
 
 		// show informations.
 		try {
-			List<Voyage> voyages = this.getHelper().getVoyageDao().queryForAll();
+			List<Voyage> voyages = this.getDBHelper().getVoyageDao().queryForAll();
 
 			for (Voyage voyage : voyages) {
 
