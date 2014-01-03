@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -33,6 +36,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -206,14 +210,6 @@ public class NotebookActivity extends FragmentActivity {
 
 				@Override
 				public void onClick(View v) {
-					// Intent intent = new Intent(
-					// NotebookActivity.this,
-					// NotebookActivity.class);
-					// intent.putExtra(NotebookActivity.this.TRAVEL_ITEM_ID,
-					// item.getId());
-					// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-					// startActivity(intent);
-
 					startTravelIemActivity(item.getId());
 
 					NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
@@ -238,14 +234,9 @@ public class NotebookActivity extends FragmentActivity {
 		btnGetPlanning.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// Intent intent = new Intent(NotebookActivity.this,
-				// PlanningActivity.class);
-				// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				// startActivity(intent);
+				startPlanningActivity();
 
-				Toast.makeText(getApplicationContext(), "Planning", Toast.LENGTH_SHORT).show();
-
-				NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
+				drawerLayout.closeDrawer(drawerPanel);
 			}
 		});
 
@@ -254,14 +245,9 @@ public class NotebookActivity extends FragmentActivity {
 		btnAddPlanningItem.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// Intent intent = new Intent(NotebookActivity.this,
-				// PlanningActivity.class);
-				// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				// startActivity(intent);
+				startNewPlanningItem();
 
-				Toast.makeText(getApplicationContext(), "Add planning item", Toast.LENGTH_SHORT).show();
-
-				NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
+				drawerLayout.closeDrawer(drawerPanel);
 			}
 		});
 
@@ -270,12 +256,9 @@ public class NotebookActivity extends FragmentActivity {
 		btnAddTravelItem.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(NotebookActivity.this, NewOnTravelItemActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-				intent.putExtra(NOTEBOOKACTIVITY_VOYAGE_ID, NotebookActivity.this.currentVoyage.getId());
-				startActivityForResult(intent, NEW_ITEM_CODE);
+				startNewTravelItemActivity();
 
-				NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
+				drawerLayout.closeDrawer(drawerPanel);
 			}
 		});
 	}
@@ -341,6 +324,14 @@ public class NotebookActivity extends FragmentActivity {
 			public void onInfoWindowClick(Marker marker) {
 				TravelItem travelItem = markers.get(marker);
 				startTravelIemActivity(travelItem.getId());
+			}
+		});
+
+		googleMap.setOnMapLongClickListener(new OnMapLongClickListener() {
+
+			@Override
+			public void onMapLongClick(LatLng latLng) {
+				createPopupDialog().show();
 			}
 		});
 
@@ -424,18 +415,25 @@ public class NotebookActivity extends FragmentActivity {
 		}
 	}
 
-	private void startTravelIemActivity(int id) {
-
-		TravelItem travelItem = null;
-		try {
-			travelItem = databaseHelper.getTravelItemDao().queryForId(id);
-
-			Toast.makeText(getApplicationContext(), travelItem.getDescription(), Toast.LENGTH_SHORT).show();
-		}
-		catch (SQLException e) {
-			Log.i(LOGTAG, "No travelItem with id " + id + " found.");
-		}
-
+	private Dialog createPopupDialog() {
+		// Build the dialog and set up the button click handlers
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setItems(R.array.notebookactivity_popupactions, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				switch (which) {
+				case 0:
+					startNewPlanningItem();
+					break;
+				case 1:
+					startNewTravelItemActivity();
+					break;
+				default:
+					Log.i(LOGTAG, "No action found for item: " + which);
+				}
+			}
+		});
+		builder.setTitle(R.string.title_actiondialog);
+		return builder.create();
 	}
 
 	private void selectMarker(Marker marker) {
@@ -469,5 +467,51 @@ public class NotebookActivity extends FragmentActivity {
 			databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 		}
 		return databaseHelper;
+	}
+
+	private void startTravelIemActivity(int id) {
+		// Intent intent = new Intent(
+		// NotebookActivity.this,
+		// NotebookActivity.class);
+		// intent.putExtra(NotebookActivity.this.TRAVEL_ITEM_ID,
+		// item.getId());
+		// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		// startActivity(intent);
+
+		TravelItem travelItem = null;
+		try {
+			travelItem = databaseHelper.getTravelItemDao().queryForId(id);
+
+			Toast.makeText(getApplicationContext(), travelItem.getDescription(), Toast.LENGTH_SHORT).show();
+		}
+		catch (SQLException e) {
+			Log.i(LOGTAG, "No travelItem with id " + id + " found.");
+		}
+
+	}
+
+	private void startPlanningActivity() {
+		// Intent intent = new Intent(NotebookActivity.this,
+		// PlanningActivity.class);
+		// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		// startActivity(intent);
+
+		Toast.makeText(getApplicationContext(), "Planning", Toast.LENGTH_SHORT).show();
+	}
+
+	private void startNewPlanningItem() {
+		// Intent intent = new Intent(NotebookActivity.this,
+		// PlanningActivity.class);
+		// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		// startActivity(intent);
+
+		Toast.makeText(getApplicationContext(), "Add planning item", Toast.LENGTH_SHORT).show();
+	}
+
+	private void startNewTravelItemActivity() {
+		Intent intent = new Intent(NotebookActivity.this, NewOnTravelItemActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		intent.putExtra(NOTEBOOKACTIVITY_VOYAGE_ID, currentVoyage.getId());
+		startActivityForResult(intent, NEW_ITEM_CODE);
 	}
 }

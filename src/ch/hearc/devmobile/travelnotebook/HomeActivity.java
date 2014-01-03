@@ -402,6 +402,7 @@ public class HomeActivity extends FragmentActivity {
 				startNewNotebookActivity();
 			}
 		});
+		builder.setTitle(R.string.title_actiondialog);
 		return builder.create();
 	}
 
