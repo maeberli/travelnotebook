@@ -3,11 +3,12 @@ package ch.hearc.devmobile.travelnotebook;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.content.Intent;
 import android.location.Geocoder;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
@@ -31,13 +32,18 @@ import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.LatLngBounds.Builder;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 
@@ -49,6 +55,7 @@ public class NotebookActivity extends FragmentActivity {
 	private static final String LOGTAG = NotebookActivity.class.getSimpleName();
 	private static final int MAP_BOUNDS_MARGIN = 50;
 	private static final int VOAYAGE_ITEM_LINE_TRANSPARENCY = 50;
+	private static final int VOAYAGE_ITEM_LINE_TRANSPARENCY_SELECTED = 255;
 	private static final int NEW_ITEM_CODE = 110;
 
 	/********************
@@ -72,6 +79,10 @@ public class NotebookActivity extends FragmentActivity {
 	private SupportMapFragment notebookMapView;
 	private TextView notebookTitleTextView;
 	private Geocoder geocoder;
+
+	private Marker lastClickedMarker;
+	private Map<Marker, TravelItem> markers;
+	private Map<TravelItem, Polygon> polygons;
 
 	/********************
 	 * Public methods
@@ -100,6 +111,9 @@ public class NotebookActivity extends FragmentActivity {
 
 		// Variable instanciation
 		geocoder = new Geocoder(this);
+		markers = new HashMap<Marker, TravelItem>();
+		polygons = new HashMap<TravelItem, Polygon>();
+		lastClickedMarker = null;
 
 		notebookMapView = (SupportMapFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.notebook_mapview);
@@ -201,9 +215,7 @@ public class NotebookActivity extends FragmentActivity {
 							// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 							// startActivity(intent);
 
-							Toast.makeText(getApplicationContext(),
-									item.getDescription(), Toast.LENGTH_SHORT)
-									.show();
+							startTravelIemActivity(item.getId());
 
 							NotebookActivity.this.drawerLayout
 									.closeDrawer(drawerPanel);
@@ -344,6 +356,41 @@ public class NotebookActivity extends FragmentActivity {
 					});
 		}
 
+		googleMap.setOnMarkerClickListener(new OnMarkerClickListener() {
+
+			@Override
+			public boolean onMarkerClick(Marker marker) {
+
+				// unselect a marker (if there is one selected)
+				unselectMarker();
+
+				// select the new marker
+				selectMarker(marker);
+
+				return false;
+			}
+		});
+
+		googleMap.setOnMapClickListener(new OnMapClickListener() {
+
+			@Override
+			public void onMapClick(LatLng latLng) {
+				unselectMarker();
+			}
+		});
+
+		googleMap.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
+
+			@Override
+			public void onInfoWindowClick(Marker marker) {
+				TravelItem travelItem = markers.get(marker);
+				startTravelIemActivity(travelItem.getId());
+			}
+		});
+
+		// Clear the markers list, will be reinitialized directly after.
+		markers.clear();
+
 		for (TravelItem travelItem : currentVoyage.getTravelItems()) {
 			displayTraveItemOnMap(travelItem, boundsBuilder);
 		}
@@ -372,7 +419,12 @@ public class NotebookActivity extends FragmentActivity {
 				boundsBuilder.include(startPosition);
 
 				markerOptions.position(startPosition);
-				googleMap.addMarker(markerOptions);
+
+				// append marker to the google map
+				Marker marker = googleMap.addMarker(markerOptions);
+
+				// Append markers to the marker map
+				markers.put(marker, travelItem);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -389,7 +441,6 @@ public class NotebookActivity extends FragmentActivity {
 
 				// append marker only on start position
 				markerOptions.position(startPosition);
-				googleMap.addMarker(markerOptions);
 
 				// append line between end and start position
 				int color = Utilities.createTransparancyColor(
@@ -399,12 +450,62 @@ public class NotebookActivity extends FragmentActivity {
 				polygonOptions.add(startPosition).add(endPosition)
 						.strokeColor(color).geodesic(true);
 
-				googleMap.addPolygon(polygonOptions);
+				// append marker and polygon to the google map.
+				Marker marker = googleMap.addMarker(markerOptions);
+				Polygon polygon = googleMap.addPolygon(polygonOptions);
+
+				// Append markers to the marker map and same for the polygon
+				markers.put(marker, travelItem);
+				polygons.put(travelItem, polygon);
 
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private void startTravelIemActivity(int id) {
+
+		TravelItem travelItem = null;
+		try {
+			travelItem = databaseHelper.getTravelItemDao().queryForId(id);
+
+			Toast.makeText(getApplicationContext(),
+					travelItem.getDescription(), Toast.LENGTH_SHORT).show();
+		} catch (SQLException e) {
+			Log.i(LOGTAG, "No travelItem with id " + id + " found.");
+		}
+
+	}
+
+	private void selectMarker(Marker marker) {
+		// save the lastClicked marker (necessary for the unselection)
+		lastClickedMarker = marker;
+
+		TravelItem travelItem = markers.get(marker);
+		if (travelItem != null) {
+			Polygon polygon = polygons.get(travelItem);
+			if (polygon != null) {
+				int color = Utilities.createTransparancyColor(
+						currentVoyage.getColor(),
+						VOAYAGE_ITEM_LINE_TRANSPARENCY_SELECTED);
+				polygon.setStrokeColor(color);
+			}
+		}
+	}
+
+	private void unselectMarker() {
+		TravelItem travelItem = markers.get(lastClickedMarker);
+		if (travelItem != null) {
+			Polygon polygon = polygons.get(travelItem);
+			if (polygon != null) {
+				int color = Utilities.createTransparancyColor(
+						currentVoyage.getColor(),
+						VOAYAGE_ITEM_LINE_TRANSPARENCY);
+				polygon.setStrokeColor(color);
+			}
+		}
+		lastClickedMarker = null;
 	}
 
 	private void getDBHelperIfNecessary() {
