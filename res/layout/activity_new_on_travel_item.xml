@@ -133,7 +133,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_end_location_label"
         android:ems="10"
-        android:inputType="text" />"
+        android:inputType="text" />
     
     <RelativeLayout 
     	android:layout_width="match_parent"

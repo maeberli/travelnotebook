@@ -3,10 +3,12 @@ package ch.hearc.devmobile.travelnotebook;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -34,9 +36,11 @@ public class NewOnTravelItemActivity extends Activity {
 	 ********************/
 
 	private static final String LOGTAG = NewOnTravelItemActivity.class.getSimpleName();
+	private static final String DATE_FORMAT = "dd/MM/yyyy";
 
 	private DatabaseHelper databaseHelper = null;
 	private Voyage currentVoyage;
+	private SimpleDateFormat DateFormatter;
 
 	/********************
 	 * Public members
@@ -59,6 +63,9 @@ public class NewOnTravelItemActivity extends Activity {
 		databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 
 		loadCurrentNotebookFromIntent();
+		
+		// Date formatter tool
+		DateFormatter = new SimpleDateFormat( DATE_FORMAT, Locale.getDefault() );
 
 		// Cancel button
 		Button btnCancel = (Button) findViewById(R.id.btn_cancel);
@@ -97,6 +104,14 @@ public class NewOnTravelItemActivity extends Activity {
 
 			}
 		});
+		
+		// Sets default value to the start date
+		EditText etStartDate = (EditText) findViewById(R.id.item_start_date);
+		Time now = new Time();
+		now.setToNow();
+		Log.e(LOGTAG, now.toString());
+		Log.w(LOGTAG, now.format(DATE_FORMAT));
+		etStartDate.setText(now.format(DATE_FORMAT));
 
 		// Add tags in the spinner
 		Spinner spTag = (Spinner) findViewById(R.id.item_tag);
@@ -115,23 +130,20 @@ public class NewOnTravelItemActivity extends Activity {
 		// Gets the description
 		EditText etDescription = (EditText) findViewById(R.id.item_description);
 		String description = etDescription.getText().toString();
-
-		// Date formatter tool
-		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-
+		
 		// Gets the start date [not null]
 		EditText etStartDate = (EditText) findViewById(R.id.item_start_date);
 		String strStartDate = etStartDate.getText().toString();
 		if (strStartDate.length() == 0)
 			throw new Exception("Invalide start date");
-		Date startDate = formatter.parse(strStartDate);
+		Date startDate = DateFormatter.parse(strStartDate);
 
 		// Gets the end date
-		EditText etEndDate = (EditText) findViewById(R.id.item_start_date);
+		EditText etEndDate = (EditText) findViewById(R.id.item_end_date);
 		String strEndDate = etEndDate.getText().toString();
 		Date endDate = null;
 		if (strEndDate.length() != 0)
-			endDate = formatter.parse(strStartDate);
+			endDate = DateFormatter.parse(strStartDate);
 
 		// Gets the start location [not null]
 		EditText etStartLocation = (EditText) findViewById(R.id.item_start_location);
@@ -148,7 +160,7 @@ public class NewOnTravelItemActivity extends Activity {
 		String strTag = spTag.getSelectedItem().toString();
 		Tag tag = new Tag(TagType.valueOf(strTag));
 
-		// Creats the item
+		// Creates the item
 		Dao<TravelItem, Integer> itemDao = databaseHelper.getTravelItemDao();
 		TravelItem item = new TravelItem(title, description, startDate, endDate, startLocation, endLocation, currentVoyage, tag);
 		Log.i(LOGTAG, item.toString());
@@ -184,7 +196,6 @@ public class NewOnTravelItemActivity extends Activity {
 			}
 		}
 		else {
-			Log.e(LOGTAG, "==== INTENT HAS NO EXTRA ====");
 			abortActivityWithError("No voyage id passed to NotebookActivity!");
 		}
 	}
