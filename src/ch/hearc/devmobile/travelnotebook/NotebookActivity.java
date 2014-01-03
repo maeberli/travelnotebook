@@ -168,6 +168,10 @@ public class NotebookActivity extends FragmentActivity {
 			case RESULT_OK:
 				Toast.makeText(this, "Item saved", Toast.LENGTH_LONG).show();
 				buildDrawer();
+
+				Builder boundsBuilder = new LatLngBounds.Builder();
+				buildMapElements(boundsBuilder);
+				centerMap(boundsBuilder);
 				break;
 
 			case RESULT_CANCELED:
@@ -328,17 +332,7 @@ public class NotebookActivity extends FragmentActivity {
 				public void onGlobalLayout() {
 
 					view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-					LatLngBounds latLngBounds = null;
-					try {
-						latLngBounds = boundsBuilder.build();
-					}
-					catch (IllegalStateException e) {
-						Log.i(LOGTAG, "No LatLng in boundsBuilder: will not center the map");
-					}
-
-					if (latLngBounds != null)
-						googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, MAP_BOUNDS_MARGIN));
+					centerMap(boundsBuilder);
 				}
 			});
 		}
@@ -375,13 +369,33 @@ public class NotebookActivity extends FragmentActivity {
 			}
 		});
 
+		buildMapElements(boundsBuilder);
+
+	}
+
+	private void buildMapElements(Builder boundsBuilder) {
 		// Clear the markers list, will be reinitialized directly after.
 		markers.clear();
+		polygons.clear();
+		
+		googleMap.clear();
 
 		for (TravelItem travelItem : currentVoyage.getTravelItems()) {
 			displayTraveItemOnMap(travelItem, boundsBuilder);
 		}
+	}
 
+	private void centerMap(Builder boundsBuilder) {
+		LatLngBounds latLngBounds = null;
+		try {
+			latLngBounds = boundsBuilder.build();
+		}
+		catch (IllegalStateException e) {
+			Log.i(LOGTAG, "No LatLng in boundsBuilder: will not center the map");
+		}
+
+		if (latLngBounds != null)
+			googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, MAP_BOUNDS_MARGIN));
 	}
 
 	private void displayTraveItemOnMap(TravelItem travelItem, Builder boundsBuilder) {
