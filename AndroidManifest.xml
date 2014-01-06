@@ -60,6 +60,10 @@
             android:name="ch.hearc.devmobile.travelnotebook.TravelItemFormActivity"
             android:label="@string/title_activity_travel_item_from" >
         </activity>
+        <activity
+            android:name="ch.hearc.devmobile.travelnotebook.PostItemFormActivity"
+            android:label="@string/title_activity_post_item_form" >
+        </activity>
     </application>
 
 </manifest>
