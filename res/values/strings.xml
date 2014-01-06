@@ -15,11 +15,11 @@
     <!-- Notebook menu actions -->
     <string name="get_planning">Get the planning</string>
     <string name="add_travel_item">Add travel note</string>
-    <string name="add_planning_item">Add planning note</string>
+    <string name="add_post_item">Add post note</string>
     <string name="title_activity_notebook">NotebookActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="title_activity_new_notebook">NewNotebookActivity</string>
-    <string name="title_activity_new_on_travel_item">NewOnTravelItemActivity</string>
+    <string name="title_activity_travel_item_from">TravelItemFormActivity</string>
 
     <!-- New notebook -->
     <string name="notebook_name_label">Notebook name :</string>

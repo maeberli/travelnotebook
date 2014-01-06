@@ -28,13 +28,13 @@ import ch.hearc.devmobile.travelnotebook.database.Voyage;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 
-public class NewOnTravelItemActivity extends Activity {
+public class TravelItemFormActivity extends Activity {
 
 	/********************
 	 * Private members
 	 ********************/
 
-	private static final String LOGTAG = NewOnTravelItemActivity.class.getSimpleName();
+	private static final String LOGTAG = TravelItemFormActivity.class.getSimpleName();
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
 
 	private DatabaseHelper databaseHelper = null;
@@ -57,7 +57,7 @@ public class NewOnTravelItemActivity extends Activity {
 		// Hide status bar
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		setContentView(R.layout.activity_new_on_travel_item);
+		setContentView(R.layout.activity_travel_item_form);
 
 		databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 
@@ -71,8 +71,8 @@ public class NewOnTravelItemActivity extends Activity {
 		btnCancel.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				NewOnTravelItemActivity.this.setResult(RESULT_CANCELED);
-				NewOnTravelItemActivity.this.finish();
+				setResult(RESULT_CANCELED);
+				finish();
 			}
 		});
 
@@ -82,19 +82,19 @@ public class NewOnTravelItemActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				try {
-					int id = NewOnTravelItemActivity.this.createItem();
+					int id = createItem();
 
 					Intent intent = new Intent();
 					intent.putExtra(ITEM_ID_KEY, id);
 
-					NewOnTravelItemActivity.this.setResult(RESULT_OK, intent);
-					NewOnTravelItemActivity.this.finish();
+					setResult(RESULT_OK, intent);
+					finish();
 
 				}
 				catch (SQLException e) {
-					NewOnTravelItemActivity.this.setResult(RESULT_SQL_FAIL);
+					setResult(RESULT_SQL_FAIL);
 					e.printStackTrace();
-					NewOnTravelItemActivity.this.finish();
+					finish();
 
 				}
 				catch (Exception e) {
@@ -150,6 +150,8 @@ public class NewOnTravelItemActivity extends Activity {
 		// Gets the end location
 		EditText etEndLocation = (EditText) findViewById(R.id.item_end_location);
 		String endLocation = etEndLocation.getText().toString();
+		if ( endLocation.length() == 0 )
+			endLocation = null;
 
 		// Gets the tag
 		Spinner spTag = (Spinner) findViewById(R.id.item_tag);

@@ -48,17 +48,17 @@
             android:text="@string/get_planning" />
 
         <Button
-            android:id="@+id/btn_add_planing_item"
+            android:id="@+id/btn_add_post_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/btn_get_planning"
-            android:text="@string/add_planning_item" />
+            android:text="@string/add_post_item" />
 
         <Button
             android:id="@+id/btn_add_travel_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/btn_add_planing_item"
+            android:layout_below="@+id/btn_add_post_item"
             android:text="@string/add_travel_item" />
 
         <ListView

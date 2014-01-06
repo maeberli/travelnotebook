@@ -180,7 +180,7 @@ public class NotebookActivity extends FragmentActivity {
 			case RESULT_CANCELED:
 				Toast.makeText(this, "Canceled !", Toast.LENGTH_LONG).show();
 				break;
-			case NewOnTravelItemActivity.RESULT_FAIL:
+			case TravelItemFormActivity.RESULT_FAIL:
 				Log.e(LOGTAG, "result fail");
 				// unused for now
 				break;
@@ -241,11 +241,11 @@ public class NotebookActivity extends FragmentActivity {
 		});
 
 		// Gets the add planning item button
-		Button btnAddPlanningItem = (Button) findViewById(R.id.btn_add_planing_item);
-		btnAddPlanningItem.setOnClickListener(new OnClickListener() {
+		Button btnAddPostItem = (Button) findViewById(R.id.btn_add_post_item);
+		btnAddPostItem.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				startNewPlanningItem();
+				startNewPostItem();
 
 				drawerLayout.closeDrawer(drawerPanel);
 			}
@@ -422,7 +422,7 @@ public class NotebookActivity extends FragmentActivity {
 			public void onClick(DialogInterface dialog, int which) {
 				switch (which) {
 				case 0:
-					startNewPlanningItem();
+					startNewPostItem();
 					break;
 				case 1:
 					startNewTravelItemActivity();
@@ -499,17 +499,17 @@ public class NotebookActivity extends FragmentActivity {
 		Toast.makeText(getApplicationContext(), "Planning", Toast.LENGTH_SHORT).show();
 	}
 
-	private void startNewPlanningItem() {
+	private void startNewPostItem() {
 		// Intent intent = new Intent(NotebookActivity.this,
 		// PlanningActivity.class);
 		// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 		// startActivity(intent);
 
-		Toast.makeText(getApplicationContext(), "Add planning item", Toast.LENGTH_SHORT).show();
+		Toast.makeText(getApplicationContext(), "Add post item", Toast.LENGTH_SHORT).show();
 	}
 
 	private void startNewTravelItemActivity() {
-		Intent intent = new Intent(NotebookActivity.this, NewOnTravelItemActivity.class);
+		Intent intent = new Intent(NotebookActivity.this, TravelItemFormActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 		intent.putExtra(NOTEBOOKACTIVITY_VOYAGE_ID, currentVoyage.getId());
 		startActivityForResult(intent, NEW_ITEM_CODE);
