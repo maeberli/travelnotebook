@@ -65,17 +65,32 @@ public class TravelItemFormActivity extends Activity {
 		
 		// Date formatter tool
 		dateFormatter = new SimpleDateFormat( DATE_FORMAT, Locale.getDefault() );
+		
+		// Init the buttons
+		initButtons();
+		
+		// Sets default value to the start date
+		EditText etStartDate = (EditText) findViewById(R.id.item_start_date);
+		Date now = new Date();
+		etStartDate.setText(dateFormatter.format( now.getTime() ));
 
+		// Add tags in the spinner
+		Spinner spTag = (Spinner) findViewById(R.id.item_tag);
+		spTag.setAdapter(new ArrayAdapter<TagType>(this, android.R.layout.simple_list_item_1, TagType.values()));
+
+	}
+
+	private void initButtons() {
 		// Cancel button
-		Button btnCancel = (Button) findViewById(R.id.btn_cancel);
-		btnCancel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setResult(RESULT_CANCELED);
-				finish();
-			}
-		});
-
+				Button btnCancel = (Button) findViewById(R.id.btn_cancel);
+				btnCancel.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						setResult(RESULT_CANCELED);
+						finish();
+					}
+				});
+		
 		// Save button
 		Button btnSave = (Button) findViewById(R.id.btn_save);
 		btnSave.setOnClickListener(new OnClickListener() {
@@ -103,16 +118,6 @@ public class TravelItemFormActivity extends Activity {
 
 			}
 		});
-		
-		// Sets default value to the start date
-		EditText etStartDate = (EditText) findViewById(R.id.item_start_date);
-		Date now = new Date();
-		etStartDate.setText(dateFormatter.format( now.getTime() ));
-
-		// Add tags in the spinner
-		Spinner spTag = (Spinner) findViewById(R.id.item_tag);
-		spTag.setAdapter(new ArrayAdapter<TagType>(this, android.R.layout.simple_list_item_1, TagType.values()));
-
 	}
 
 	protected int createItem() throws Exception {

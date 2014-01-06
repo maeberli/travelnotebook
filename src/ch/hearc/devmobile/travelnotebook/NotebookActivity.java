@@ -500,12 +500,10 @@ public class NotebookActivity extends FragmentActivity {
 	}
 
 	private void startNewPostItem() {
-		// Intent intent = new Intent(NotebookActivity.this,
-		// PlanningActivity.class);
-		// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-		// startActivity(intent);
-
-		Toast.makeText(getApplicationContext(), "Add post item", Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent(NotebookActivity.this, PostItemFormActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		intent.putExtra(NOTEBOOKACTIVITY_VOYAGE_ID, currentVoyage.getId());
+		startActivityForResult(intent, NEW_ITEM_CODE);
 	}
 
 	private void startNewTravelItemActivity() {

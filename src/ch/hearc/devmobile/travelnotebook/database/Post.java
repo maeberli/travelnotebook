@@ -1,5 +1,7 @@
 package ch.hearc.devmobile.travelnotebook.database;
 
+import java.util.Date;
+
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
@@ -23,9 +25,15 @@ public class Post {
 
 	@DatabaseField
 	private String description;
+	
+	@DatabaseField
+	private Date date;
 
 	@DatabaseField
 	private String location;
+	
+	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
+	private Voyage voyage;
 
 	@ForeignCollectionField
 	private ForeignCollection<Image> images;
@@ -35,19 +43,25 @@ public class Post {
 	 ********************/
 	public Post() {
 		// Needed by ormlite
-		this("", "", "");
+		this("", "", new Date(), "", null);
 	}
 
-	public Post(String title, String description, String location) {
+	public Post(String title, String description, Date date, String location, Voyage voyage) {
 		this.id = 0;
 		this.title = title;
 		this.description = description;
+		this.date = date;
 		this.location = location;
+		this.voyage = voyage;
 	}
 
 	/********************
 	 * Public methods
 	 ********************/
+	public int getId() {
+		return id;
+	}
+	
 	public String getTitle() {
 		return title;
 	}
@@ -71,6 +85,14 @@ public class Post {
 	public void setLocation(String location) {
 		this.location = location;
 	}
+	
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
 
 	public ForeignCollection<Image> getImages() {
 		return images;
@@ -89,6 +111,8 @@ public class Post {
 		builder.append(title);
 		builder.append(", description=");
 		builder.append(description);
+		builder.append(", Date=");
+		builder.append(date);
 		builder.append(", location=");
 		builder.append(location);
 		builder.append("]");
