@@ -8,6 +8,13 @@
         android:minSdkVersion="18"
         android:targetSdkVersion="19" />
 
+    <!-- permissions for the camera usage -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- Permissions for google maps -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
@@ -50,7 +57,7 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyCgyZd2NcJ4fQQwx6aO04vqBPG0m97saSA" />
+            android:value="AIzaSyDtirxQV25YK3d4HkiYOixrOhQpIWHp12M" />
 
         <activity
             android:name="ch.hearc.devmobile.travelnotebook.NewNotebookActivity"

@@ -16,10 +16,13 @@
     <string name="get_planning">Get the planning</string>
     <string name="add_travel_item">Add travel note</string>
     <string name="add_post_item">Add post note</string>
+
+    <!-- Activity titles -->
     <string name="title_activity_notebook">NotebookActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="title_activity_new_notebook">NewNotebookActivity</string>
     <string name="title_activity_travel_item_from">TravelItemFormActivity</string>
+    <string name="title_activity_post_item_form">PostItemFormActivity</string>
 
     <!-- New notebook -->
     <string name="notebook_name_label">Notebook name :</string>
@@ -33,8 +36,11 @@
     <string name="travel_item_end_date_label">End date :</string>
     <string name="travel_item_start_location_label">Start address :</string>
     <string name="travel_item_end_location_label">End address :</string>
-    <string name="title_activity_post_item_form">PostItemFormActivity</string>
-    
+
+    <!-- New post item -->
+    <string name="post_item_photo_label">Photos</string>
+    <string name="add_photo">Append</string>
+
     <!-- Date Time picker -->
     <string name="pick_date">Pick a date</string>
 
