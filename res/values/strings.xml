@@ -34,5 +34,8 @@
     <string name="travel_item_start_location_label">Start address :</string>
     <string name="travel_item_end_location_label">End address :</string>
     <string name="title_activity_post_item_form">PostItemFormActivity</string>
+    
+    <!-- Date Time picker -->
+    <string name="pick_date">Pick a date</string>
 
 </resources>

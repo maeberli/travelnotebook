@@ -50,7 +50,7 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyDtirxQV25YK3d4HkiYOixrOhQpIWHp12M" />
+            android:value="AIzaSyCgyZd2NcJ4fQQwx6aO04vqBPG0m97saSA" />
 
         <activity
             android:name="ch.hearc.devmobile.travelnotebook.NewNotebookActivity"

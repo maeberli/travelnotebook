@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
 import ch.hearc.devmobile.travelnotebook.database.Tag;
@@ -28,7 +30,7 @@ import ch.hearc.devmobile.travelnotebook.database.Voyage;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 
-public class TravelItemFormActivity extends Activity {
+public class TravelItemFormActivity extends Activity implements DatePickerFragment.DateListener {
 
 	/********************
 	 * Private members
@@ -70,9 +72,9 @@ public class TravelItemFormActivity extends Activity {
 		initButtons();
 		
 		// Sets default value to the start date
-		EditText etStartDate = (EditText) findViewById(R.id.item_start_date);
+		TextView tvStartView = (TextView) findViewById(R.id.travel_item_start_date);
 		Date now = new Date();
-		etStartDate.setText(dateFormatter.format( now.getTime() ));
+	    tvStartView.setText(dateFormatter.format( now.getTime() ));
 
 		// Add tags in the spinner
 		Spinner spTag = (Spinner) findViewById(R.id.item_tag);
@@ -133,15 +135,15 @@ public class TravelItemFormActivity extends Activity {
 		String description = etDescription.getText().toString();
 		
 		// Gets the start date [not null]
-		EditText etStartDate = (EditText) findViewById(R.id.item_start_date);
-		String strStartDate = etStartDate.getText().toString();
+		TextView tvStartDate = (TextView) findViewById(R.id.travel_item_start_date);
+		String strStartDate = tvStartDate.getText().toString();
 		if (strStartDate.length() == 0)
 			throw new Exception("Invalide start date");
 		Date startDate = dateFormatter.parse(strStartDate);
 
 		// Gets the end date
-		EditText etEndDate = (EditText) findViewById(R.id.item_end_date);
-		String strEndDate = etEndDate.getText().toString();
+		TextView tvEndDate = (TextView) findViewById(R.id.travel_item_end_date);
+		String strEndDate = tvEndDate.getText().toString();
 		Date endDate = null;
 		if (strEndDate.length() != 0)
 			endDate = dateFormatter.parse(strStartDate);
@@ -177,5 +179,17 @@ public class TravelItemFormActivity extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.new_on_travel_item, menu);
 		return true;
+	}
+	
+	public void showDatePickerDialog(View v) {
+	    DialogFragment newFragment = new DatePickerFragment(v);
+	    newFragment.show(getFragmentManager(), "datePicker");
+	}
+
+	@Override
+	public void returnDate(String date, View v) {
+		Log.i(LOGTAG, "date returned");
+	    TextView tvStartView = (TextView)v;
+	    tvStartView.setText(date);
 	}
 }
