@@ -13,6 +13,7 @@ import ch.hearc.devmobile.travelnotebook.database.Post;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
@@ -22,9 +23,10 @@ import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class PostItemFormActivity extends Activity {
+public class PostItemFormActivity extends Activity implements DatePickerFragment.DateListener {
 
 	/********************
 	 * Private members
@@ -65,9 +67,9 @@ public class PostItemFormActivity extends Activity {
 		initButtons();
 
 		// Sets default value to the start date
-		EditText etStartDate = (EditText) findViewById(R.id.post_item_start_date);
+		TextView tvStartDate = (TextView) findViewById(R.id.post_item_start_date);
 		Date now = new Date();
-		etStartDate.setText(dateFormatter.format(now.getTime()));
+		tvStartDate.setText(dateFormatter.format(now.getTime()));
 
 	}
 
@@ -123,8 +125,8 @@ public class PostItemFormActivity extends Activity {
 		String description = etDescription.getText().toString();
 
 		// Gets the start date [not null]
-		EditText etStartDate = (EditText) findViewById(R.id.post_item_start_date);
-		String strStartDate = etStartDate.getText().toString();
+		TextView tvStartDate = (TextView) findViewById(R.id.post_item_start_date);
+		String strStartDate = tvStartDate.getText().toString();
 		if (strStartDate.length() == 0)
 			throw new Exception("Invalide start date");
 		Date startDate = dateFormatter.parse(strStartDate);
@@ -149,6 +151,18 @@ public class PostItemFormActivity extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.post_item_form, menu);
 		return true;
+	}
+	
+	public void showDatePickerDialog(View v) {
+	    DialogFragment newFragment = new DatePickerFragment(v);
+	    newFragment.show(getFragmentManager(), "datePicker");
+	}
+	
+	@Override
+	public void returnDate(String date, View v) {
+		Log.i(LOGTAG, "date returned");
+	    TextView tvStartView = (TextView)v;
+	    tvStartView.setText(date);
 	}
 
 }
