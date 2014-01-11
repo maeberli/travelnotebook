@@ -11,6 +11,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -32,11 +33,16 @@ import com.j256.ormlite.dao.Dao;
 public class PostItemFormActivity extends Activity implements DatePickerFragment.DateListener {
 
 	/********************
-	 * Private members
+	 * Private Static constants
 	 ********************/
-
 	private static final String LOGTAG = TravelItemFormActivity.class.getSimpleName();
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
+
+	private static final int APPEND_FROM_GALLERY_CODE = 55;
+
+	/********************
+	 * Private members
+	 ********************/
 
 	private DatabaseHelper databaseHelper = null;
 	private Voyage currentVoyage;
@@ -74,6 +80,23 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		Date now = new Date();
 		tvStartDate.setText(dateFormatter.format(now.getTime()));
 
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+
+		switch (requestCode) {
+		case APPEND_FROM_GALLERY_CODE:
+			if (resultCode == RESULT_OK) {
+				Uri targetUri = data.getData();
+				Log.i(LOGTAG, "loaded target uri: " + targetUri.toString());
+			}
+			break;
+		default:
+			Log.i(LOGTAG, "Unhandled on activity result(request code = " + requestCode + ", resultCode=" + resultCode + ", data=" + data.toString());
+			break;
+		}
 	}
 
 	private void initButtons() {
@@ -201,6 +224,8 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 	}
 
 	private void startAppendPhotoFromGallery() {
+		Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+		startActivityForResult(intent, APPEND_FROM_GALLERY_CODE);
 	}
 
 	private void startAppendPhotoFromCamera() {
