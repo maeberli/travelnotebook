@@ -5,26 +5,29 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.dao.Dao;
-
-import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
-import ch.hearc.devmobile.travelnotebook.database.Post;
-import ch.hearc.devmobile.travelnotebook.database.Voyage;
-import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
+import ch.hearc.devmobile.travelnotebook.database.Post;
+import ch.hearc.devmobile.travelnotebook.database.Voyage;
+
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
 
 public class PostItemFormActivity extends Activity implements DatePickerFragment.DateListener {
 
@@ -111,6 +114,17 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 
 			}
 		});
+
+		// Append photo button
+		Button btnAppendPhoto = (Button) findViewById(R.id.btn_photo_add);
+		btnAppendPhoto.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				createAppendPhotoDialog().show();
+
+			}
+		});
 	}
 
 	protected int createItem() throws Exception {
@@ -152,17 +166,44 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		getMenuInflater().inflate(R.menu.post_item_form, menu);
 		return true;
 	}
-	
+
 	public void showDatePickerDialog(View v) {
-	    DialogFragment newFragment = new DatePickerFragment(v);
-	    newFragment.show(getFragmentManager(), "datePicker");
+		DialogFragment newFragment = new DatePickerFragment(v);
+		newFragment.show(getFragmentManager(), "datePicker");
 	}
-	
+
 	@Override
 	public void returnDate(String date, View v) {
 		Log.i(LOGTAG, "date returned");
-	    TextView tvStartView = (TextView)v;
-	    tvStartView.setText(date);
+		TextView tvStartView = (TextView) v;
+		tvStartView.setText(date);
+	}
+
+	private Dialog createAppendPhotoDialog() {
+		// Build the dialog and set up the button click handlers
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setItems(R.array.postitemformactivity_add_photo_actions, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				switch (which) {
+				case 0:
+					startAppendPhotoFromCamera();
+					break;
+				case 1:
+					startAppendPhotoFromGallery();
+					break;
+				default:
+					Log.i(LOGTAG, "No action found for item: " + which);
+				}
+			}
+		});
+		builder.setTitle(R.string.add_from_actiondialog);
+		return builder.create();
+	}
+
+	private void startAppendPhotoFromGallery() {
+	}
+
+	private void startAppendPhotoFromCamera() {
 	}
 
 }

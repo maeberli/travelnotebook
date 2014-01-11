@@ -17,6 +17,11 @@
     <string name="add_travel_item">Add travel note</string>
     <string name="add_post_item">Add post note</string>
 
+    <!-- PostItem activity popup actions -->
+    <string name="add_from_gallery">Gallery</string>
+    <string name="add_from_camera">Camera</string>
+    <string name="add_from_actiondialog">Photo from&#8230;</string>
+
     <!-- Activity titles -->
     <string name="title_activity_notebook">NotebookActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
