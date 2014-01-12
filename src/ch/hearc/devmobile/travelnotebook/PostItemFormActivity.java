@@ -70,12 +70,37 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 	private File photoToAppend;
 
 	/********************
-	 * Public members
+	 * Public static members
 	 ********************/
 	public static final int RESULT_FAIL = 500;
 	public static final int RESULT_SQL_FAIL = 501;
 	public static final String ITEM_ID_KEY = "itemId";
 
+	/********************
+	 * Public methods
+	 ********************/
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.post_item_form, menu);
+		return true;
+	}
+
+	public void showDatePickerDialog(View v) {
+		DialogFragment newFragment = new DatePickerFragment(v);
+		newFragment.show(getFragmentManager(), "datePicker");
+	}
+
+	@Override
+	public void returnDate(String date, View v) {
+		Log.i(LOGTAG, "date returned");
+		TextView tvStartView = (TextView) v;
+		tvStartView.setText(date);
+	}
+
+	/********************
+	 * Protected methods
+	 ********************/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -164,32 +189,9 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		}
 	}
 
-	private String loadImageFilePath(Uri targetUri) {
-		String[] filePathColumn = { MediaStore.Images.Media.DATA };
-		Cursor cursor = getContentResolver().query(targetUri, filePathColumn, null, null, null);
-		cursor.moveToFirst();
-		int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-		String filePath = cursor.getString(columnIndex);
-		cursor.close();
-		return filePath;
-	}
-
-	private void saveBitmap(String filePath, File destination) {
-		Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-
-		try {
-			FileOutputStream fo = new FileOutputStream(destination);
-			fo.write(bytes.toByteArray());
-			fo.close();
-		}
-		catch (IOException ex) {
-			Log.w(LOGTAG, "Save image error: " + ex.getMessage());
-		}
-	}
-
+	/********************
+	 * Private methods
+	 ********************/
 	private void initButtons() {
 		// Cancel button
 		Button btnCancel = (Button) findViewById(R.id.btn_cancel);
@@ -241,7 +243,7 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		});
 	}
 
-	protected int createItem() throws Exception {
+	private int createItem() throws Exception {
 		// Gets the title [not null]
 		EditText etTitle = (EditText) findViewById(R.id.post_item_title);
 		String title = etTitle.getText().toString();
@@ -272,25 +274,6 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		itemDao.create(item);
 
 		return item.getId();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.post_item_form, menu);
-		return true;
-	}
-
-	public void showDatePickerDialog(View v) {
-		DialogFragment newFragment = new DatePickerFragment(v);
-		newFragment.show(getFragmentManager(), "datePicker");
-	}
-
-	@Override
-	public void returnDate(String date, View v) {
-		Log.i(LOGTAG, "date returned");
-		TextView tvStartView = (TextView) v;
-		tvStartView.setText(date);
 	}
 
 	private Dialog createAppendPhotoDialog() {
@@ -357,4 +340,29 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		return null;
 	}
 
+	private String loadImageFilePath(Uri targetUri) {
+		String[] filePathColumn = { MediaStore.Images.Media.DATA };
+		Cursor cursor = getContentResolver().query(targetUri, filePathColumn, null, null, null);
+		cursor.moveToFirst();
+		int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+		String filePath = cursor.getString(columnIndex);
+		cursor.close();
+		return filePath;
+	}
+
+	private void saveBitmap(String filePath, File destination) {
+		Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+
+		try {
+			FileOutputStream fo = new FileOutputStream(destination);
+			fo.write(bytes.toByteArray());
+			fo.close();
+		}
+		catch (IOException ex) {
+			Log.w(LOGTAG, "Save image error: " + ex.getMessage());
+		}
+	}
 }
