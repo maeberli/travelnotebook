@@ -67,4 +67,9 @@ public class Image {
 		return builder.toString();
 	}
 
+	@Override
+	public int hashCode() {
+		return this.imageURI.hashCode();
+	}
+
 }

@@ -2,8 +2,6 @@ package ch.hearc.devmobile.travelnotebook;
 
 import java.util.Collection;
 
-import ch.hearc.devmobile.travelnotebook.database.Image;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,8 +13,16 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import ch.hearc.devmobile.travelnotebook.database.Image;
 
 public class ImageAdapter extends BaseAdapter {
+
+	/********************
+	 * Private Static constants
+	 ********************/
+	@SuppressWarnings("unused")
+	private static final String LOGTAG = ImageAdapter.class.getSimpleName();
+
 	private Context context;
 	private Collection<Image> images;
 

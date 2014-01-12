@@ -6,9 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import android.app.Activity;
@@ -30,8 +28,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -66,7 +62,6 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 
 	private GridView imageGrid;
 	private ImageAdapter imageAdapter;
-	private List<Image> images;
 	private File photoToAppend;
 	private Post postItem;
 
@@ -117,30 +112,29 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 
 		currentVoyage = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG);
 
+		Log.v(LOGTAG, "Create new post");
 		postItem = new Post();
+		if (postItem.getImages() == null) {
+			try {
+				Log.v(LOGTAG, "assign empty foreigncollection to the post.");
+				databaseHelper.getPostDao().assignEmptyForeignCollection(postItem, "images");
+				postItem.getImages().clear();
+
+				Log.v(LOGTAG, "assign empty foreigncollection size: " + postItem.getImages().size());
+			}
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
 
 		// Date formatter tool
 		dateFormatter = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
 
 		// initialize gridview for images
 		photoToAppend = null;
-		images = new ArrayList<Image>();
-		imageAdapter = new ImageAdapter(this, images);
+		imageAdapter = new ImageAdapter(this, postItem.getImages());
 		imageGrid = (GridView) findViewById(R.id.photo_grid);
 		imageGrid.setAdapter(imageAdapter);
-		imageGrid.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Image removed = images.remove(position);
-
-				// delete removed photo from memory.
-				File photo = new File(removed.getImageURI());
-				photo.delete();
-
-				imageAdapter.notifyDataSetChanged();
-			}
-		});
 
 		initButtons();
 
@@ -166,9 +160,8 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 					if (destination != null) {
 						saveBitmap(filePath, destination);
 
-						Image image = new Image();
-						image.setImageURI(destination.getPath());
-						images.add(image);
+						Image image = new Image(destination.getPath(), postItem);
+						postItem.getImages().add(image);
 						imageAdapter.notifyDataSetChanged();
 					}
 				}
@@ -176,9 +169,8 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 			break;
 		case APPEND_FROM_CAMERA_CODE:
 			if (resultCode == RESULT_OK && photoToAppend != null) {
-				Image image = new Image();
-				image.setImageURI(photoToAppend.getPath());
-				images.add(image);
+				Image image = new Image(photoToAppend.getPath(), postItem);
+				postItem.getImages().add(image);
 				imageAdapter.notifyDataSetChanged();
 			}
 			else if (photoToAppend != null) {
@@ -241,7 +233,6 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 			@Override
 			public void onClick(View v) {
 				createAppendPhotoDialog().show();
-
 			}
 		});
 	}
@@ -271,7 +262,6 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 			throw new Exception("Invalide location");
 
 		// Creates or updates the post item
-		Dao<Post, Integer> itemDao = databaseHelper.getPostDao();
 
 		postItem.setTitle(title);
 		postItem.setDescription(description);
@@ -279,8 +269,15 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		postItem.setLocation(startLocation);
 		postItem.setVoyage(currentVoyage);
 
-		Log.i(LOGTAG, postItem.toString());
+		Dao<Post, Integer> itemDao = databaseHelper.getPostDao();
+		Dao<Image, Integer> imageDao = databaseHelper.getImageDao();
+
+		Log.v(LOGTAG, "postItem.getImages().size(): " + postItem.getImages().size());
 		itemDao.createOrUpdate(postItem);
+
+		for (Image image : postItem.getImages()) {
+			imageDao.createOrUpdate(image);
+		}
 
 		return postItem.getId();
 	}

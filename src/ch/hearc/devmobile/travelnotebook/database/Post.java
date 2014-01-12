@@ -40,7 +40,7 @@ public class Post {
 	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
 	private Voyage voyage;
 
-	@ForeignCollectionField
+	@ForeignCollectionField(eager = true)
 	private ForeignCollection<Image> images;
 
 	/********************
