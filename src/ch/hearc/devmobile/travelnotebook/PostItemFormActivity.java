@@ -1,8 +1,14 @@
 package ch.hearc.devmobile.travelnotebook;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import android.app.Activity;
@@ -11,19 +17,28 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
+import ch.hearc.devmobile.travelnotebook.database.Image;
 import ch.hearc.devmobile.travelnotebook.database.Post;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
@@ -39,6 +54,7 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
 
 	private static final int APPEND_FROM_GALLERY_CODE = 55;
+	private static final int APPEND_FROM_CAMERA_CODE = 66;
 
 	/********************
 	 * Private members
@@ -47,6 +63,11 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 	private DatabaseHelper databaseHelper = null;
 	private Voyage currentVoyage;
 	private SimpleDateFormat dateFormatter;
+
+	private GridView imageGrid;
+	private ImageAdapter imageAdapter;
+	private List<Image> images;
+	private File photoToAppend;
 
 	/********************
 	 * Public members
@@ -73,6 +94,26 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		// Date formatter tool
 		dateFormatter = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
 
+		// initialize gridview for images
+		photoToAppend = null;
+		images = new ArrayList<Image>();
+		imageAdapter = new ImageAdapter(this, images);
+		imageGrid = (GridView) findViewById(R.id.photo_grid);
+		imageGrid.setAdapter(imageAdapter);
+		imageGrid.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Image removed = images.remove(position);
+
+				// delete removed photo from memory.
+				File photo = new File(removed.getImageURI());
+				photo.delete();
+
+				imageAdapter.notifyDataSetChanged();
+			}
+		});
+
 		initButtons();
 
 		// Sets default value to the start date
@@ -90,12 +131,62 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		case APPEND_FROM_GALLERY_CODE:
 			if (resultCode == RESULT_OK) {
 				Uri targetUri = data.getData();
-				Log.i(LOGTAG, "loaded target uri: " + targetUri.toString());
+				if (targetUri != null) {
+					String filePath = loadImageFilePath(targetUri);
+
+					File destination = createAppInternImageFile();
+					if (destination != null) {
+						saveBitmap(filePath, destination);
+
+						Image image = new Image();
+						image.setImageURI(destination.getPath());
+						images.add(image);
+						imageAdapter.notifyDataSetChanged();
+					}
+				}
+			}
+			break;
+		case APPEND_FROM_CAMERA_CODE:
+			if (resultCode == RESULT_OK && photoToAppend != null) {
+				Image image = new Image();
+				image.setImageURI(photoToAppend.getPath());
+				images.add(image);
+				imageAdapter.notifyDataSetChanged();
+			}
+			else if (photoToAppend != null) {
+				photoToAppend.delete();
+				photoToAppend = null;
 			}
 			break;
 		default:
 			Log.i(LOGTAG, "Unhandled on activity result(request code = " + requestCode + ", resultCode=" + resultCode + ", data=" + data.toString());
 			break;
+		}
+	}
+
+	private String loadImageFilePath(Uri targetUri) {
+		String[] filePathColumn = { MediaStore.Images.Media.DATA };
+		Cursor cursor = getContentResolver().query(targetUri, filePathColumn, null, null, null);
+		cursor.moveToFirst();
+		int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+		String filePath = cursor.getString(columnIndex);
+		cursor.close();
+		return filePath;
+	}
+
+	private void saveBitmap(String filePath, File destination) {
+		Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+
+		try {
+			FileOutputStream fo = new FileOutputStream(destination);
+			fo.write(bytes.toByteArray());
+			fo.close();
+		}
+		catch (IOException ex) {
+			Log.w(LOGTAG, "Save image error: " + ex.getMessage());
 		}
 	}
 
@@ -229,6 +320,41 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 	}
 
 	private void startAppendPhotoFromCamera() {
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+		// check if camera capture is available
+		if (intent.resolveActivity(getPackageManager()) != null) {
+			File photoFile = createAppInternImageFile();
+
+			if (photoFile != null) {
+				photoToAppend = photoFile;
+
+				intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+
+				startActivityForResult(intent, APPEND_FROM_CAMERA_CODE);
+			}
+		}
+		else {
+			Toast.makeText(this, R.string.no_camera_availlable, Toast.LENGTH_LONG).show();
+		}
+	}
+
+	private File createAppInternImageFile() {
+		// Create an image file name
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+		String imageFileName = "JPEG_" + timeStamp + "_";
+		File storageDir = Environment.getExternalStorageDirectory();
+
+		File image = new File(storageDir, imageFileName);
+		try {
+			if (image.createNewFile()) {
+				return image;
+			}
+		}
+		catch (IOException e) {
+		}
+
+		return null;
 	}
 
 }

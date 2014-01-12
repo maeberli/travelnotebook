@@ -6,6 +6,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
+    <string name="no_camera_availlable">sorry, no camera availlable.</string>
 
     <!-- Home menu actions -->
     <string name="new_notebook">New Notebook</string>

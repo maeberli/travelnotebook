@@ -108,7 +108,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/btn_photo_add"
-            android:layout_below="@+id/tv_photo_label" />
+            android:layout_below="@+id/tv_photo_label"
+            android:columnWidth="90dp"
+            android:gravity="center"
+            android:horizontalSpacing="5dp"
+            android:numColumns="auto_fit"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="5dp" />
 
         <Button
             android:id="@+id/btn_photo_add"
