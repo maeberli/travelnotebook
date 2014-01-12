@@ -25,13 +25,13 @@ public class Post {
 
 	@DatabaseField
 	private String description;
-	
+
 	@DatabaseField
 	private Date date;
 
 	@DatabaseField
 	private String location;
-	
+
 	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
 	private Voyage voyage;
 
@@ -61,7 +61,7 @@ public class Post {
 	public int getId() {
 		return id;
 	}
-	
+
 	public String getTitle() {
 		return title;
 	}
@@ -85,7 +85,7 @@ public class Post {
 	public void setLocation(String location) {
 		this.location = location;
 	}
-	
+
 	public Date getDate() {
 		return date;
 	}
@@ -100,6 +100,10 @@ public class Post {
 
 	public void setImages(ForeignCollection<Image> images) {
 		this.images = images;
+	}
+
+	public void setVoyage(Voyage voyage) {
+		this.voyage = voyage;
 	}
 
 	@Override
@@ -118,5 +122,4 @@ public class Post {
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

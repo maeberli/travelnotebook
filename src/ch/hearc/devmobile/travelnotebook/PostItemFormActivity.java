@@ -68,6 +68,7 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 	private ImageAdapter imageAdapter;
 	private List<Image> images;
 	private File photoToAppend;
+	private Post postItem;
 
 	/********************
 	 * Public static members
@@ -115,6 +116,8 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 
 		currentVoyage = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG);
+
+		postItem = new Post();
 
 		// Date formatter tool
 		dateFormatter = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
@@ -209,7 +212,7 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 			@Override
 			public void onClick(View v) {
 				try {
-					int id = createItem();
+					int id = savePostItem();
 
 					Intent intent = new Intent();
 					intent.putExtra(ITEM_ID_KEY, id);
@@ -243,7 +246,7 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		});
 	}
 
-	private int createItem() throws Exception {
+	private int savePostItem() throws Exception {
 		// Gets the title [not null]
 		EditText etTitle = (EditText) findViewById(R.id.post_item_title);
 		String title = etTitle.getText().toString();
@@ -267,13 +270,19 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		if (startLocation.length() == 0)
 			throw new Exception("Invalide location");
 
-		// Creates the item
+		// Creates or updates the post item
 		Dao<Post, Integer> itemDao = databaseHelper.getPostDao();
-		Post item = new Post(title, description, startDate, startLocation, currentVoyage);
-		Log.i(LOGTAG, item.toString());
-		itemDao.create(item);
 
-		return item.getId();
+		postItem.setTitle(title);
+		postItem.setDescription(description);
+		postItem.setDate(startDate);
+		postItem.setLocation(startLocation);
+		postItem.setVoyage(currentVoyage);
+
+		Log.i(LOGTAG, postItem.toString());
+		itemDao.createOrUpdate(postItem);
+
+		return postItem.getId();
 	}
 
 	private Dialog createAppendPhotoDialog() {
