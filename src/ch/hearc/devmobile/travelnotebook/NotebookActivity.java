@@ -27,6 +27,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
+import ch.hearc.devmobile.travelnotebook.database.Post;
 import ch.hearc.devmobile.travelnotebook.database.Tag;
 import ch.hearc.devmobile.travelnotebook.database.TagType;
 import ch.hearc.devmobile.travelnotebook.database.TravelItem;
@@ -349,6 +350,21 @@ public class NotebookActivity extends FragmentActivity {
 		for (TravelItem travelItem : currentVoyage.getTravelItems()) {
 			displayTraveItemOnMap(travelItem, boundsBuilder);
 		}
+
+		for (Post post : currentVoyage.getPosts()) {
+			displayPostOnMap(post);
+		}
+	}
+
+	private void displayPostOnMap(Post post) {
+		MarkerOptions markerOptions = new MarkerOptions();
+
+		markerOptions.title(post.getTitle());
+		LatLng position = post.getLocationPosition(geocoder);
+		markerOptions.position(position);
+
+		// append marker to the google map
+		googleMap.addMarker(markerOptions);
 	}
 
 	private void centerMap(Builder boundsBuilder) {

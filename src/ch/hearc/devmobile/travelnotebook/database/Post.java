@@ -2,6 +2,11 @@ package ch.hearc.devmobile.travelnotebook.database;
 
 import java.util.Date;
 
+import android.location.Geocoder;
+
+import ch.hearc.devmobile.travelnotebook.Utilities;
+
+import com.google.android.gms.maps.model.LatLng;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
@@ -11,8 +16,8 @@ public class Post {
 	/********************
 	 * Static
 	 ********************/
-	@SuppressWarnings("unused")
 	private static final String LOGTAG = Post.class.getSimpleName();
+	private static final int MAXGEOCODERRESULT = 1;
 
 	/********************
 	 * Private members
@@ -104,6 +109,10 @@ public class Post {
 
 	public void setVoyage(Voyage voyage) {
 		this.voyage = voyage;
+	}
+
+	public LatLng getLocationPosition(Geocoder geocoder) {
+		return Utilities.getLocation(geocoder, location, MAXGEOCODERRESULT, LOGTAG);
 	}
 
 	@Override

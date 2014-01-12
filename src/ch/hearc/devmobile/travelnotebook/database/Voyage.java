@@ -29,6 +29,9 @@ public class Voyage {
 	@ForeignCollectionField
 	private ForeignCollection<TravelItem> travelItems;
 
+	@ForeignCollectionField
+	private ForeignCollection<Post> posts;
+
 	/********************
 	 * Constructors
 	 ********************/
@@ -64,6 +67,10 @@ public class Voyage {
 
 	public ForeignCollection<TravelItem> getTravelItems() {
 		return travelItems;
+	}
+
+	public ForeignCollection<Post> getPosts() {
+		return this.posts;
 	}
 
 	public void setTravelItems(ForeignCollection<TravelItem> travelItems) {
