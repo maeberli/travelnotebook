@@ -23,13 +23,34 @@ import com.larswerkman.holocolorpicker.ColorPicker;
 public class NewNotebookActivity extends Activity {
 
 	/********************
-	 * Private members
+	 * Static class members
 	 ********************/
-	private DatabaseHelper databaseHelper = null;
 	public static final int RESULT_FAIL = 500;
 	public static final int RESULT_SQL_FAIL = 501;
 	public static final String NOTEBOOK_ID_KEY = "notebookId";
 
+	/********************
+	 * Private members
+	 ********************/
+	private DatabaseHelper databaseHelper = null;
+	private Button btnCancel;
+	private Button btnSave;
+	private EditText tvName;
+	private ColorPicker cpColor;
+
+	/********************
+	 * Public methods
+	 ********************/
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.new_notebook, menu);
+		return true;
+	}
+
+	/********************
+	 * Protected methods
+	 ********************/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -43,8 +64,19 @@ public class NewNotebookActivity extends Activity {
 
 		databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 
+		btnCancel = (Button) findViewById(R.id.btn_cancel);
+		btnSave = (Button) findViewById(R.id.btn_save);
+		tvName = (EditText) findViewById(R.id.notebook_name);
+		cpColor = (ColorPicker) findViewById(R.id.picker);
+
+		initButtons();
+	}
+
+	/********************
+	 * Private methods
+	 ********************/
+	private void initButtons() {
 		// Cancel button
-		Button btnCancel = (Button) findViewById(R.id.btn_cancel);
 		btnCancel.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -55,13 +87,12 @@ public class NewNotebookActivity extends Activity {
 		});
 
 		// Save button
-		Button btnSave = (Button) findViewById(R.id.btn_save);
 		btnSave.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				try {
 
-					int id = NewNotebookActivity.this.createNotebook();
+					int id = NewNotebookActivity.this.saveNotebook();
 
 					Intent intent = new Intent();
 					intent.putExtra(NOTEBOOK_ID_KEY, id);
@@ -82,16 +113,13 @@ public class NewNotebookActivity extends Activity {
 
 			}
 		});
-
 	}
 
-	protected int createNotebook() throws Exception {
-		EditText tvName = (EditText) findViewById(R.id.notebook_name);
+	private int saveNotebook() throws Exception {
 		String name = tvName.getText().toString();
 		if (name.length() == 0)
 			throw new Exception("Invalide name");
 
-		ColorPicker cpColor = (ColorPicker) findViewById(R.id.picker);
 		int rgba = cpColor.getColor();
 
 		Dao<Voyage, Integer> voyageDao = databaseHelper.getVoyageDao();
@@ -99,13 +127,6 @@ public class NewNotebookActivity extends Activity {
 		voyageDao.create(voyage);
 
 		return voyage.getId();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.new_notebook, menu);
-		return true;
 	}
 
 }
