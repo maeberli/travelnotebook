@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,6 +26,8 @@ public class NewNotebookActivity extends Activity {
 	/********************
 	 * Static class members
 	 ********************/
+	private static final String LOGTAG = NewNotebookActivity.class.getSimpleName();
+	
 	public static final int RESULT_FAIL = 500;
 	public static final int RESULT_SQL_FAIL = 501;
 	public static final String NOTEBOOK_ID_KEY = "notebookId";
@@ -37,6 +40,8 @@ public class NewNotebookActivity extends Activity {
 	private Button btnSave;
 	private EditText tvName;
 	private ColorPicker cpColor;
+
+	private Voyage voyage;
 
 	/********************
 	 * Public methods
@@ -69,7 +74,23 @@ public class NewNotebookActivity extends Activity {
 		tvName = (EditText) findViewById(R.id.notebook_name);
 		cpColor = (ColorPicker) findViewById(R.id.picker);
 
+		// per default create a new voyage
+		voyage = new Voyage();
+
+		Intent intent = getIntent();
+		if (intent.hasExtra(NOTEBOOK_ID_KEY)) {
+			int voayageID = intent.getIntExtra(NOTEBOOK_ID_KEY, -1);
+			if (voayageID != -1) {
+				try {
+					voyage = databaseHelper.getVoyageDao().queryForId(voayageID);
+				}
+				catch (SQLException e) {
+				}
+			}
+		}
+
 		initButtons();
+		initFields();
 	}
 
 	/********************
@@ -115,6 +136,12 @@ public class NewNotebookActivity extends Activity {
 		});
 	}
 
+	private void initFields() {
+		Log.d(LOGTAG, "init fields with " + voyage);
+		this.cpColor.setColor(voyage.getColor());
+		this.tvName.setText(voyage.getTitle());
+	}
+
 	private int saveNotebook() throws Exception {
 		String name = tvName.getText().toString();
 		if (name.length() == 0)
@@ -123,8 +150,11 @@ public class NewNotebookActivity extends Activity {
 		int rgba = cpColor.getColor();
 
 		Dao<Voyage, Integer> voyageDao = databaseHelper.getVoyageDao();
-		Voyage voyage = new Voyage(name, rgba);
-		voyageDao.create(voyage);
+
+		voyage.setColor(rgba);
+		voyage.setTitle(name);
+
+		voyageDao.createOrUpdate(voyage);
 
 		return voyage.getId();
 	}

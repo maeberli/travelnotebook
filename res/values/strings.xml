@@ -50,4 +50,10 @@
     <!-- Date Time picker -->
     <string name="pick_date">Pick a date</string>
 
+    <!-- General item actions -->
+    <string name="title_item_actions_popup">Actions:</string>
+    <string name="show">show</string>
+    <string name="edit">edit</string>
+    <string name="delete">delete</string>
+
 </resources>

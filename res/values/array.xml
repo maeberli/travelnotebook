@@ -11,5 +11,10 @@
         <item>@string/add_from_camera</item>
         <item>@string/add_from_gallery</item>
     </string-array>
+    <string-array name="item_actions">
+        <item>@string/show</item>
+        <item>@string/edit</item>
+        <item>@string/delete</item>
+    </string-array>
 
 </resources>

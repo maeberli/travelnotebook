@@ -53,6 +53,7 @@ public class HomeActivity extends FragmentActivity {
 	private static final String LOGTAG = HomeActivity.class.getSimpleName();
 	private static final int SHOW_NOTEBOOK_CODE = 100;
 	private static final int NEW_NOTEBOOK_CODE = 101;
+	private static final int EDIT_NOTEBOOK_CODE = 102;
 	private static final int SETTINGS_CODE = 200;
 	private static final int MAP_BOUNDS_MARGIN = 100;
 
@@ -152,36 +153,26 @@ public class HomeActivity extends FragmentActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
-		if (requestCode == NEW_NOTEBOOK_CODE) {
-			switch (resultCode) {
+		switch (resultCode) {
+		case RESULT_OK:
+			Toast.makeText(this, "Notebook saved", Toast.LENGTH_LONG).show();
 
-			case RESULT_OK:
-				Toast.makeText(this, "Notebook saved", Toast.LENGTH_LONG).show();
+			if (requestCode == NEW_NOTEBOOK_CODE || requestCode == EDIT_NOTEBOOK_CODE) {
 				buildDrawer();
-
-				startNotebookActivity(data.getExtras().getInt(NewNotebookActivity.NOTEBOOK_ID_KEY));
-				break;
-
-			case RESULT_CANCELED:
-				Toast.makeText(this, "Canceled !", Toast.LENGTH_LONG).show();
-				break;
-			case NewNotebookActivity.RESULT_FAIL:
-				Log.e(LOGTAG, "Result fail");
-			case NewNotebookActivity.RESULT_SQL_FAIL:
-				Toast.makeText(getApplicationContext(), "Creation failed !", Toast.LENGTH_SHORT).show();
-				break;
-
 			}
-		}
-		else if (requestCode == SETTINGS_CODE) {
-			switch (resultCode) {
-			case RESULT_CANCELED:
-				// NOP
-				break;
-			case RESULT_OK:
-				// TODO Refresh activity
-				break;
+
+			if (requestCode == NEW_NOTEBOOK_CODE) {
+				startShowNotebookActivity(data.getExtras().getInt(NewNotebookActivity.NOTEBOOK_ID_KEY));
 			}
+			break;
+		case RESULT_CANCELED:
+			Toast.makeText(this, "Canceled !", Toast.LENGTH_LONG).show();
+			break;
+		case NewNotebookActivity.RESULT_FAIL:
+			Log.e(LOGTAG, "Result fail");
+		case NewNotebookActivity.RESULT_SQL_FAIL:
+			Toast.makeText(getApplicationContext(), "Creation failed !", Toast.LENGTH_SHORT).show();
+			break;
 		}
 	}
 
@@ -250,7 +241,8 @@ public class HomeActivity extends FragmentActivity {
 
 			@Override
 			public void onClick(View v) {
-				startNotebookActivity(voyage.getId());
+				startShowNotebookActivity(voyage.getId());
+				createNotebookActionDialog(voyage.getId());
 
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
@@ -278,8 +270,8 @@ public class HomeActivity extends FragmentActivity {
 
 			@Override
 			public void onInfoWindowClick(Marker marker) {
-				Voyage voyage = markers.get(marker);
-				startNotebookActivity(voyage.getId());
+				Voyage notebook = markers.get(marker);
+				createNotebookActionDialog(notebook.getId()).show();
 			}
 		});
 
@@ -407,10 +399,29 @@ public class HomeActivity extends FragmentActivity {
 		return builder.create();
 	}
 
-	private void startNotebookActivity(int id) {
-		Intent intent = new Intent(HomeActivity.this, NotebookActivity.class);
-		intent.putExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID, id);
-		startActivityForResult(intent, SHOW_NOTEBOOK_CODE);
+	private Dialog createNotebookActionDialog(final int id) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setItems(R.array.item_actions, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				switch (which) {
+				case 0:
+					startShowNotebookActivity(id);
+					break;
+				case 1:
+					startEditNotebookActivity(id);
+					break;
+				case 2:
+					Toast.makeText(getApplicationContext(), "delete action not implemented", Toast.LENGTH_SHORT).show();
+					break;
+				default:
+					Toast.makeText(getApplicationContext(), "action not implemented", Toast.LENGTH_SHORT).show();
+					break;
+				}
+			}
+
+		});
+		builder.setTitle(R.string.title_item_actions_popup);
+		return builder.create();
 	}
 
 	private void startSettingsActivity() {
@@ -423,5 +434,17 @@ public class HomeActivity extends FragmentActivity {
 		Intent intent = new Intent(HomeActivity.this, NewNotebookActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 		startActivityForResult(intent, NEW_NOTEBOOK_CODE);
+	}
+
+	private void startShowNotebookActivity(int id) {
+		Intent intent = new Intent(HomeActivity.this, NotebookActivity.class);
+		intent.putExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID, id);
+		startActivityForResult(intent, SHOW_NOTEBOOK_CODE);
+	}
+
+	private void startEditNotebookActivity(int id) {
+		Intent intent = new Intent(HomeActivity.this, NewNotebookActivity.class);
+		intent.putExtra(NewNotebookActivity.NOTEBOOK_ID_KEY, id);
+		startActivityForResult(intent, EDIT_NOTEBOOK_CODE);
 	}
 }
