@@ -54,7 +54,6 @@ public class HomeActivity extends FragmentActivity {
 	private static final int SHOW_NOTEBOOK_CODE = 100;
 	private static final int NEW_NOTEBOOK_CODE = 101;
 	private static final int EDIT_NOTEBOOK_CODE = 102;
-	private static final int SETTINGS_CODE = 200;
 	private static final int MAP_BOUNDS_MARGIN = 100;
 
 	/********************
@@ -198,17 +197,6 @@ public class HomeActivity extends FragmentActivity {
 			@Override
 			public void onClick(View v) {
 				startNewNotebookActivity();
-
-				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
-			}
-		});
-
-		// Settings button
-		Button btnSettings = (Button) findViewById(R.id.btn_settings);
-		btnSettings.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startSettingsActivity();
 
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
@@ -422,12 +410,6 @@ public class HomeActivity extends FragmentActivity {
 		});
 		builder.setTitle(R.string.title_item_actions_popup);
 		return builder.create();
-	}
-
-	private void startSettingsActivity() {
-		Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-		startActivityForResult(intent, SETTINGS_CODE);
 	}
 
 	private void startNewNotebookActivity() {
