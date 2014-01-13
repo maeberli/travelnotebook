@@ -5,16 +5,23 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.LocationClient;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
 import ch.hearc.devmobile.travelnotebook.database.Post;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
+import android.location.Geocoder;
+import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -26,7 +33,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class PostItemFormActivity extends Activity implements DatePickerFragment.DateListener {
+public class PostItemFormActivity extends Activity implements DatePickerFragment.DateListener, GooglePlayServicesClient.ConnectionCallbacks,
+		GooglePlayServicesClient.OnConnectionFailedListener {
 
 	/********************
 	 * Private members
@@ -34,10 +42,15 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 
 	private static final String LOGTAG = TravelItemFormActivity.class.getSimpleName();
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
+	private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
 	private DatabaseHelper databaseHelper = null;
 	private Voyage currentVoyage;
 	private SimpleDateFormat dateFormatter;
+
+	private EditText address;
+	private Location currentLocation;
+	private LocationClient locationClient;
 
 	/********************
 	 * Public members
@@ -71,8 +84,56 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		Date now = new Date();
 		tvStartDate.setText(dateFormatter.format(now.getTime()));
 
+		// Set default value to the position
+		address = (EditText) findViewById(R.id.post_item_start_location);
+		
+		// Set action to update location button
+		Button updateAdress = (Button) findViewById(R.id.btn_post_item_update_location);
+		updateAdress.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				updateAddress();
+			}
+		});
 	}
 
+	
+	/*
+     * Called when the Activity becomes visible.
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Connect the client.
+        setUpLocationClientIfNeeded();
+        locationClient.connect();
+    }
+    
+    
+    private void setUpLocationClientIfNeeded() {	
+		if (locationClient == null) {
+			locationClient = new LocationClient(this, this, this);
+		}
+	}
+    
+    private void updateAddress() {
+    	(new GetAddressTask(this, address)).execute(currentLocation);
+    }
+
+
+	/*
+     * Called when the Activity is no longer visible.
+     */
+    @Override
+    protected void onStop() {
+        // Disconnecting the client invalidates it.
+    	if(locationClient != null ){
+            locationClient.disconnect();
+    	}
+        super.onStop();
+    }
+	
 	private void initButtons() {
 		// Cancel button
 		Button btnCancel = (Button) findViewById(R.id.btn_cancel);
@@ -152,17 +213,59 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		getMenuInflater().inflate(R.menu.post_item_form, menu);
 		return true;
 	}
-	
+
 	public void showDatePickerDialog(View v) {
-	    DialogFragment newFragment = new DatePickerFragment(v);
-	    newFragment.show(getFragmentManager(), "datePicker");
+		DialogFragment newFragment = new DatePickerFragment(v);
+		newFragment.show(getFragmentManager(), "datePicker");
 	}
-	
+
 	@Override
 	public void returnDate(String date, View v) {
 		Log.i(LOGTAG, "date returned");
-	    TextView tvStartView = (TextView)v;
-	    tvStartView.setText(date);
+		TextView tvStartView = (TextView) v;
+		tvStartView.setText(date);
+	}
+
+	/***********************************************
+	 * Google play service interface implementaiton
+	 ***********************************************/
+
+	@Override
+	public void onConnected(Bundle dataBundle) {
+		currentLocation = locationClient.getLastLocation();
+	}
+
+	@Override
+	public void onDisconnected() {
+	}
+
+	/*
+	 * Called by Location Services if the attempt to Location Services fails.
+	 */
+	@Override
+	public void onConnectionFailed(ConnectionResult connectionResult) {
+		/*
+		 * Google Play services can resolve some errors it detects. If the error
+		 * has a resolution, try sending an Intent to start a Google Play
+		 * services activity that can resolve error.
+		 */
+		if (connectionResult.hasResolution()) {
+			try {
+				// Start an Activity that tries to resolve the error
+				connectionResult.startResolutionForResult(this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+				/*
+				 * Thrown if Google Play services canceled the original
+				 * PendingIntent
+				 */
+			}
+			catch (IntentSender.SendIntentException e) {
+				// Log the error
+				e.printStackTrace();
+			}
+		}
+		else {
+			// NOP
+		}
 	}
 
 }
