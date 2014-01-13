@@ -51,7 +51,8 @@ public class HomeActivity extends FragmentActivity {
 	 * Static class members
 	 ********************/
 	private static final String LOGTAG = HomeActivity.class.getSimpleName();
-	private static final int NEW_NOTEBOOK_CODE = 100;
+	private static final int SHOW_NOTEBOOK_CODE = 100;
+	private static final int NEW_NOTEBOOK_CODE = 101;
 	private static final int SETTINGS_CODE = 200;
 	private static final int MAP_BOUNDS_MARGIN = 100;
 
@@ -409,7 +410,7 @@ public class HomeActivity extends FragmentActivity {
 	private void startNotebookActivity(int id) {
 		Intent intent = new Intent(HomeActivity.this, NotebookActivity.class);
 		intent.putExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID, id);
-		startActivity(intent);
+		startActivityForResult(intent, SHOW_NOTEBOOK_CODE);
 	}
 
 	private void startSettingsActivity() {

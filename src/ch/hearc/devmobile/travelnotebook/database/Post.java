@@ -2,6 +2,11 @@ package ch.hearc.devmobile.travelnotebook.database;
 
 import java.util.Date;
 
+import android.location.Geocoder;
+
+import ch.hearc.devmobile.travelnotebook.Utilities;
+
+import com.google.android.gms.maps.model.LatLng;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
@@ -11,8 +16,8 @@ public class Post {
 	/********************
 	 * Static
 	 ********************/
-	@SuppressWarnings("unused")
 	private static final String LOGTAG = Post.class.getSimpleName();
+	private static final int MAXGEOCODERRESULT = 1;
 
 	/********************
 	 * Private members
@@ -25,17 +30,17 @@ public class Post {
 
 	@DatabaseField
 	private String description;
-	
+
 	@DatabaseField
 	private Date date;
 
 	@DatabaseField
 	private String location;
-	
+
 	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
 	private Voyage voyage;
 
-	@ForeignCollectionField
+	@ForeignCollectionField(eager = true)
 	private ForeignCollection<Image> images;
 
 	/********************
@@ -61,7 +66,7 @@ public class Post {
 	public int getId() {
 		return id;
 	}
-	
+
 	public String getTitle() {
 		return title;
 	}
@@ -85,7 +90,7 @@ public class Post {
 	public void setLocation(String location) {
 		this.location = location;
 	}
-	
+
 	public Date getDate() {
 		return date;
 	}
@@ -100,6 +105,18 @@ public class Post {
 
 	public void setImages(ForeignCollection<Image> images) {
 		this.images = images;
+	}
+
+	public Voyage getVoayge() {
+		return this.voyage;
+	}
+
+	public void setVoyage(Voyage voyage) {
+		this.voyage = voyage;
+	}
+
+	public LatLng getLocationPosition(Geocoder geocoder) {
+		return Utilities.getLocation(geocoder, location, MAXGEOCODERRESULT, LOGTAG);
 	}
 
 	@Override
@@ -118,5 +135,4 @@ public class Post {
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

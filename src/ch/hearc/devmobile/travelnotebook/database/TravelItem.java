@@ -1,12 +1,9 @@
 package ch.hearc.devmobile.travelnotebook.database;
 
-import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
-import android.location.Address;
 import android.location.Geocoder;
-import android.util.Log;
+import ch.hearc.devmobile.travelnotebook.Utilities;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.j256.ormlite.field.DatabaseField;
@@ -127,7 +124,7 @@ public class TravelItem {
 	}
 
 	public LatLng getStartLocationPosition(Geocoder geocoder) {
-		return getLocation(geocoder, startLocation);
+		return Utilities.getLocation(geocoder, startLocation, MAXGEOCODERRESULTS, LOGTAG);
 	}
 
 	public String getEndLocation() {
@@ -135,7 +132,7 @@ public class TravelItem {
 	}
 
 	public LatLng getEndLocationPosition(Geocoder geocoder) {
-		return getLocation(geocoder, endLocation);
+		return Utilities.getLocation(geocoder, endLocation, MAXGEOCODERRESULTS, LOGTAG);
 	}
 
 	public void setEndLocation(String endLocation) {
@@ -189,33 +186,5 @@ public class TravelItem {
 		builder.append(tag);
 		builder.append("]");
 		return builder.toString();
-	}
-
-	/********************
-	 * Private methods
-	 ********************/
-	private static LatLng getLocation(Geocoder geocoder, String name) {
-		List<Address> addresses;
-		try {
-			addresses = geocoder.getFromLocationName(name, MAXGEOCODERRESULTS);
-			Log.d(LOGTAG, "Addresses found for " + name + ": " + addresses.size());
-
-			if (addresses.size() > 0) {
-				LatLng location = addressToLatLng(addresses.get(0));
-
-				Log.d(LOGTAG, "Geocoded location of " + name + ": " + location);
-				return location;
-			}
-		}
-		catch (IOException e) {
-			Log.i(LOGTAG, "Address <" + name + "> not found. Return Lat: 0, Long:0 .");
-			return new LatLng(0, 0);
-		}
-
-		return null;
-	}
-
-	private static LatLng addressToLatLng(Address address) {
-		return new LatLng(address.getLatitude(), address.getLongitude());
 	}
 }

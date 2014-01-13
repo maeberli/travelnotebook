@@ -7,5 +7,9 @@
         <item>@string/add_post_item</item>
         <item>@string/add_travel_item</item>
     </string-array>
+    <string-array name="postitemformactivity_add_photo_actions">
+        <item>@string/add_from_camera</item>
+        <item>@string/add_from_gallery</item>
+    </string-array>
 
 </resources>

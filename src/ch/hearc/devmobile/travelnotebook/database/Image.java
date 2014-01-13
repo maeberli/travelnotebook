@@ -19,7 +19,7 @@ public class Image {
 	@DatabaseField
 	private String imageURI;
 
-	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true)
+	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = false)
 	private Post post;
 
 	/********************
@@ -65,6 +65,11 @@ public class Image {
 		builder.append(post);
 		builder.append("]");
 		return builder.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return this.imageURI.hashCode();
 	}
 
 }

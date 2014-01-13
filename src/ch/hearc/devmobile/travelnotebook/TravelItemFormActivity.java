@@ -48,7 +48,8 @@ public class TravelItemFormActivity extends Activity implements DatePickerFragme
 	 ********************/
 	public static final int RESULT_FAIL = 500;
 	public static final int RESULT_SQL_FAIL = 501;
-	public static final String ITEM_ID_KEY = "itemId";
+	public static final String TRAVELITEM_ID_KEY = "itemId";
+	public static final String VOYAGE_ID_KEY = "vayageID";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +64,7 @@ public class TravelItemFormActivity extends Activity implements DatePickerFragme
 
 		databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 
-		currentVoyage = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG);
+		currentVoyage = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG, VOYAGE_ID_KEY);
 		
 		// Date formatter tool
 		dateFormatter = new SimpleDateFormat( DATE_FORMAT, Locale.getDefault() );
@@ -102,7 +103,7 @@ public class TravelItemFormActivity extends Activity implements DatePickerFragme
 					int id = createItem();
 
 					Intent intent = new Intent();
-					intent.putExtra(ITEM_ID_KEY, id);
+					intent.putExtra(TRAVELITEM_ID_KEY, id);
 
 					setResult(RESULT_OK, intent);
 					finish();

@@ -27,6 +27,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
+import ch.hearc.devmobile.travelnotebook.database.Post;
 import ch.hearc.devmobile.travelnotebook.database.Tag;
 import ch.hearc.devmobile.travelnotebook.database.TagType;
 import ch.hearc.devmobile.travelnotebook.database.TravelItem;
@@ -59,7 +60,9 @@ public class NotebookActivity extends FragmentActivity {
 	private static final int MAP_BOUNDS_MARGIN = 100;
 	private static final int VOAYAGE_ITEM_LINE_TRANSPARENCY = 50;
 	private static final int VOAYAGE_ITEM_LINE_TRANSPARENCY_SELECTED = 255;
-	private static final int NEW_ITEM_CODE = 110;
+	private static final int NEW_TRAVELITEM_CODE = 110;
+	private static final int NEW_POST_CODE = 120;
+	private static final int EDIT_POST_CODE = 121;
 
 	/********************
 	 * Public Static constants
@@ -84,7 +87,8 @@ public class NotebookActivity extends FragmentActivity {
 	private Geocoder geocoder;
 
 	private Marker lastClickedMarker;
-	private Map<Marker, TravelItem> markers;
+	private Map<Marker, TravelItem> travelItemMarkers;
+	private Map<Marker, Post> postMarkers;
 	private Map<TravelItem, Polygon> polygons;
 
 	/********************
@@ -113,7 +117,8 @@ public class NotebookActivity extends FragmentActivity {
 
 		// Variable instanciation
 		geocoder = new Geocoder(this);
-		markers = new HashMap<Marker, TravelItem>();
+		travelItemMarkers = new HashMap<Marker, TravelItem>();
+		postMarkers = new HashMap<Marker, Post>();
 		polygons = new HashMap<TravelItem, Polygon>();
 		lastClickedMarker = null;
 
@@ -127,7 +132,7 @@ public class NotebookActivity extends FragmentActivity {
 		getDBHelper();
 
 		// Now we can load the notebook to treat in this activity.
-		currentVoyage = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG);
+		currentVoyage = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG, NOTEBOOKACTIVITY_VOYAGE_ID);
 
 		// The last task is to setup the UI.
 		setUpMapIfNeeded();
@@ -140,6 +145,7 @@ public class NotebookActivity extends FragmentActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		Log.i(LOGTAG, "On resume called");
 		setUpMapIfNeeded();
 		getDBHelper();
 	}
@@ -164,12 +170,13 @@ public class NotebookActivity extends FragmentActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		Log.i(LOGTAG, "On activity result called");
 
-		if (requestCode == NEW_ITEM_CODE) {
+		if (requestCode == NEW_POST_CODE || requestCode == NEW_TRAVELITEM_CODE || requestCode == EDIT_POST_CODE) {
 			switch (resultCode) {
 
 			case RESULT_OK:
-				Toast.makeText(this, "Item saved", Toast.LENGTH_LONG).show();
+				Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
 				buildDrawer();
 
 				Builder boundsBuilder = new LatLngBounds.Builder();
@@ -322,8 +329,16 @@ public class NotebookActivity extends FragmentActivity {
 
 			@Override
 			public void onInfoWindowClick(Marker marker) {
-				TravelItem travelItem = markers.get(marker);
-				startTravelIemActivity(travelItem.getId());
+				if (travelItemMarkers.containsKey(marker)) {
+					TravelItem travelItem = travelItemMarkers.get(marker);
+					startTravelIemActivity(travelItem.getId());
+				}
+
+				if (postMarkers.containsKey(marker)) {
+					Post post = postMarkers.get(marker);
+					startEditPostActivity(post.getId());
+				}
+
 			}
 		});
 
@@ -341,7 +356,8 @@ public class NotebookActivity extends FragmentActivity {
 
 	private void buildMapElements(Builder boundsBuilder) {
 		// Clear the markers list, will be reinitialized directly after.
-		markers.clear();
+		travelItemMarkers.clear();
+		postMarkers.clear();
 		polygons.clear();
 
 		googleMap.clear();
@@ -349,6 +365,22 @@ public class NotebookActivity extends FragmentActivity {
 		for (TravelItem travelItem : currentVoyage.getTravelItems()) {
 			displayTraveItemOnMap(travelItem, boundsBuilder);
 		}
+
+		for (Post post : currentVoyage.getPosts()) {
+			displayPostOnMap(post);
+		}
+	}
+
+	private void displayPostOnMap(Post post) {
+		MarkerOptions markerOptions = new MarkerOptions();
+
+		markerOptions.title(post.getTitle());
+		LatLng position = post.getLocationPosition(geocoder);
+		markerOptions.position(position);
+
+		// append marker to the google map
+		Marker marker = googleMap.addMarker(markerOptions);
+		postMarkers.put(marker, post);
 	}
 
 	private void centerMap(Builder boundsBuilder) {
@@ -387,7 +419,7 @@ public class NotebookActivity extends FragmentActivity {
 			Marker marker = googleMap.addMarker(markerOptions);
 
 			// Append markers to the marker map
-			markers.put(marker, travelItem);
+			travelItemMarkers.put(marker, travelItem);
 		}
 		else {
 			// Set the two markers and trace the line between the the markers.
@@ -410,7 +442,7 @@ public class NotebookActivity extends FragmentActivity {
 			Polygon polygon = googleMap.addPolygon(polygonOptions);
 
 			// Append markers to the marker map and same for the polygon
-			markers.put(marker, travelItem);
+			travelItemMarkers.put(marker, travelItem);
 			polygons.put(travelItem, polygon);
 		}
 	}
@@ -440,7 +472,7 @@ public class NotebookActivity extends FragmentActivity {
 		// save the lastClicked marker (necessary for the unselection)
 		lastClickedMarker = marker;
 
-		TravelItem travelItem = markers.get(marker);
+		TravelItem travelItem = travelItemMarkers.get(marker);
 		if (travelItem != null) {
 			Polygon polygon = polygons.get(travelItem);
 			if (polygon != null) {
@@ -451,7 +483,7 @@ public class NotebookActivity extends FragmentActivity {
 	}
 
 	private void unselectMarker() {
-		TravelItem travelItem = markers.get(lastClickedMarker);
+		TravelItem travelItem = travelItemMarkers.get(lastClickedMarker);
 		if (travelItem != null) {
 			Polygon polygon = polygons.get(travelItem);
 			if (polygon != null) {
@@ -490,6 +522,15 @@ public class NotebookActivity extends FragmentActivity {
 
 	}
 
+	private void startEditPostActivity(int id) {
+		Intent intent = new Intent(NotebookActivity.this, PostItemFormActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+		intent.putExtra(PostItemFormActivity.POST_ID_KEY, id);
+
+		startActivityForResult(intent, EDIT_POST_CODE);
+	}
+
 	private void startPlanningActivity() {
 		// Intent intent = new Intent(NotebookActivity.this,
 		// PlanningActivity.class);
@@ -502,14 +543,14 @@ public class NotebookActivity extends FragmentActivity {
 	private void startNewPostItem() {
 		Intent intent = new Intent(NotebookActivity.this, PostItemFormActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-		intent.putExtra(NOTEBOOKACTIVITY_VOYAGE_ID, currentVoyage.getId());
-		startActivityForResult(intent, NEW_ITEM_CODE);
+		intent.putExtra(PostItemFormActivity.VOYAGE_ID_KEY, currentVoyage.getId());
+		startActivityForResult(intent, NEW_POST_CODE);
 	}
 
 	private void startNewTravelItemActivity() {
 		Intent intent = new Intent(NotebookActivity.this, TravelItemFormActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-		intent.putExtra(NOTEBOOKACTIVITY_VOYAGE_ID, currentVoyage.getId());
-		startActivityForResult(intent, NEW_ITEM_CODE);
+		intent.putExtra(TravelItemFormActivity.VOYAGE_ID_KEY, currentVoyage.getId());
+		startActivityForResult(intent, NEW_TRAVELITEM_CODE);
 	}
 }
