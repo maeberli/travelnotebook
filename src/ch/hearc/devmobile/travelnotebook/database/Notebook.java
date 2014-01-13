@@ -4,13 +4,13 @@ import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 
-public class Voyage {
+public class Notebook {
 
 	/********************
 	 * Static
 	 ********************/
 	@SuppressWarnings("unused")
-	private static final String LOGTAG = Voyage.class.getSimpleName();
+	private static final String LOGTAG = Notebook.class.getSimpleName();
 
 	public static final String FIELD_ID = "id";
 
@@ -35,12 +35,12 @@ public class Voyage {
 	/********************
 	 * Constructors
 	 ********************/
-	public Voyage() {
+	public Notebook() {
 		// Needed by ormlite
 		this("", 0);
 	}
 
-	public Voyage(String title, int color) {
+	public Notebook(String title, int color) {
 		this.id = 0;
 		this.title = title;
 		this.color = color;
@@ -84,7 +84,7 @@ public class Voyage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Voyage [id=");
+		builder.append("Notebook [id=");
 		builder.append(id);
 		builder.append(", title=");
 		builder.append(title);

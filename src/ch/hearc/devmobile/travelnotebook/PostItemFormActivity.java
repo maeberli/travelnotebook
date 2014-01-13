@@ -38,7 +38,7 @@ import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
 import ch.hearc.devmobile.travelnotebook.database.Image;
 import ch.hearc.devmobile.travelnotebook.database.Post;
-import ch.hearc.devmobile.travelnotebook.database.Voyage;
+import ch.hearc.devmobile.travelnotebook.database.Notebook;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -64,7 +64,7 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 	 ********************/
 
 	private DatabaseHelper databaseHelper = null;
-	private Voyage currentVoyage;
+	private Notebook currentNotebook;
 	private SimpleDateFormat dateFormatter;
 
 	private Location currentLocation;
@@ -85,7 +85,7 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 	public static final int RESULT_FAIL = 500;
 	public static final int RESULT_SQL_FAIL = 501;
 	public static final String POST_ID_KEY = "postId";
-	public static final String VOYAGE_ID_KEY = "voyageId";
+	public static final String NOOTEBOOK_ID_KEY = "notebookId";
 
 	/********************
 	 * Public methods
@@ -127,8 +127,8 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 
 		// analyze intent data
 		Intent intent = getIntent();
-		if (intent.hasExtra(VOYAGE_ID_KEY)) {
-			currentVoyage = Utilities.loadCurrentNotebookFromIntent(intent, databaseHelper, this, LOGTAG, VOYAGE_ID_KEY);
+		if (intent.hasExtra(NOOTEBOOK_ID_KEY)) {
+			currentNotebook = Utilities.loadCurrentNotebookFromIntent(intent, databaseHelper, this, LOGTAG, NOOTEBOOK_ID_KEY);
 
 			Log.v(LOGTAG, "Create new post");
 			postItem = new Post();
@@ -147,7 +147,7 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 			if (postid != -1) {
 				try {
 					postItem = databaseHelper.getPostDao().queryForId(postid);
-					currentVoyage = postItem.getVoayge();
+					currentNotebook = postItem.getNotebook();
 				}
 				catch (SQLException e) {
 				}
@@ -346,7 +346,7 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		postItem.setDescription(description);
 		postItem.setDate(startDate);
 		postItem.setLocation(startLocation);
-		postItem.setVoyage(currentVoyage);
+		postItem.setNotebook(currentNotebook);
 
 		Dao<Post, Integer> itemDao = databaseHelper.getPostDao();
 		Dao<Image, Integer> imageDao = databaseHelper.getImageDao();

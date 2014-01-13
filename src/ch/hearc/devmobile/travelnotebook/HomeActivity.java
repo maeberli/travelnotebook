@@ -28,7 +28,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
 import ch.hearc.devmobile.travelnotebook.database.TravelItem;
-import ch.hearc.devmobile.travelnotebook.database.Voyage;
+import ch.hearc.devmobile.travelnotebook.database.Notebook;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -46,7 +46,7 @@ import com.j256.ormlite.dao.ForeignCollection;
 
 public class HomeActivity extends FragmentActivity {
 
-	private static final int VOYAGE_LINE_COLOR_TRANSPARENCY = 180;
+	private static final int NOTEBOOK_LINE_COLOR_TRANSPARENCY = 180;
 	/********************
 	 * Static class members
 	 ********************/
@@ -68,7 +68,7 @@ public class HomeActivity extends FragmentActivity {
 	private GoogleMap googleMap = null;
 	private Geocoder geocoder;
 
-	private Map<Marker, Voyage> markers;
+	private Map<Marker, Notebook> markers;
 
 	/********************
 	 * Public methods
@@ -109,7 +109,7 @@ public class HomeActivity extends FragmentActivity {
 		setContentView(R.layout.activity_home);
 
 		geocoder = new Geocoder(this);
-		markers = new HashMap<Marker, Voyage>();
+		markers = new HashMap<Marker, Notebook>();
 
 		homeMapView = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.home_map);
 		homeMapView.onCreate(savedInstanceState);
@@ -202,12 +202,12 @@ public class HomeActivity extends FragmentActivity {
 			}
 		});
 
-		// Add voyages in the list from the database
+		// Add notebooks in the list from the database
 		try {
 
-			for (final Voyage voyage : getDBHelper().getVoyageDao().queryForAll()) {
+			for (final Notebook notebook : getDBHelper().getNotebookDao().queryForAll()) {
 
-				addNoteBookLink(voyage);
+				addNoteBookLink(notebook);
 			}
 		}
 		catch (SQLException e) {
@@ -222,21 +222,21 @@ public class HomeActivity extends FragmentActivity {
 
 	}
 
-	private void addNoteBookLink(final Voyage voyage) {
+	private void addNoteBookLink(final Notebook notebook) {
 
-		MenuElement voyageMenuElement = null;
-		voyageMenuElement = new MenuElement(voyage.getTitle(), new OnClickListener() {
+		MenuElement notebookMenuElement = null;
+		notebookMenuElement = new MenuElement(notebook.getTitle(), new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				startShowNotebookActivity(voyage.getId());
-				createNotebookActionDialog(voyage.getId());
+				startShowNotebookActivity(notebook.getId());
+				createNotebookActionDialog(notebook.getId());
 
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
 
 		});
-		drawerListViewItems.add(voyageMenuElement);
+		drawerListViewItems.add(notebookMenuElement);
 	}
 
 	private void setUpMapIfNeeded() {
@@ -258,7 +258,7 @@ public class HomeActivity extends FragmentActivity {
 
 			@Override
 			public void onInfoWindowClick(Marker marker) {
-				Voyage notebook = markers.get(marker);
+				Notebook notebook = markers.get(marker);
 				createNotebookActionDialog(notebook.getId()).show();
 			}
 		});
@@ -283,20 +283,20 @@ public class HomeActivity extends FragmentActivity {
 
 		googleMap.clear();
 
-		List<Voyage> voyages = null;
+		List<Notebook> notebooks = null;
 		try {
-			voyages = this.getDBHelper().getVoyageDao().queryForAll();
-			for (Voyage voyage : voyages) {
-				displayVoyageOnMap(voyage, boundsBuilder);
+			notebooks = this.getDBHelper().getNotebookDao().queryForAll();
+			for (Notebook notebook : notebooks) {
+				displayNotebookOnMap(notebook, boundsBuilder);
 			}
 		}
 		catch (SQLException e) {
-			Log.w(LOGTAG, "SQL Exception while accessing on Voyage Elements: " + e.getMessage());
+			Log.w(LOGTAG, "SQL Exception while accessing on notebook Elements: " + e.getMessage());
 		}
 	}
 
-	private void displayVoyageOnMap(Voyage voyage, Builder boundsBuilder) {
-		ForeignCollection<TravelItem> travelItems = voyage.getTravelItems();
+	private void displayNotebookOnMap(Notebook notebook, Builder boundsBuilder) {
+		ForeignCollection<TravelItem> travelItems = notebook.getTravelItems();
 
 		LinkedList<LatLng> travelItemPositions = new LinkedList<LatLng>();
 
@@ -330,22 +330,22 @@ public class HomeActivity extends FragmentActivity {
 			}
 		}
 
-		// Get the colors associated to the voyage
-		int voyageColor = voyage.getColor();
-		int voyageColorTransparent = Utilities.createTransparancyColor(voyageColor, VOYAGE_LINE_COLOR_TRANSPARENCY);
+		// Get the colors associated to the notebook
+		int notebookColor = notebook.getColor();
+		int notebookColorTransparent = Utilities.createTransparancyColor(notebookColor, NOTEBOOK_LINE_COLOR_TRANSPARENCY);
 
-		// get the marker position of the current voyage
+		// get the marker position of the current notebook
 		LatLng markerPosition = new LatLng(0.0, 0.0);
 		if (travelItemPositions.size() > 0) {
 			markerPosition = travelItemPositions.getFirst();
-			googleMap.addPolygon(new PolygonOptions().addAll(travelItemPositions).strokeColor(voyageColorTransparent).geodesic(true));
+			googleMap.addPolygon(new PolygonOptions().addAll(travelItemPositions).strokeColor(notebookColorTransparent).geodesic(true));
 		}
 
-		Marker marker = googleMap.addMarker(new MarkerOptions().position(markerPosition).title(voyage.getTitle()));
+		Marker marker = googleMap.addMarker(new MarkerOptions().position(markerPosition).title(notebook.getTitle()));
 
-		// append the marker and the voyage to the markers list
+		// append the marker and the notebook to the markers list
 		// Allows to associate click events to markers
-		this.markers.put(marker, voyage);
+		this.markers.put(marker, notebook);
 	}
 
 	private void centerMap(final Builder boundsBuilder) {
@@ -420,7 +420,7 @@ public class HomeActivity extends FragmentActivity {
 
 	private void startShowNotebookActivity(int id) {
 		Intent intent = new Intent(HomeActivity.this, NotebookActivity.class);
-		intent.putExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID, id);
+		intent.putExtra(NotebookActivity.NOTEBOOKACTIVITY_NOTEBOOK_ID, id);
 		startActivityForResult(intent, SHOW_NOTEBOOK_CODE);
 	}
 
@@ -432,7 +432,7 @@ public class HomeActivity extends FragmentActivity {
 
 	private void deleteNotebook(int id) {
 		try {
-			databaseHelper.getVoyageDao().deleteById(id);
+			databaseHelper.getNotebookDao().deleteById(id);
 		}
 		catch (SQLException e) {
 			Toast.makeText(getApplicationContext(), "Notebook deletion error. Sorry!", Toast.LENGTH_LONG).show();

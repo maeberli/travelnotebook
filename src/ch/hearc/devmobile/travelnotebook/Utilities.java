@@ -7,7 +7,7 @@ import java.util.List;
 import com.google.android.gms.maps.model.LatLng;
 
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
-import ch.hearc.devmobile.travelnotebook.database.Voyage;
+import ch.hearc.devmobile.travelnotebook.database.Notebook;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -22,26 +22,26 @@ public class Utilities {
 		return Color.argb(transparency, Color.red(color), Color.green(color), Color.blue(color));
 	}
 
-	public static Voyage loadCurrentNotebookFromIntent(Intent intent, DatabaseHelper databaseHelper, Activity context, String logtag, String idName) {
+	public static Notebook loadCurrentNotebookFromIntent(Intent intent, DatabaseHelper databaseHelper, Activity context, String logtag, String idName) {
 		// Add items in the list from the database
 		if (intent.hasExtra(idName)) {
-			int voyageId = intent.getIntExtra(idName, -1);
-			if (voyageId != -1) {
+			int notebookId = intent.getIntExtra(idName, -1);
+			if (notebookId != -1) {
 				try {
-					return databaseHelper.getVoyageDao().queryForId(voyageId);
+					return databaseHelper.getNotebookDao().queryForId(notebookId);
 
 				}
 				catch (SQLException e) {
 					e.printStackTrace();
-					abortActivityWithError("Voyage query failed: SQL exception", context, logtag);
+					abortActivityWithError("Notebook query failed: SQL exception", context, logtag);
 				}
 			}
 			else {
-				abortActivityWithError("No valid voyage id passed to NotebookActivity!", context, logtag);
+				abortActivityWithError("No valid notebook id passed to NotebookActivity!", context, logtag);
 			}
 		}
 		else {
-			abortActivityWithError("No voyage id passed to NotebookActivity!", context, logtag);
+			abortActivityWithError("No notebook id passed to NotebookActivity!", context, logtag);
 		}
 		return null;
 	}

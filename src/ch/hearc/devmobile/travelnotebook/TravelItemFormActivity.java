@@ -25,7 +25,7 @@ import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
 import ch.hearc.devmobile.travelnotebook.database.Tag;
 import ch.hearc.devmobile.travelnotebook.database.TagType;
 import ch.hearc.devmobile.travelnotebook.database.TravelItem;
-import ch.hearc.devmobile.travelnotebook.database.Voyage;
+import ch.hearc.devmobile.travelnotebook.database.Notebook;
 
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
@@ -40,7 +40,7 @@ public class TravelItemFormActivity extends Activity implements DatePickerFragme
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
 
 	private DatabaseHelper databaseHelper = null;
-	private Voyage currentVoyage;
+	private Notebook currentNotebook;
 	private SimpleDateFormat dateFormatter;
 
 	/********************
@@ -49,7 +49,7 @@ public class TravelItemFormActivity extends Activity implements DatePickerFragme
 	public static final int RESULT_FAIL = 500;
 	public static final int RESULT_SQL_FAIL = 501;
 	public static final String TRAVELITEM_ID_KEY = "itemId";
-	public static final String VOYAGE_ID_KEY = "vayageID";
+	public static final String NOTEBOOK_ID_KEY = "notebookId";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +64,7 @@ public class TravelItemFormActivity extends Activity implements DatePickerFragme
 
 		databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 
-		currentVoyage = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG, VOYAGE_ID_KEY);
+		currentNotebook = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG, NOTEBOOK_ID_KEY);
 		
 		// Date formatter tool
 		dateFormatter = new SimpleDateFormat( DATE_FORMAT, Locale.getDefault() );
@@ -168,7 +168,7 @@ public class TravelItemFormActivity extends Activity implements DatePickerFragme
 
 		// Creates the item
 		Dao<TravelItem, Integer> itemDao = databaseHelper.getTravelItemDao();
-		TravelItem item = new TravelItem(title, description, startDate, endDate, startLocation, endLocation, currentVoyage, tag);
+		TravelItem item = new TravelItem(title, description, startDate, endDate, startLocation, endLocation, currentNotebook, tag);
 		Log.i(LOGTAG, item.toString());
 		itemDao.create(item);
 

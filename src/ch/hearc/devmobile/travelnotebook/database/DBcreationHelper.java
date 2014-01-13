@@ -18,14 +18,14 @@ public class DBcreationHelper {
 		Log.i(LOGTAG, "Create example db entries");
 
 		try {
-			Dao<Voyage, Integer> voyageDao = databaseHelper.getVoyageDao();
+			Dao<Notebook, Integer> notebookDao = databaseHelper.getNotebookDao();
 
-			for (Voyage voyage : voyageDao.queryForAll()) {
-				voyageDao.delete(voyage);
+			for (Notebook notebook : notebookDao.queryForAll()) {
+				notebookDao.delete(notebook);
 			}
 		}
 		catch (SQLException e) {
-			Log.e(LOGTAG, "Voyage creation error:" + e.getMessage());
+			Log.e(LOGTAG, "Notebook creation error:" + e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -33,30 +33,30 @@ public class DBcreationHelper {
 		Calendar endDate = Calendar.getInstance();
 		endDate.add(Calendar.HOUR, 1);
 
-		Voyage voyage = new Voyage("Weekend trip London", Color.BLUE);
+		Notebook notebook = new Notebook("Weekend trip London", Color.BLUE);
 
 		List<TravelItem> travelItems = new ArrayList<TravelItem>();
 
 		travelItems.add(new TravelItem("ZHR-London", "The flight with the numer xy", startDate.getTime(), endDate.getTime(), "Zurich, Airport",
-				"London, Heathrow", voyage, new Tag(TagType.PLANE)));
+				"London, Heathrow", notebook, new Tag(TagType.PLANE)));
 
 		travelItems.add(new TravelItem("Bus Transfer to the hotel", "The bus leafes heathrow in terminal 2", startDate.getTime(), endDate.getTime(),
-				"London,Heathrow airport", "Hilton Hotel, London", voyage, new Tag(TagType.BUS)));
+				"London,Heathrow airport", "Hilton Hotel, London", notebook, new Tag(TagType.BUS)));
 
 		travelItems.add(new TravelItem("Senior Suite in Hilton Hotel", "Let's enjoy the welness area", startDate.getTime(), endDate.getTime(),
-				"Hilton Hotel, London", voyage, new Tag(TagType.HOTEL)));
+				"Hilton Hotel, London", notebook, new Tag(TagType.HOTEL)));
 
-		travelItems.add(new TravelItem("Chinesse food", "Yea in london i usually eat chinesse food.", startDate.getTime(), "DownTown London", voyage, new Tag(
+		travelItems.add(new TravelItem("Chinesse food", "Yea in london i usually eat chinesse food.", startDate.getTime(), "DownTown London", notebook, new Tag(
 				TagType.FOOD)));
 
 		travelItems.add(new TravelItem("Taxi Transfer Hotel-> Airport", "As a typicall tourist i wan't to take a classic london cab to return to the airport",
-				startDate.getTime(), endDate.getTime(), "Hilton Hotel, London", "Heathrow Airport, London", voyage, new Tag(TagType.TAXI)));
+				startDate.getTime(), endDate.getTime(), "Hilton Hotel, London", "Heathrow Airport, London", notebook, new Tag(TagType.TAXI)));
 
 		travelItems.add(new TravelItem("Heathrow->Hamburg", "Please no kids in avion", startDate.getTime(), endDate.getTime(), "Heathrow Airport, London",
-				"Hamburg Airport", voyage, new Tag(TagType.PLANE)));
+				"Hamburg Airport", notebook, new Tag(TagType.PLANE)));
 
 		travelItems.add(new TravelItem("Hamburg->ZRH", "Please no kids in avion", startDate.getTime(), endDate.getTime(), "Hamburg Airport", "Zurich, Airport",
-				voyage, new Tag(TagType.PLANE)));
+				notebook, new Tag(TagType.PLANE)));
 
 		try {
 			for (TravelItem travelItem : travelItems) {
@@ -64,7 +64,7 @@ public class DBcreationHelper {
 			}
 		}
 		catch (SQLException e) {
-			Log.e(LOGTAG, "Voyage creation error:" + e.getMessage());
+			Log.e(LOGTAG, "Notebook creation error:" + e.getMessage());
 			e.printStackTrace();
 		}
 	}

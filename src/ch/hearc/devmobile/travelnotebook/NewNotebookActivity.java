@@ -15,7 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
-import ch.hearc.devmobile.travelnotebook.database.Voyage;
+import ch.hearc.devmobile.travelnotebook.database.Notebook;
 
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
@@ -41,7 +41,7 @@ public class NewNotebookActivity extends Activity {
 	private EditText tvName;
 	private ColorPicker cpColor;
 
-	private Voyage voyage;
+	private Notebook notebook;
 
 	/********************
 	 * Public methods
@@ -74,15 +74,15 @@ public class NewNotebookActivity extends Activity {
 		tvName = (EditText) findViewById(R.id.notebook_name);
 		cpColor = (ColorPicker) findViewById(R.id.picker);
 
-		// per default create a new voyage
-		voyage = new Voyage();
+		// per default create a new notebook
+		notebook = new Notebook();
 
 		Intent intent = getIntent();
 		if (intent.hasExtra(NOTEBOOK_ID_KEY)) {
-			int voayageID = intent.getIntExtra(NOTEBOOK_ID_KEY, -1);
-			if (voayageID != -1) {
+			int notebookId = intent.getIntExtra(NOTEBOOK_ID_KEY, -1);
+			if (notebookId != -1) {
 				try {
-					voyage = databaseHelper.getVoyageDao().queryForId(voayageID);
+					notebook = databaseHelper.getNotebookDao().queryForId(notebookId);
 				}
 				catch (SQLException e) {
 				}
@@ -137,9 +137,9 @@ public class NewNotebookActivity extends Activity {
 	}
 
 	private void initFields() {
-		Log.d(LOGTAG, "init fields with " + voyage);
-		this.cpColor.setColor(voyage.getColor());
-		this.tvName.setText(voyage.getTitle());
+		Log.d(LOGTAG, "init fields with " + notebook);
+		this.cpColor.setColor(notebook.getColor());
+		this.tvName.setText(notebook.getTitle());
 	}
 
 	private int saveNotebook() throws Exception {
@@ -149,14 +149,14 @@ public class NewNotebookActivity extends Activity {
 
 		int rgba = cpColor.getColor();
 
-		Dao<Voyage, Integer> voyageDao = databaseHelper.getVoyageDao();
+		Dao<Notebook, Integer> notebookDao = databaseHelper.getNotebookDao();
 
-		voyage.setColor(rgba);
-		voyage.setTitle(name);
+		notebook.setColor(rgba);
+		notebook.setTitle(name);
 
-		voyageDao.createOrUpdate(voyage);
+		notebookDao.createOrUpdate(notebook);
 
-		return voyage.getId();
+		return notebook.getId();
 	}
 
 }

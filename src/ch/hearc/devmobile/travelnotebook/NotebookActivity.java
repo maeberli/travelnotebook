@@ -31,7 +31,7 @@ import ch.hearc.devmobile.travelnotebook.database.Post;
 import ch.hearc.devmobile.travelnotebook.database.Tag;
 import ch.hearc.devmobile.travelnotebook.database.TagType;
 import ch.hearc.devmobile.travelnotebook.database.TravelItem;
-import ch.hearc.devmobile.travelnotebook.database.Voyage;
+import ch.hearc.devmobile.travelnotebook.database.Notebook;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -58,8 +58,8 @@ public class NotebookActivity extends FragmentActivity {
 	 ********************/
 	private static final String LOGTAG = NotebookActivity.class.getSimpleName();
 	private static final int MAP_BOUNDS_MARGIN = 100;
-	private static final int VOAYAGE_ITEM_LINE_TRANSPARENCY = 50;
-	private static final int VOAYAGE_ITEM_LINE_TRANSPARENCY_SELECTED = 255;
+	private static final int NOTEBOOK_ITEM_LINE_TRANSPARENCY = 50;
+	private static final int NOTEBOOK_ITEM_LINE_TRANSPARENCY_SELECTED = 255;
 	private static final int NEW_TRAVELITEM_CODE = 110;
 	private static final int NEW_POST_CODE = 120;
 	private static final int EDIT_POST_CODE = 121;
@@ -68,7 +68,7 @@ public class NotebookActivity extends FragmentActivity {
 	 * Public Static constants
 	 ********************/
 	public static final String TRAVEL_ITEM_ID = "travelItemId";
-	public static final String NOTEBOOKACTIVITY_VOYAGE_ID = "notebookId";
+	public static final String NOTEBOOKACTIVITY_NOTEBOOK_ID = "notebookId";
 	public static final String NOTEBOOKACTIVITY_RETURN_ERROR = "error";
 
 	/********************
@@ -81,7 +81,7 @@ public class NotebookActivity extends FragmentActivity {
 	private ListView drawerListView;
 	private DrawerLayout drawerLayout;
 	private RelativeLayout drawerPanel;
-	private Voyage currentVoyage;
+	private Notebook currentNotebook;
 	private SupportMapFragment notebookMapView;
 	private TextView notebookTitleTextView;
 	private Geocoder geocoder;
@@ -132,7 +132,7 @@ public class NotebookActivity extends FragmentActivity {
 		getDBHelper();
 
 		// Now we can load the notebook to treat in this activity.
-		currentVoyage = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG, NOTEBOOKACTIVITY_VOYAGE_ID);
+		currentNotebook = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG, NOTEBOOKACTIVITY_NOTEBOOK_ID);
 
 		// The last task is to setup the UI.
 		setUpMapIfNeeded();
@@ -211,7 +211,7 @@ public class NotebookActivity extends FragmentActivity {
 		// Add items in the list from the database
 		MenuElement itemMenuElement = null;
 
-		for (final TravelItem item : currentVoyage.getTravelItems()) {
+		for (final TravelItem item : currentNotebook.getTravelItems()) {
 
 			itemMenuElement = new MenuElement(item.getTitle(), new OnClickListener() {
 
@@ -271,7 +271,7 @@ public class NotebookActivity extends FragmentActivity {
 	}
 
 	private void initTitle() {
-		String title = currentVoyage.getTitle();
+		String title = currentNotebook.getTitle();
 		notebookTitleTextView.setText(title);
 	}
 
@@ -362,11 +362,11 @@ public class NotebookActivity extends FragmentActivity {
 
 		googleMap.clear();
 
-		for (TravelItem travelItem : currentVoyage.getTravelItems()) {
+		for (TravelItem travelItem : currentNotebook.getTravelItems()) {
 			displayTraveItemOnMap(travelItem, boundsBuilder);
 		}
 
-		for (Post post : currentVoyage.getPosts()) {
+		for (Post post : currentNotebook.getPosts()) {
 			displayPostOnMap(post);
 		}
 	}
@@ -433,7 +433,7 @@ public class NotebookActivity extends FragmentActivity {
 			markerOptions.position(startPosition);
 
 			// append line between end and start position
-			int color = Utilities.createTransparancyColor(this.currentVoyage.getColor(), VOAYAGE_ITEM_LINE_TRANSPARENCY);
+			int color = Utilities.createTransparancyColor(this.currentNotebook.getColor(), NOTEBOOK_ITEM_LINE_TRANSPARENCY);
 			PolygonOptions polygonOptions = new PolygonOptions();
 			polygonOptions.add(startPosition).add(endPosition).strokeColor(color).geodesic(true);
 
@@ -476,7 +476,7 @@ public class NotebookActivity extends FragmentActivity {
 		if (travelItem != null) {
 			Polygon polygon = polygons.get(travelItem);
 			if (polygon != null) {
-				int color = Utilities.createTransparancyColor(currentVoyage.getColor(), VOAYAGE_ITEM_LINE_TRANSPARENCY_SELECTED);
+				int color = Utilities.createTransparancyColor(currentNotebook.getColor(), NOTEBOOK_ITEM_LINE_TRANSPARENCY_SELECTED);
 				polygon.setStrokeColor(color);
 			}
 		}
@@ -487,7 +487,7 @@ public class NotebookActivity extends FragmentActivity {
 		if (travelItem != null) {
 			Polygon polygon = polygons.get(travelItem);
 			if (polygon != null) {
-				int color = Utilities.createTransparancyColor(currentVoyage.getColor(), VOAYAGE_ITEM_LINE_TRANSPARENCY);
+				int color = Utilities.createTransparancyColor(currentNotebook.getColor(), NOTEBOOK_ITEM_LINE_TRANSPARENCY);
 				polygon.setStrokeColor(color);
 			}
 		}
@@ -543,14 +543,14 @@ public class NotebookActivity extends FragmentActivity {
 	private void startNewPostItem() {
 		Intent intent = new Intent(NotebookActivity.this, PostItemFormActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-		intent.putExtra(PostItemFormActivity.VOYAGE_ID_KEY, currentVoyage.getId());
+		intent.putExtra(PostItemFormActivity.NOOTEBOOK_ID_KEY, currentNotebook.getId());
 		startActivityForResult(intent, NEW_POST_CODE);
 	}
 
 	private void startNewTravelItemActivity() {
 		Intent intent = new Intent(NotebookActivity.this, TravelItemFormActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-		intent.putExtra(TravelItemFormActivity.VOYAGE_ID_KEY, currentVoyage.getId());
+		intent.putExtra(TravelItemFormActivity.NOTEBOOK_ID_KEY, currentNotebook.getId());
 		startActivityForResult(intent, NEW_TRAVELITEM_CODE);
 	}
 }

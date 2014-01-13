@@ -38,7 +38,7 @@ public class Post {
 	private String location;
 
 	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
-	private Voyage voyage;
+	private Notebook notebook;
 
 	@ForeignCollectionField(eager = true)
 	private ForeignCollection<Image> images;
@@ -51,13 +51,13 @@ public class Post {
 		this("", "", new Date(), "", null);
 	}
 
-	public Post(String title, String description, Date date, String location, Voyage voyage) {
+	public Post(String title, String description, Date date, String location, Notebook notebook) {
 		this.id = 0;
 		this.title = title;
 		this.description = description;
 		this.date = date;
 		this.location = location;
-		this.voyage = voyage;
+		this.notebook = notebook;
 	}
 
 	/********************
@@ -107,12 +107,12 @@ public class Post {
 		this.images = images;
 	}
 
-	public Voyage getVoayge() {
-		return this.voyage;
+	public Notebook getNotebook() {
+		return this.notebook;
 	}
 
-	public void setVoyage(Voyage voyage) {
-		this.voyage = voyage;
+	public void setNotebook(Notebook notebook) {
+		this.notebook = notebook;
 	}
 
 	public LatLng getLocationPosition(Geocoder geocoder) {

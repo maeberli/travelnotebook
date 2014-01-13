@@ -15,7 +15,6 @@ public class TravelItem {
 	 ********************/
 	private static final String LOGTAG = TravelItem.class.getSimpleName();
 	private static final int MAXGEOCODERRESULTS = 1;
-	public static final String FIELD_VOYAGE = "voyage_id";
 
 	/********************
 	 * Private members
@@ -42,7 +41,7 @@ public class TravelItem {
 	private String endLocation;
 
 	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
-	private Voyage voyage;
+	private Notebook notebook;
 
 	@DatabaseField(canBeNull = false, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, unique = true)
 	private Tag tag;
@@ -55,7 +54,7 @@ public class TravelItem {
 		this("", "", new Date(), new Date(), "", "", null, null);
 	}
 
-	public TravelItem(String title, String description, Date startDate, Date endDate, String startLocation, String endLocation, Voyage voyage, Tag tag) {
+	public TravelItem(String title, String description, Date startDate, Date endDate, String startLocation, String endLocation, Notebook notebook, Tag tag) {
 		this.id = 0;
 		this.title = title;
 		this.description = description;
@@ -63,17 +62,17 @@ public class TravelItem {
 		this.endDate = endDate;
 		this.startLocation = startLocation;
 		this.endLocation = endLocation;
-		this.voyage = voyage;
+		this.notebook = notebook;
 		this.tag = tag;
 
 	}
 
-	public TravelItem(String title, String description, Date startDate, Date endDate, String startLocation, Voyage voyage, Tag tag) {
-		this(title, description, startDate, endDate, startLocation, null, voyage, tag);
+	public TravelItem(String title, String description, Date startDate, Date endDate, String startLocation, Notebook notebook, Tag tag) {
+		this(title, description, startDate, endDate, startLocation, null, notebook, tag);
 	}
 
-	public TravelItem(String title, String description, Date date, String location, Voyage voyage, Tag tag) {
-		this(title, description, date, null, location, null, voyage, tag);
+	public TravelItem(String title, String description, Date date, String location, Notebook notebook, Tag tag) {
+		this(title, description, date, null, location, null, notebook, tag);
 	}
 
 	/********************
@@ -139,12 +138,12 @@ public class TravelItem {
 		this.endLocation = endLocation;
 	}
 
-	public Voyage getVoyage() {
-		return voyage;
+	public Notebook getNotebook() {
+		return notebook;
 	}
 
-	public void setVoyage(Voyage voyage) {
-		this.voyage = voyage;
+	public void setNotebook(Notebook notebook) {
+		this.notebook = notebook;
 	}
 
 	public Tag getTag() {
@@ -180,8 +179,8 @@ public class TravelItem {
 		builder.append(startLocation);
 		builder.append(", endLocation=");
 		builder.append(endLocation);
-		builder.append(", voyage=");
-		builder.append(voyage);
+		builder.append(", notebook=");
+		builder.append(notebook);
 		builder.append(", tag=");
 		builder.append(tag);
 		builder.append("]");
