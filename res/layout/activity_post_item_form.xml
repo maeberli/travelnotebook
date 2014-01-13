@@ -78,12 +78,25 @@
                 android:labelFor="@+id/post_item_start_location"
                 android:text="@string/travel_item_start_location_label" />
 
-            <EditText
-                android:id="@+id/post_item_start_location"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="text" />
+                android:orientation="horizontal" >
+
+                <EditText
+                    android:id="@+id/post_item_start_location"
+                    android:layout_height="wrap_content"
+                    android:layout_width="fill_parent"
+                    android:layout_weight="1"
+                    android:inputType="text" />
+
+                <Button
+                    android:id="@+id/btn_post_item_update_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableLeft="@drawable/pin" />
+                
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 

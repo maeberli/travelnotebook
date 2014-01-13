@@ -15,9 +15,11 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -38,16 +40,21 @@ import ch.hearc.devmobile.travelnotebook.database.Image;
 import ch.hearc.devmobile.travelnotebook.database.Post;
 import ch.hearc.devmobile.travelnotebook.database.Voyage;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.LocationClient;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 
-public class PostItemFormActivity extends Activity implements DatePickerFragment.DateListener {
+public class PostItemFormActivity extends Activity implements DatePickerFragment.DateListener, GooglePlayServicesClient.ConnectionCallbacks,
+		GooglePlayServicesClient.OnConnectionFailedListener {
 
 	/********************
 	 * Private Static constants
 	 ********************/
 	private static final String LOGTAG = TravelItemFormActivity.class.getSimpleName();
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
+	private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
 	private static final int APPEND_FROM_GALLERY_CODE = 55;
 	private static final int APPEND_FROM_CAMERA_CODE = 66;
@@ -60,8 +67,10 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 	private Voyage currentVoyage;
 	private SimpleDateFormat dateFormatter;
 
+	private Location currentLocation;
 	private ImageAdapter imageAdapter;
 	private File photoToAppend;
+	private LocationClient locationClient;
 	private Post postItem;
 
 	private GridView imageGrid;
@@ -162,7 +171,7 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		etStartLocation = (EditText) findViewById(R.id.post_item_start_location);
 		etDescription = (EditText) findViewById(R.id.post_item_description);
 		tvStartDate = (TextView) findViewById(R.id.post_item_start_date);
-
+		
 		initControlsFromPost();
 
 		initButtons();
@@ -210,6 +219,40 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 	/********************
 	 * Private methods
 	 ********************/
+
+	/*
+	 * Called when the Activity becomes visible.
+	 */
+	@Override
+	protected void onStart() {
+		super.onStart();
+		// Connect the client.
+		setUpLocationClientIfNeeded();
+		locationClient.connect();
+	}
+
+	private void setUpLocationClientIfNeeded() {
+		if (locationClient == null) {
+			locationClient = new LocationClient(this, this, this);
+		}
+	}
+
+	private void updateAddress() {
+		(new GetAddressTask(this, etStartLocation)).execute(currentLocation);
+	}
+
+	/*
+	 * Called when the Activity is no longer visible.
+	 */
+	@Override
+	protected void onStop() {
+		// Disconnecting the client invalidates it.
+		if (locationClient != null) {
+			locationClient.disconnect();
+		}
+		super.onStop();
+	}
+
 	private void initButtons() {
 		// Cancel button
 		Button btnCancel = (Button) findViewById(R.id.btn_cancel);
@@ -256,6 +299,16 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 			@Override
 			public void onClick(View v) {
 				createAppendPhotoDialog().show();
+			}
+		});
+
+		// Set action to update location button
+		Button updateAddress = (Button) findViewById(R.id.btn_post_item_update_location);
+		updateAddress.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.e(LOGTAG, "Hey update updateAddress called");
+				updateAddress();
 			}
 		});
 	}
@@ -397,4 +450,47 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 			Log.w(LOGTAG, "Save image error: " + ex.getMessage());
 		}
 	}
+
+	/***********************************************
+	 * Google play service interface implementaiton
+	 ***********************************************/
+
+	@Override
+	public void onConnected(Bundle dataBundle) {
+		currentLocation = locationClient.getLastLocation();
+	}
+
+	@Override
+	public void onDisconnected() {
+	}
+
+	/*
+	 * Called by Location Services if the attempt to Location Services fails.
+	 */
+	@Override
+	public void onConnectionFailed(ConnectionResult connectionResult) {
+		/*
+		 * Google Play services can resolve some errors it detects. If the error
+		 * has a resolution, try sending an Intent to start a Google Play
+		 * services activity that can resolve error.
+		 */
+		if (connectionResult.hasResolution()) {
+			try {
+				// Start an Activity that tries to resolve the error
+				connectionResult.startResolutionForResult(this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+				/*
+				 * Thrown if Google Play services canceled the original
+				 * PendingIntent
+				 */
+			}
+			catch (IntentSender.SendIntentException e) {
+				// Log the error
+				e.printStackTrace();
+			}
+		}
+		else {
+			// NOP
+		}
+	}
+
 }
