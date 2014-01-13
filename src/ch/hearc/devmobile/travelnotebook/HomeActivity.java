@@ -411,7 +411,7 @@ public class HomeActivity extends FragmentActivity {
 					startEditNotebookActivity(id);
 					break;
 				case 2:
-					Toast.makeText(getApplicationContext(), "delete action not implemented", Toast.LENGTH_SHORT).show();
+					deleteNotebook(id);
 					break;
 				default:
 					Toast.makeText(getApplicationContext(), "action not implemented", Toast.LENGTH_SHORT).show();
@@ -446,5 +446,18 @@ public class HomeActivity extends FragmentActivity {
 		Intent intent = new Intent(HomeActivity.this, NewNotebookActivity.class);
 		intent.putExtra(NewNotebookActivity.NOTEBOOK_ID_KEY, id);
 		startActivityForResult(intent, EDIT_NOTEBOOK_CODE);
+	}
+
+	private void deleteNotebook(int id) {
+		try {
+			databaseHelper.getVoyageDao().deleteById(id);
+		}
+		catch (SQLException e) {
+			Toast.makeText(getApplicationContext(), "Notebook deletion error. Sorry!", Toast.LENGTH_LONG).show();
+		}
+
+		Builder boundsBuilder = new LatLngBounds.Builder();
+		buildDrawer();
+		buildMapElements(boundsBuilder);
 	}
 }
