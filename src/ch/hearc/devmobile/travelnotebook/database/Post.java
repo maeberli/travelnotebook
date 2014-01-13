@@ -107,6 +107,10 @@ public class Post {
 		this.images = images;
 	}
 
+	public Voyage getVoayge() {
+		return this.voyage;
+	}
+
 	public void setVoyage(Voyage voyage) {
 		this.voyage = voyage;
 	}

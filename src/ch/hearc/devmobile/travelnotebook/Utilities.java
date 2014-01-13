@@ -22,10 +22,10 @@ public class Utilities {
 		return Color.argb(transparency, Color.red(color), Color.green(color), Color.blue(color));
 	}
 
-	public static Voyage loadCurrentNotebookFromIntent(Intent intent, DatabaseHelper databaseHelper, Activity context, String logtag) {
+	public static Voyage loadCurrentNotebookFromIntent(Intent intent, DatabaseHelper databaseHelper, Activity context, String logtag, String idName) {
 		// Add items in the list from the database
-		if (intent.hasExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID)) {
-			int voyageId = intent.getIntExtra(NotebookActivity.NOTEBOOKACTIVITY_VOYAGE_ID, -1);
+		if (intent.hasExtra(idName)) {
+			int voyageId = intent.getIntExtra(idName, -1);
 			if (voyageId != -1) {
 				try {
 					return databaseHelper.getVoyageDao().queryForId(voyageId);

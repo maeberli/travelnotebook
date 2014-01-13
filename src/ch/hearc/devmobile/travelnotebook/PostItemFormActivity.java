@@ -60,17 +60,23 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 	private Voyage currentVoyage;
 	private SimpleDateFormat dateFormatter;
 
-	private GridView imageGrid;
 	private ImageAdapter imageAdapter;
 	private File photoToAppend;
 	private Post postItem;
+
+	private GridView imageGrid;
+	private EditText etTitle;
+	private EditText etStartLocation;
+	private EditText etDescription;
+	private TextView tvStartDate;
 
 	/********************
 	 * Public static members
 	 ********************/
 	public static final int RESULT_FAIL = 500;
 	public static final int RESULT_SQL_FAIL = 501;
-	public static final String ITEM_ID_KEY = "itemId";
+	public static final String POST_ID_KEY = "postId";
+	public static final String VOYAGE_ID_KEY = "voyageId";
 
 	/********************
 	 * Public methods
@@ -110,22 +116,37 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 
 		databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 
-		currentVoyage = Utilities.loadCurrentNotebookFromIntent(getIntent(), databaseHelper, this, LOGTAG);
+		// analyze intent data
+		Intent intent = getIntent();
+		if (intent.hasExtra(VOYAGE_ID_KEY)) {
+			currentVoyage = Utilities.loadCurrentNotebookFromIntent(intent, databaseHelper, this, LOGTAG, VOYAGE_ID_KEY);
 
-		Log.v(LOGTAG, "Create new post");
-		postItem = new Post();
-		if (postItem.getImages() == null) {
-			try {
-				Log.v(LOGTAG, "assign empty foreigncollection to the post.");
-				databaseHelper.getPostDao().assignEmptyForeignCollection(postItem, "images");
-				postItem.getImages().clear();
-
-				Log.v(LOGTAG, "assign empty foreigncollection size: " + postItem.getImages().size());
-			}
-			catch (SQLException e) {
-				e.printStackTrace();
+			Log.v(LOGTAG, "Create new post");
+			postItem = new Post();
+			if (postItem.getImages() == null) {
+				try {
+					databaseHelper.getPostDao().assignEmptyForeignCollection(postItem, "images");
+					postItem.getImages().clear();
+				}
+				catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
 		}
+		else if (intent.hasExtra(POST_ID_KEY)) {
+			int postid = intent.getIntExtra(POST_ID_KEY, -1);
+			if (postid != -1) {
+				try {
+					postItem = databaseHelper.getPostDao().queryForId(postid);
+					currentVoyage = postItem.getVoayge();
+				}
+				catch (SQLException e) {
+				}
+			}
+		}
+
+		if (postItem == null)
+			Utilities.abortActivityWithError("PostItemForm start up failed: missing parameters", this, LOGTAG);
 
 		// Date formatter tool
 		dateFormatter = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
@@ -136,13 +157,15 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		imageGrid = (GridView) findViewById(R.id.photo_grid);
 		imageGrid.setAdapter(imageAdapter);
 
+		// initialize other controls
+		etTitle = (EditText) findViewById(R.id.post_item_title);
+		etStartLocation = (EditText) findViewById(R.id.post_item_start_location);
+		etDescription = (EditText) findViewById(R.id.post_item_description);
+		tvStartDate = (TextView) findViewById(R.id.post_item_start_date);
+
+		initControlsFromPost();
+
 		initButtons();
-
-		// Sets default value to the start date
-		TextView tvStartDate = (TextView) findViewById(R.id.post_item_start_date);
-		Date now = new Date();
-		tvStartDate.setText(dateFormatter.format(now.getTime()));
-
 	}
 
 	@Override
@@ -207,7 +230,7 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 					int id = savePostItem();
 
 					Intent intent = new Intent();
-					intent.putExtra(ITEM_ID_KEY, id);
+					intent.putExtra(POST_ID_KEY, id);
 
 					setResult(RESULT_OK, intent);
 					finish();
@@ -237,26 +260,29 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		});
 	}
 
+	private void initControlsFromPost() {
+		this.etTitle.setText(postItem.getTitle());
+		this.etDescription.setText(postItem.getDescription());
+		tvStartDate.setText(dateFormatter.format(postItem.getDate().getTime()));
+		this.etStartLocation.setText(postItem.getLocation());
+	}
+
 	private int savePostItem() throws Exception {
 		// Gets the title [not null]
-		EditText etTitle = (EditText) findViewById(R.id.post_item_title);
 		String title = etTitle.getText().toString();
 		if (title.length() == 0)
 			throw new Exception("Invalide name");
 
 		// Gets the description
-		EditText etDescription = (EditText) findViewById(R.id.post_item_description);
 		String description = etDescription.getText().toString();
 
 		// Gets the start date [not null]
-		TextView tvStartDate = (TextView) findViewById(R.id.post_item_start_date);
 		String strStartDate = tvStartDate.getText().toString();
 		if (strStartDate.length() == 0)
 			throw new Exception("Invalide start date");
 		Date startDate = dateFormatter.parse(strStartDate);
 
 		// Gets the start location [not null]
-		EditText etStartLocation = (EditText) findViewById(R.id.post_item_start_location);
 		String startLocation = etStartLocation.getText().toString();
 		if (startLocation.length() == 0)
 			throw new Exception("Invalide location");

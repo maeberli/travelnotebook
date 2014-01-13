@@ -29,7 +29,7 @@ public class Voyage {
 	@ForeignCollectionField
 	private ForeignCollection<TravelItem> travelItems;
 
-	@ForeignCollectionField(eager = true)
+	@ForeignCollectionField
 	private ForeignCollection<Post> posts;
 
 	/********************
