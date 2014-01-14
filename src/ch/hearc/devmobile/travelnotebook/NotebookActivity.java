@@ -481,7 +481,7 @@ public class NotebookActivity extends FragmentActivity {
 					startEditTravelItemActivity(id);
 					break;
 				case 2:
-					Toast.makeText(getApplicationContext(), "TravelItem delete not implemented", Toast.LENGTH_SHORT).show();
+					deleteTravelItem(id);
 					break;
 				default:
 					Toast.makeText(getApplicationContext(), "action not implemented", Toast.LENGTH_SHORT).show();
@@ -596,6 +596,19 @@ public class NotebookActivity extends FragmentActivity {
 	private void deletePost(int id) {
 		try {
 			databaseHelper.getPostDao().deleteById(id);
+		}
+		catch (SQLException e) {
+			Toast.makeText(getApplicationContext(), "Notebook deletion error. Sorry!", Toast.LENGTH_LONG).show();
+		}
+
+		Builder boundsBuilder = new LatLngBounds.Builder();
+		buildDrawer();
+		buildMapElements(boundsBuilder);
+	}
+
+	private void deleteTravelItem(int id) {
+		try {
+			databaseHelper.getTravelItemDao().deleteById(id);
 		}
 		catch (SQLException e) {
 			Toast.makeText(getApplicationContext(), "Notebook deletion error. Sorry!", Toast.LENGTH_LONG).show();
