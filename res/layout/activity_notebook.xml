@@ -24,7 +24,10 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:layout_marginTop="10dp"
-            android:gravity="center" />
+            android:background="#AA000000"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp" />
     </RelativeLayout>
 
     <!-- The navigation drawer -->
