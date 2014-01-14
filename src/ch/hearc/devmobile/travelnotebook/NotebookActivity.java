@@ -26,6 +26,8 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import ch.hearc.devmobile.travelnotebook.adapter.MenuElement;
+import ch.hearc.devmobile.travelnotebook.adapter.MenuElementArrayAdapter;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
 import ch.hearc.devmobile.travelnotebook.database.Notebook;
 import ch.hearc.devmobile.travelnotebook.database.Post;

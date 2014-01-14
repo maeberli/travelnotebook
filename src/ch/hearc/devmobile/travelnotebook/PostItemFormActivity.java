@@ -35,6 +35,7 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
+import ch.hearc.devmobile.travelnotebook.adapter.ImageAdapter;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
 import ch.hearc.devmobile.travelnotebook.database.Image;
 import ch.hearc.devmobile.travelnotebook.database.Post;

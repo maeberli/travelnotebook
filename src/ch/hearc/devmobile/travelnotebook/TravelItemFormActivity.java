@@ -15,12 +15,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import ch.hearc.devmobile.travelnotebook.adapter.TagTypeSelectorAdapter;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
 import ch.hearc.devmobile.travelnotebook.database.Notebook;
 import ch.hearc.devmobile.travelnotebook.database.Tag;
@@ -50,7 +50,7 @@ public class TravelItemFormActivity extends Activity implements DatePickerFragme
 	private EditText etStartLocation;
 	private EditText etEndLocation;
 	private Spinner spTag;
-	private ArrayAdapter<TagType> tagTypeAdapter;
+	private TagTypeSelectorAdapter tagTypeAdapter;
 
 	/********************
 	 * Public members
@@ -85,7 +85,7 @@ public class TravelItemFormActivity extends Activity implements DatePickerFragme
 		spTag = (Spinner) findViewById(R.id.item_tag);
 
 		// Add tags in the spinner
-		tagTypeAdapter = new ArrayAdapter<TagType>(this, android.R.layout.simple_list_item_1, TagType.values());
+		tagTypeAdapter = new TagTypeSelectorAdapter(getApplicationContext(), TagType.values());
 		spTag.setAdapter(tagTypeAdapter);
 
 		travelItem = new TravelItem();
@@ -160,8 +160,8 @@ public class TravelItemFormActivity extends Activity implements DatePickerFragme
 		this.etTitle.setText(travelItem.getTitle());
 		this.etStartLocation.setText(travelItem.getStartLocation());
 
-		int tagPostition = this.tagTypeAdapter.getPosition(travelItem.getTag().getTagType());
-		spTag.setSelection(tagPostition);
+		int tagPosition = this.tagTypeAdapter.getPosition(travelItem.getTag().getTagType());
+		spTag.setSelection(tagPosition);
 
 		if (!travelItem.isSingleTimed()) {
 			this.tvEndDate.setText(dateFormatter.format(travelItem.getEndDate()));
@@ -223,7 +223,7 @@ public class TravelItemFormActivity extends Activity implements DatePickerFragme
 		Log.i(LOGTAG, travelItem.toString());
 		itemDao.createOrUpdate(travelItem);
 		tagDao.update(travelItem.getTag());
-		
+
 		return travelItem.getId();
 	}
 

@@ -85,8 +85,8 @@
 
                 <EditText
                     android:id="@+id/post_item_start_location"
-                    android:layout_height="wrap_content"
                     android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:inputType="text" />
 
