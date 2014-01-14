@@ -33,6 +33,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.adapter.ImageAdapter;
@@ -294,7 +295,7 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		});
 
 		// Append photo button
-		Button btnAppendPhoto = (Button) findViewById(R.id.btn_photo_add);
+		ImageButton btnAppendPhoto = (ImageButton) findViewById(R.id.btn_photo_add);
 		btnAppendPhoto.setOnClickListener(new OnClickListener() {
 
 			@Override

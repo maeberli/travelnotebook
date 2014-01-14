@@ -41,7 +41,7 @@
     <string name="travel_item_end_location_label">End address :</string>
 
     <!-- New post item -->
-    <string name="post_item_photo_label">Photos</string>
+    <string name="post_item_photo_label">Photos :</string>
     <string name="add_photo">Append</string>
 
     <!-- Date Time picker -->
