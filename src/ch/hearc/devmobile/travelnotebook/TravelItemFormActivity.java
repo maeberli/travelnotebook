@@ -192,7 +192,7 @@ public class TravelItemFormActivity extends Activity implements DatePickerFragme
 		String strEndDate = tvEndDate.getText().toString();
 		Date endDate = null;
 		if (strEndDate.length() != 0)
-			endDate = dateFormatter.parse(strStartDate);
+			endDate = dateFormatter.parse(strEndDate);
 
 		// Gets the start location [not null]
 		String startLocation = etStartLocation.getText().toString();
