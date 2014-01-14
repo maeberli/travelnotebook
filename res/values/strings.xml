@@ -8,6 +8,7 @@
     <string name="no_camera_availlable">sorry, no camera availlable.</string>
 
     <!-- Home menu actions -->
+    <string name="title_activity_home">Availlable notebooks</string>
     <string name="new_notebook">New Notebook</string>
     <string name="title_actiondialog">Primary Actions</string>
 
