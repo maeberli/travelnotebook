@@ -1,4 +1,4 @@
-package ch.hearc.devmobile.travelnotebook;
+package ch.hearc.devmobile.travelnotebook.adapter;
 
 import java.util.Collection;
 
@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import ch.hearc.devmobile.travelnotebook.R;
 import ch.hearc.devmobile.travelnotebook.database.Image;
 
 public class ImageAdapter extends BaseAdapter {
