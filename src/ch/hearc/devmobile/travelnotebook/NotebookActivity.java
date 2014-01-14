@@ -1,6 +1,5 @@
 package ch.hearc.devmobile.travelnotebook;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,11 +26,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
+import ch.hearc.devmobile.travelnotebook.database.Notebook;
 import ch.hearc.devmobile.travelnotebook.database.Post;
 import ch.hearc.devmobile.travelnotebook.database.Tag;
 import ch.hearc.devmobile.travelnotebook.database.TagType;
 import ch.hearc.devmobile.travelnotebook.database.TravelItem;
-import ch.hearc.devmobile.travelnotebook.database.Notebook;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -61,6 +60,7 @@ public class NotebookActivity extends FragmentActivity {
 	private static final int NOTEBOOK_ITEM_LINE_TRANSPARENCY = 50;
 	private static final int NOTEBOOK_ITEM_LINE_TRANSPARENCY_SELECTED = 255;
 	private static final int NEW_TRAVELITEM_CODE = 110;
+	private static final int EDIT_TRAVELITEM_CODE = 111;
 	private static final int NEW_POST_CODE = 120;
 	private static final int EDIT_POST_CODE = 121;
 
@@ -172,7 +172,7 @@ public class NotebookActivity extends FragmentActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 		Log.i(LOGTAG, "On activity result called");
 
-		if (requestCode == NEW_POST_CODE || requestCode == NEW_TRAVELITEM_CODE || requestCode == EDIT_POST_CODE) {
+		if (requestCode == NEW_POST_CODE || requestCode == NEW_TRAVELITEM_CODE || requestCode == EDIT_POST_CODE || requestCode == EDIT_TRAVELITEM_CODE) {
 			switch (resultCode) {
 
 			case RESULT_OK:
@@ -217,7 +217,7 @@ public class NotebookActivity extends FragmentActivity {
 
 				@Override
 				public void onClick(View v) {
-					startEditTravelItemActivity(item.getId());
+					createTravelItemMarkerClickDialog(item.getId()).show();
 
 					NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
 				}
@@ -478,7 +478,6 @@ public class NotebookActivity extends FragmentActivity {
 					break;
 				case 1:
 					startEditTravelItemActivity(id);
-					Toast.makeText(getApplicationContext(), "TravelItem edit not implemented", Toast.LENGTH_SHORT).show();
 					break;
 				case 2:
 					Toast.makeText(getApplicationContext(), "TravelItem delete not implemented", Toast.LENGTH_SHORT).show();
@@ -553,24 +552,12 @@ public class NotebookActivity extends FragmentActivity {
 	}
 
 	private void startEditTravelItemActivity(int id) {
-		// Intent intent = new Intent(
-		// NotebookActivity.this,
-		// NotebookActivity.class);
-		// intent.putExtra(NotebookActivity.this.TRAVEL_ITEM_ID,
-		// item.getId());
-		// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-		// startActivity(intent);
+		Intent intent = new Intent(NotebookActivity.this, TravelItemFormActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
-		TravelItem travelItem = null;
-		try {
-			travelItem = databaseHelper.getTravelItemDao().queryForId(id);
+		intent.putExtra(TravelItemFormActivity.TRAVELITEM_ID_KEY, id);
 
-			Toast.makeText(getApplicationContext(), travelItem.getDescription(), Toast.LENGTH_SHORT).show();
-		}
-		catch (SQLException e) {
-			Log.i(LOGTAG, "No travelItem with id " + id + " found.");
-		}
-
+		startActivityForResult(intent, EDIT_TRAVELITEM_CODE);
 	}
 
 	private void startEditPostActivity(int id) {

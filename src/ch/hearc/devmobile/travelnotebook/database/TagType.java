@@ -44,6 +44,7 @@ public enum TagType {
 		case TAXI:
 		case TENT:
 		case FOOD:
+		case UNSPECIFIED:
 			return false;
 		case PLANE:
 			return true;

@@ -51,7 +51,7 @@ public class TravelItem {
 	 ********************/
 	public TravelItem() {
 		// Needed by ormlite
-		this("", "", new Date(), new Date(), "", "", null, null);
+		this("", "", new Date(), null, "", "", null, new Tag(TagType.UNSPECIFIED));
 	}
 
 	public TravelItem(String title, String description, Date startDate, Date endDate, String startLocation, String endLocation, Notebook notebook, Tag tag) {
