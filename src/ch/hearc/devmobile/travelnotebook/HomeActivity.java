@@ -231,8 +231,7 @@ public class HomeActivity extends FragmentActivity {
 
 			@Override
 			public void onClick(View v) {
-				startShowNotebookActivity(notebook.getId());
-				createNotebookActionDialog(notebook.getId());
+				createNotebookActionDialog(notebook.getId()).show();
 
 				HomeActivity.this.drawerLayout.closeDrawer(drawerPanel);
 			}
