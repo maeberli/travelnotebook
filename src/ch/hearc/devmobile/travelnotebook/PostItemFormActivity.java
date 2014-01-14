@@ -64,7 +64,6 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 	 ********************/
 
 	private DatabaseHelper databaseHelper = null;
-	private Notebook currentNotebook;
 	private SimpleDateFormat dateFormatter;
 
 	private Location currentLocation;
@@ -128,10 +127,12 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		// analyze intent data
 		Intent intent = getIntent();
 		if (intent.hasExtra(NOOTEBOOK_ID_KEY)) {
-			currentNotebook = Utilities.loadCurrentNotebookFromIntent(intent, databaseHelper, this, LOGTAG, NOOTEBOOK_ID_KEY);
+			Notebook notebook = Utilities.loadCurrentNotebookFromIntent(intent, databaseHelper, this, LOGTAG, NOOTEBOOK_ID_KEY);
 
 			Log.v(LOGTAG, "Create new post");
 			postItem = new Post();
+			postItem.setNotebook(notebook);
+			
 			if (postItem.getImages() == null) {
 				try {
 					databaseHelper.getPostDao().assignEmptyForeignCollection(postItem, "images");
@@ -147,7 +148,6 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 			if (postid != -1) {
 				try {
 					postItem = databaseHelper.getPostDao().queryForId(postid);
-					currentNotebook = postItem.getNotebook();
 				}
 				catch (SQLException e) {
 				}
@@ -171,7 +171,7 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		etStartLocation = (EditText) findViewById(R.id.post_item_start_location);
 		etDescription = (EditText) findViewById(R.id.post_item_description);
 		tvStartDate = (TextView) findViewById(R.id.post_item_start_date);
-		
+
 		initControlsFromPost();
 
 		initButtons();
@@ -346,7 +346,6 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 		postItem.setDescription(description);
 		postItem.setDate(startDate);
 		postItem.setLocation(startLocation);
-		postItem.setNotebook(currentNotebook);
 
 		Dao<Post, Integer> itemDao = databaseHelper.getPostDao();
 		Dao<Image, Integer> imageDao = databaseHelper.getImageDao();
