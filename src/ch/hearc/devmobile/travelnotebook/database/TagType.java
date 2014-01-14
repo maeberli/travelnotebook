@@ -3,7 +3,7 @@ package ch.hearc.devmobile.travelnotebook.database;
 import ch.hearc.devmobile.travelnotebook.R;
 
 public enum TagType {
-	HOTEL, BUS, PLANE, BOAT, TENT, CAR, TAXI, MOTORHOME, FOOD;
+	HOTEL, BUS, PLANE, BOAT, TENT, CAR, TAXI, MOTORHOME, FOOD, UNSPECIFIED;
 
 	public static int getIconRessource(TagType type) {
 		switch (type) {
@@ -25,37 +25,13 @@ public enum TagType {
 			return R.drawable.tent;
 		case FOOD:
 			return R.drawable.food;
+		case UNSPECIFIED:
+			return R.drawable.unspecified;
 		default:
 			break;
 
 		}
 		return -1;
-	}
-
-	public static String getDescription(TagType type) {
-		switch (type) {
-		case BOAT:
-			return "Boat";
-		case BUS:
-			return "Bus";
-		case CAR:
-			return "Car";
-		case HOTEL:
-			return "Bed";
-		case MOTORHOME:
-			return "Motorhome";
-		case PLANE:
-			return "Plane";
-		case TAXI:
-			return "Taxi";
-		case TENT:
-			return "Tent";
-		case FOOD:
-			return "Food";
-		default:
-			break;
-		}
-		return "";
 	}
 
 	public static Boolean isExtendet(TagType type) {
