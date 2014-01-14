@@ -217,7 +217,7 @@ public class NotebookActivity extends FragmentActivity {
 
 				@Override
 				public void onClick(View v) {
-					startTravelIemActivity(item.getId());
+					startEditTravelItemActivity(item.getId());
 
 					NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
 				}
@@ -331,12 +331,12 @@ public class NotebookActivity extends FragmentActivity {
 			public void onInfoWindowClick(Marker marker) {
 				if (travelItemMarkers.containsKey(marker)) {
 					TravelItem travelItem = travelItemMarkers.get(marker);
-					startTravelIemActivity(travelItem.getId());
+					createTravelItemMarkerClickDialog(travelItem.getId()).show();
 				}
 
 				if (postMarkers.containsKey(marker)) {
 					Post post = postMarkers.get(marker);
-					startEditPostActivity(post.getId());
+					createPostMarkerClickDialog(post.getId()).show();
 				}
 
 			}
@@ -468,6 +468,57 @@ public class NotebookActivity extends FragmentActivity {
 		return builder.create();
 	}
 
+	private Dialog createTravelItemMarkerClickDialog(final int id) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setItems(R.array.item_actions, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				switch (which) {
+				case 0:
+					Toast.makeText(getApplicationContext(), "TravelItem show not implemented", Toast.LENGTH_SHORT).show();
+					break;
+				case 1:
+					startEditTravelItemActivity(id);
+					Toast.makeText(getApplicationContext(), "TravelItem edit not implemented", Toast.LENGTH_SHORT).show();
+					break;
+				case 2:
+					Toast.makeText(getApplicationContext(), "TravelItem delete not implemented", Toast.LENGTH_SHORT).show();
+					break;
+				default:
+					Toast.makeText(getApplicationContext(), "action not implemented", Toast.LENGTH_SHORT).show();
+					break;
+				}
+			}
+
+		});
+		builder.setTitle(R.string.title_item_actions_popup);
+		return builder.create();
+	}
+
+	private Dialog createPostMarkerClickDialog(final int id) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setItems(R.array.item_actions, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				switch (which) {
+				case 0:
+					Toast.makeText(getApplicationContext(), "Post show not implemented", Toast.LENGTH_SHORT).show();
+					break;
+				case 1:
+					startEditPostActivity(id);
+					break;
+				case 2:
+					Toast.makeText(getApplicationContext(), "Post delete not implemented", Toast.LENGTH_SHORT).show();
+					break;
+				default:
+					Toast.makeText(getApplicationContext(), "action not implemented", Toast.LENGTH_SHORT).show();
+					break;
+				}
+			}
+
+		});
+		builder.setTitle(R.string.title_item_actions_popup);
+		return builder.create();
+	}
+
 	private void selectMarker(Marker marker) {
 		// save the lastClicked marker (necessary for the unselection)
 		lastClickedMarker = marker;
@@ -501,7 +552,7 @@ public class NotebookActivity extends FragmentActivity {
 		return databaseHelper;
 	}
 
-	private void startTravelIemActivity(int id) {
+	private void startEditTravelItemActivity(int id) {
 		// Intent intent = new Intent(
 		// NotebookActivity.this,
 		// NotebookActivity.class);
