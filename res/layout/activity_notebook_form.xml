@@ -10,58 +10,56 @@
 
     <TextView
         android:id="@+id/tv_name_label"
-        android:labelFor="@+id/notebook_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-		android:layout_alignParentLeft="true"
+        android:labelFor="@+id/notebook_name"
         android:text="@string/notebook_name_label" />
-    
+
     <EditText
         android:id="@+id/notebook_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-		android:layout_below="@+id/tv_name_label"
+        android:layout_below="@+id/tv_name_label"
         android:layout_centerHorizontal="true"
-        android:ems="10" 
+        android:ems="10"
         android:inputType="text" />
-    
+
     <TextView
         android:id="@+id/tv_picker_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
         android:layout_below="@+id/notebook_name"
-		android:layout_alignParentLeft="true"
         android:text="@string/notebook_picker_label" />
-    
+
     <com.larswerkman.holocolorpicker.ColorPicker
-    android:id="@+id/picker"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_centerHorizontal="true"
-    android:layout_below="@+id/tv_picker_label"/>
+        android:id="@+id/picker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_picker_label"
+        android:layout_centerHorizontal="true" />
 
-    <RelativeLayout 
-    	android:layout_width="match_parent"
-    	android:layout_height="wrap_content"
-    	android:layout_alignParentBottom="true"
-        >
-	    <Button
-	        android:id="@+id/btn_save"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-        	android:layout_centerHorizontal="true"
-	        android:text="@string/save" />
-	
-	    <Button
-	        android:id="@+id/btn_cancel"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_toLeftOf="@+id/btn_save"
-	        android:text="@string/cancel" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center" >
 
-    </RelativeLayout>
+        <Button
+            android:id="@+id/btn_cancel"
+            style="android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel" />
 
-    
+        <Button
+            android:id="@+id/btn_save"
+            style="android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/save" />
+    </LinearLayout>
 
 </RelativeLayout>

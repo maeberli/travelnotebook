@@ -29,7 +29,7 @@
 
     <!-- New notebook -->
     <string name="notebook_name_label">Notebook name :</string>
-    <string name="notebook_picker_label">Notebook name :</string>
+    <string name="notebook_picker_label">Color :</string>
 
     <!-- New travel item -->
     <string name="travel_item_title_label">Note title :</string>
