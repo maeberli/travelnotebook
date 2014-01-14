@@ -1,5 +1,6 @@
 package ch.hearc.devmobile.travelnotebook;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -505,7 +506,7 @@ public class NotebookActivity extends FragmentActivity {
 					startEditPostActivity(id);
 					break;
 				case 2:
-					Toast.makeText(getApplicationContext(), "Post delete not implemented", Toast.LENGTH_SHORT).show();
+					deletePost(id);
 					break;
 				default:
 					Toast.makeText(getApplicationContext(), "action not implemented", Toast.LENGTH_SHORT).show();
@@ -590,5 +591,18 @@ public class NotebookActivity extends FragmentActivity {
 		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 		intent.putExtra(TravelItemFormActivity.NOTEBOOK_ID_KEY, currentNotebook.getId());
 		startActivityForResult(intent, NEW_TRAVELITEM_CODE);
+	}
+
+	private void deletePost(int id) {
+		try {
+			databaseHelper.getPostDao().deleteById(id);
+		}
+		catch (SQLException e) {
+			Toast.makeText(getApplicationContext(), "Notebook deletion error. Sorry!", Toast.LENGTH_LONG).show();
+		}
+
+		Builder boundsBuilder = new LatLngBounds.Builder();
+		buildDrawer();
+		buildMapElements(boundsBuilder);
 	}
 }
