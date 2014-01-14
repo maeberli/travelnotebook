@@ -191,7 +191,7 @@ public class NotebookActivity extends FragmentActivity {
 				Log.e(LOGTAG, "result fail");
 				// unused for now
 				break;
-			case NewNotebookActivity.RESULT_SQL_FAIL:
+			case NotebookFormActivity.RESULT_SQL_FAIL:
 				Log.e(LOGTAG, "Sql creation fail");
 				Toast.makeText(getApplicationContext(), "Creation failed !", Toast.LENGTH_SHORT).show();
 				break;

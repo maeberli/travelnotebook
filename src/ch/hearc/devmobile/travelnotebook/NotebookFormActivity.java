@@ -21,12 +21,12 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.larswerkman.holocolorpicker.ColorPicker;
 
-public class NewNotebookActivity extends Activity {
+public class NotebookFormActivity extends Activity {
 
 	/********************
 	 * Static class members
 	 ********************/
-	private static final String LOGTAG = NewNotebookActivity.class.getSimpleName();
+	private static final String LOGTAG = NotebookFormActivity.class.getSimpleName();
 	
 	public static final int RESULT_FAIL = 500;
 	public static final int RESULT_SQL_FAIL = 501;
@@ -65,7 +65,7 @@ public class NewNotebookActivity extends Activity {
 		// Hide status bar
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		setContentView(R.layout.activity_new_notebook);
+		setContentView(R.layout.activity_notebook_form);
 
 		databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 
@@ -102,8 +102,8 @@ public class NewNotebookActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				NewNotebookActivity.this.setResult(RESULT_CANCELED);
-				NewNotebookActivity.this.finish();
+				NotebookFormActivity.this.setResult(RESULT_CANCELED);
+				NotebookFormActivity.this.finish();
 			}
 		});
 
@@ -113,19 +113,19 @@ public class NewNotebookActivity extends Activity {
 			public void onClick(View v) {
 				try {
 
-					int id = NewNotebookActivity.this.saveNotebook();
+					int id = NotebookFormActivity.this.saveNotebook();
 
 					Intent intent = new Intent();
 					intent.putExtra(NOTEBOOK_ID_KEY, id);
 
-					NewNotebookActivity.this.setResult(RESULT_OK, intent);
-					NewNotebookActivity.this.finish();
+					NotebookFormActivity.this.setResult(RESULT_OK, intent);
+					NotebookFormActivity.this.finish();
 
 				}
 				catch (SQLException e) {
-					NewNotebookActivity.this.setResult(RESULT_SQL_FAIL);
+					NotebookFormActivity.this.setResult(RESULT_SQL_FAIL);
 					e.printStackTrace();
-					NewNotebookActivity.this.finish();
+					NotebookFormActivity.this.finish();
 
 				}
 				catch (Exception e) {

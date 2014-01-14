@@ -23,7 +23,7 @@
 
     <!-- Activity titles -->
     <string name="title_activity_notebook">NotebookActivity</string>
-    <string name="title_activity_new_notebook">NewNotebookActivity</string>
+    <string name="title_activity_notebook_form">NotebookFormActivity</string>
     <string name="title_activity_travel_item_from">TravelItemFormActivity</string>
     <string name="title_activity_post_item_form">PostItemFormActivity</string>
 

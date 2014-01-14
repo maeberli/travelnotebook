@@ -57,8 +57,8 @@
             android:value="AIzaSyDtirxQV25YK3d4HkiYOixrOhQpIWHp12M" />
 
         <activity
-            android:name="ch.hearc.devmobile.travelnotebook.NewNotebookActivity"
-            android:label="@string/title_activity_new_notebook" >
+            android:name="ch.hearc.devmobile.travelnotebook.NotebookFormActivity"
+            android:label="@string/title_activity_notebook_form" >
         </activity>
         <activity
             android:name="ch.hearc.devmobile.travelnotebook.TravelItemFormActivity"

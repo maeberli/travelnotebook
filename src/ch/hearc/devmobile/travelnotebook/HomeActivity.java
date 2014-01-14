@@ -161,15 +161,15 @@ public class HomeActivity extends FragmentActivity {
 			}
 
 			if (requestCode == NEW_NOTEBOOK_CODE) {
-				startShowNotebookActivity(data.getExtras().getInt(NewNotebookActivity.NOTEBOOK_ID_KEY));
+				startShowNotebookActivity(data.getExtras().getInt(NotebookFormActivity.NOTEBOOK_ID_KEY));
 			}
 			break;
 		case RESULT_CANCELED:
 			Toast.makeText(this, "Canceled !", Toast.LENGTH_LONG).show();
 			break;
-		case NewNotebookActivity.RESULT_FAIL:
+		case NotebookFormActivity.RESULT_FAIL:
 			Log.e(LOGTAG, "Result fail");
-		case NewNotebookActivity.RESULT_SQL_FAIL:
+		case NotebookFormActivity.RESULT_SQL_FAIL:
 			Toast.makeText(getApplicationContext(), "Creation failed !", Toast.LENGTH_SHORT).show();
 			break;
 		}
@@ -269,7 +269,6 @@ public class HomeActivity extends FragmentActivity {
 
 			@Override
 			public void onMapLongClick(LatLng position) {
-				// startNewNotebookActivity();
 				createPopupDialog().show();
 			}
 		});
@@ -413,7 +412,7 @@ public class HomeActivity extends FragmentActivity {
 	}
 
 	private void startNewNotebookActivity() {
-		Intent intent = new Intent(HomeActivity.this, NewNotebookActivity.class);
+		Intent intent = new Intent(HomeActivity.this, NotebookFormActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 		startActivityForResult(intent, NEW_NOTEBOOK_CODE);
 	}
@@ -425,8 +424,8 @@ public class HomeActivity extends FragmentActivity {
 	}
 
 	private void startEditNotebookActivity(int id) {
-		Intent intent = new Intent(HomeActivity.this, NewNotebookActivity.class);
-		intent.putExtra(NewNotebookActivity.NOTEBOOK_ID_KEY, id);
+		Intent intent = new Intent(HomeActivity.this, NotebookFormActivity.class);
+		intent.putExtra(NotebookFormActivity.NOTEBOOK_ID_KEY, id);
 		startActivityForResult(intent, EDIT_NOTEBOOK_CODE);
 	}
 
