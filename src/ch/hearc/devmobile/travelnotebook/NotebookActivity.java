@@ -230,6 +230,21 @@ public class NotebookActivity extends FragmentActivity {
 			drawerListViewItems.add(itemMenuElement);
 		}
 
+		// add sepereator
+		for (final Post item : currentNotebook.getPosts()) {
+
+			itemMenuElement = new MenuElement(item.getTitle(), new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					createPostMarkerClickDialog(item.getId()).show();
+
+					NotebookActivity.this.drawerLayout.closeDrawer(drawerPanel);
+				}
+			});
+			drawerListViewItems.add(itemMenuElement);
+		}
+
 		// gets ListView defined in activity_main.xml
 		drawerListView = (ListView) findViewById(R.id.right_drawer_list);
 
