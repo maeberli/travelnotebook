@@ -20,7 +20,7 @@ public enum TagType {
 		case PLANE:
 			return R.drawable.aircraft;
 		case TAXI:
-			return R.drawable.car;
+			return R.drawable.taxi;
 		case TENT:
 			return R.drawable.tent;
 		case FOOD:
