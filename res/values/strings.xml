@@ -53,5 +53,7 @@
     <string name="show">show</string>
     <string name="edit">edit</string>
     <string name="delete">delete</string>
+    <string name="title_activity_show_post">ShowPost</string>
+    <string name="action_settings">Settings</string>
 
 </resources>

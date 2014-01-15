@@ -66,6 +66,7 @@ public class NotebookActivity extends FragmentActivity {
 	private static final int EDIT_TRAVELITEM_CODE = 111;
 	private static final int NEW_POST_CODE = 120;
 	private static final int EDIT_POST_CODE = 121;
+	private static final int SHOW_POST_CODE = 122;
 
 	/********************
 	 * Public Static constants
@@ -502,7 +503,7 @@ public class NotebookActivity extends FragmentActivity {
 			public void onClick(DialogInterface dialog, int which) {
 				switch (which) {
 				case 0:
-					Toast.makeText(getApplicationContext(), "Post show not implemented", Toast.LENGTH_SHORT).show();
+					startShowPostItem(id);
 					break;
 				case 1:
 					startEditPostActivity(id);
@@ -593,6 +594,14 @@ public class NotebookActivity extends FragmentActivity {
 		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 		intent.putExtra(TravelItemFormActivity.NOTEBOOK_ID_KEY, currentNotebook.getId());
 		startActivityForResult(intent, NEW_TRAVELITEM_CODE);
+	}
+
+	private void startShowPostItem(int id) {
+		Intent intent = new Intent(NotebookActivity.this, PostShowActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+		intent.putExtra(PostShowActivity.POST_ID_KEY, id);
+		startActivityForResult(intent, SHOW_POST_CODE);
 	}
 
 	private void deletePost(int id) {

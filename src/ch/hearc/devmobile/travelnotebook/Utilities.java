@@ -4,17 +4,18 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.google.android.gms.maps.model.LatLng;
-
-import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
-import ch.hearc.devmobile.travelnotebook.database.Notebook;
-
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.util.Log;
+import ch.hearc.devmobile.travelnotebook.database.DatabaseHelper;
+import ch.hearc.devmobile.travelnotebook.database.Notebook;
+
+import com.google.android.gms.maps.model.LatLng;
 
 public class Utilities {
 
@@ -57,7 +58,7 @@ public class Utilities {
 	}
 
 	/********************
-	 * Private methods
+	 * GEOCODING
 	 ********************/
 	public static LatLng getLocation(Geocoder geocoder, String name, int maxresults, String logtag) {
 		List<Address> addresses;
@@ -82,5 +83,32 @@ public class Utilities {
 
 	public static LatLng addressToLatLng(Address address) {
 		return new LatLng(address.getLatitude(), address.getLongitude());
+	}
+
+	/********************
+	 * GEOCODING
+	 ********************/
+	public static Bitmap loadImage(String path, int maxSizePX) {
+
+		int targetW = maxSizePX;
+		int targetH = maxSizePX;
+
+		// Get the dimensions of the bitmap
+		BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+		bmOptions.inJustDecodeBounds = true;
+		BitmapFactory.decodeFile(path, bmOptions);
+		int photoW = bmOptions.outWidth;
+		int photoH = bmOptions.outHeight;
+
+		int scaleFactor = Math.max(photoW / targetW, photoH / targetH);
+
+		// Decode the image file into a Bitmap sized to fill the View
+		bmOptions.inJustDecodeBounds = false;
+		bmOptions.inSampleSize = scaleFactor;
+		bmOptions.inPurgeable = true;
+
+		Bitmap bitmap = BitmapFactory.decodeFile(path, bmOptions);
+
+		return bitmap;
 	}
 }

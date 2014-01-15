@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +13,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import ch.hearc.devmobile.travelnotebook.R;
+import ch.hearc.devmobile.travelnotebook.Utilities;
 import ch.hearc.devmobile.travelnotebook.database.Image;
 
 public class ImageAdapter extends BaseAdapter {
@@ -57,7 +57,9 @@ public class ImageAdapter extends BaseAdapter {
 		deleteBtn = (ImageButton) newVew.getTag(R.id.image_delete_btn);
 
 		final Image image = getItem(position);
-		Bitmap bitmap = loadImage(image.getImageURI(), newVew);
+
+		int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 90, newVew.getResources().getDisplayMetrics());
+		Bitmap bitmap = Utilities.loadImage(image.getImageURI(), px);
 
 		picture.setImageBitmap(bitmap);
 		deleteBtn.setOnClickListener(new OnClickListener() {
@@ -93,30 +95,5 @@ public class ImageAdapter extends BaseAdapter {
 			return IGNORE_ITEM_VIEW_TYPE;
 		}
 		return super.getItemViewType(position);
-	}
-
-	private Bitmap loadImage(String path, View view) {
-		int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 90, view.getResources().getDisplayMetrics());
-
-		int targetW = px;
-		int targetH = px;
-
-		// Get the dimensions of the bitmap
-		BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-		bmOptions.inJustDecodeBounds = true;
-		BitmapFactory.decodeFile(path, bmOptions);
-		int photoW = bmOptions.outWidth;
-		int photoH = bmOptions.outHeight;
-
-		int scaleFactor = Math.max(photoW / targetW, photoH / targetH);
-
-		// Decode the image file into a Bitmap sized to fill the View
-		bmOptions.inJustDecodeBounds = false;
-		bmOptions.inSampleSize = scaleFactor;
-		bmOptions.inPurgeable = true;
-
-		Bitmap bitmap = BitmapFactory.decodeFile(path, bmOptions);
-
-		return bitmap;
 	}
 }
