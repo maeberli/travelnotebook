@@ -19,6 +19,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class Utilities {
 
+	public static final String DATE_FORMAT = "dd/MM/yyyy";
+
 	public static int createTransparancyColor(int color, int transparency) {
 		return Color.argb(transparency, Color.red(color), Color.green(color), Color.blue(color));
 	}

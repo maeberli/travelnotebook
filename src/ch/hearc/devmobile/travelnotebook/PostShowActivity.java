@@ -1,8 +1,10 @@
 package ch.hearc.devmobile.travelnotebook;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import android.content.Intent;
 import android.location.Geocoder;
@@ -54,6 +56,8 @@ public class PostShowActivity extends FragmentActivity {
 	private SupportMapFragment postShowMapView;
 	private GoogleMap googleMap;
 	private Geocoder geocoder;
+	private SimpleDateFormat dateFormatter;
+	private TextView tvDate;
 
 	/********************
 	 * Public methods
@@ -74,12 +78,14 @@ public class PostShowActivity extends FragmentActivity {
 
 		dbHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 		geocoder = new Geocoder(this);
+		dateFormatter = new SimpleDateFormat(Utilities.DATE_FORMAT, Locale.getDefault());
 
 		images = new ArrayList<String>();
 
 		imagePager = (ViewPager) findViewById(R.id.imagepager_posthow);
 		tvTitle = (TextView) findViewById(R.id.tv_postshow_title);
 		tvDescription = (TextView) findViewById(R.id.tv_postshow_description);
+		tvDate = (TextView) findViewById(R.id.tv_post_date);
 
 		postShowMapView = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.post_show_map);
 		postShowMapView.onCreate(savedInstanceState);
@@ -123,6 +129,7 @@ public class PostShowActivity extends FragmentActivity {
 	private void initFields() {
 		tvTitle.setText(post.getTitle());
 		tvDescription.setText(post.getDescription());
+		tvDate.setText(dateFormatter.format(post.getDate()));
 
 		for (Image image : post.getImages()) {
 			images.add(image.getImageURI());

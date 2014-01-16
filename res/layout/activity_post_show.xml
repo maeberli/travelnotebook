@@ -44,6 +44,28 @@
             android:contentDescription="@+string/hello_world" >
         </ImageView>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="10dp"
+            android:background="#AA000000"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@+string/date_image"
+                android:src="@drawable/date_from" />
+
+            <TextView
+                android:id="@+id/tv_post_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp" />
+        </LinearLayout>
+
         <android.support.v4.view.ViewPager
             android:id="@+id/imagepager_posthow"
             android:layout_width="wrap_content"

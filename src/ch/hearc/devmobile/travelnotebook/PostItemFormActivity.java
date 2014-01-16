@@ -55,7 +55,6 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 	 * Private Static constants
 	 ********************/
 	private static final String LOGTAG = TravelItemFormActivity.class.getSimpleName();
-	private static final String DATE_FORMAT = "dd/MM/yyyy";
 	private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
 	private static final int APPEND_FROM_GALLERY_CODE = 55;
@@ -134,7 +133,7 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 			Log.v(LOGTAG, "Create new post");
 			postItem = new Post();
 			postItem.setNotebook(notebook);
-			
+
 			if (postItem.getImages() == null) {
 				try {
 					databaseHelper.getPostDao().assignEmptyForeignCollection(postItem, "images");
@@ -160,7 +159,7 @@ public class PostItemFormActivity extends Activity implements DatePickerFragment
 			Utilities.abortActivityWithError("PostItemForm start up failed: missing parameters", this, LOGTAG);
 
 		// Date formatter tool
-		dateFormatter = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
+		dateFormatter = new SimpleDateFormat(Utilities.DATE_FORMAT, Locale.getDefault());
 
 		// initialize gridview for images
 		photoToAppend = null;

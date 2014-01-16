@@ -37,7 +37,6 @@ public class TravelItemFormActivity extends Activity implements DatePickerFragme
 	 ********************/
 
 	private static final String LOGTAG = TravelItemFormActivity.class.getSimpleName();
-	private static final String DATE_FORMAT = "dd/MM/yyyy";
 
 	private DatabaseHelper databaseHelper = null;
 	private TravelItem travelItem;
@@ -74,7 +73,7 @@ public class TravelItemFormActivity extends Activity implements DatePickerFragme
 		databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 
 		// Date formatter tool
-		dateFormatter = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
+		dateFormatter = new SimpleDateFormat(Utilities.DATE_FORMAT, Locale.getDefault());
 
 		etTitle = (EditText) findViewById(R.id.item_title);
 		etDescription = (EditText) findViewById(R.id.item_description);

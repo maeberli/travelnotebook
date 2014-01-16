@@ -38,7 +38,6 @@ public class TravelItemShowActivity extends FragmentActivity {
 	@SuppressWarnings("unused")
 	private static final String LOGTAG = TravelItemShowActivity.class.getSimpleName();
 	private static final int MAP_MARGIN = 50;
-	private static final String DATE_FORMAT = "dd/MM/yyyy";
 
 	/********************
 	 * Private Static constants
@@ -84,7 +83,7 @@ public class TravelItemShowActivity extends FragmentActivity {
 
 		dbHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
 		geocoder = new Geocoder(this);
-		dateFormatter = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
+		dateFormatter = new SimpleDateFormat(Utilities.DATE_FORMAT, Locale.getDefault());
 
 		tvTitle = (TextView) findViewById(R.id.tv_travel_item_title);
 		tvDescription = (TextView) findViewById(R.id.tv_travel_item_show_description);
