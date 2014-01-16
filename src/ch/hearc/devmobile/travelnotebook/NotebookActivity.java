@@ -64,6 +64,7 @@ public class NotebookActivity extends FragmentActivity {
 	private static final int NOTEBOOK_ITEM_LINE_TRANSPARENCY_SELECTED = 255;
 	private static final int NEW_TRAVELITEM_CODE = 110;
 	private static final int EDIT_TRAVELITEM_CODE = 111;
+	private static final int SHOW_TRAVEL_ITEM_CODE = 112;
 	private static final int NEW_POST_CODE = 120;
 	private static final int EDIT_POST_CODE = 121;
 	private static final int SHOW_POST_CODE = 122;
@@ -493,7 +494,7 @@ public class NotebookActivity extends FragmentActivity {
 			public void onClick(DialogInterface dialog, int which) {
 				switch (which) {
 				case 0:
-					Toast.makeText(getApplicationContext(), "TravelItem show not implemented", Toast.LENGTH_SHORT).show();
+					startShowTravelItem(id);
 					break;
 				case 1:
 					startEditTravelItemActivity(id);
@@ -617,6 +618,14 @@ public class NotebookActivity extends FragmentActivity {
 
 		intent.putExtra(PostShowActivity.POST_ID_KEY, id);
 		startActivityForResult(intent, SHOW_POST_CODE);
+	}
+
+	private void startShowTravelItem(int id) {
+		Intent intent = new Intent(NotebookActivity.this, TravelItemShowActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+		intent.putExtra(TravelItemShowActivity.TRAVEL_ITEM_ID_KEY, id);
+		startActivityForResult(intent, SHOW_TRAVEL_ITEM_CODE);
 	}
 
 	private void deletePost(int id) {

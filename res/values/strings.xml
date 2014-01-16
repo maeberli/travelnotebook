@@ -55,5 +55,7 @@
     <string name="delete">delete</string>
     <string name="title_activity_show_post">ShowPost</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_travel_item_show">TravelItemShowActivity</string>
+    <string name="date_image">date image</string>
 
 </resources>

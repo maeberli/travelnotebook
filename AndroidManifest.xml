@@ -72,6 +72,10 @@
             android:name="ch.hearc.devmobile.travelnotebook.PostShowActivity"
             android:label="@string/title_activity_show_post" >
         </activity>
+        <activity
+            android:name="ch.hearc.devmobile.travelnotebook.TravelItemShowActivity"
+            android:label="@string/title_activity_travel_item_show" >
+        </activity>
     </application>
 
 </manifest>
