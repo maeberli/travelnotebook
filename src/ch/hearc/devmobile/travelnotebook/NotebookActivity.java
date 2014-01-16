@@ -95,6 +95,7 @@ public class NotebookActivity extends FragmentActivity {
 	private Map<Marker, TravelItem> travelItemMarkers;
 	private Map<Marker, Post> postMarkers;
 	private Map<TravelItem, Polygon> polygons;
+	private BitmapDescriptor postIcon;
 
 	/********************
 	 * Public methods
@@ -310,6 +311,8 @@ public class NotebookActivity extends FragmentActivity {
 		// clear the to begin at 0
 		final Builder boundsBuilder = new LatLngBounds.Builder();
 
+		postIcon = BitmapDescriptorFactory.fromResource(R.drawable.post);
+
 		// initialize map events
 		final View view = this.notebookMapView.getView();
 		if (view.getViewTreeObserver().isAlive()) {
@@ -396,7 +399,7 @@ public class NotebookActivity extends FragmentActivity {
 
 		markerOptions.title(post.getTitle());
 		LatLng position = post.getLocationPosition(geocoder);
-		markerOptions.position(position);
+		markerOptions.position(position).icon(postIcon);
 
 		// append marker to the google map
 		Marker marker = googleMap.addMarker(markerOptions);

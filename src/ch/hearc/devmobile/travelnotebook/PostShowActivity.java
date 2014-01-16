@@ -22,6 +22,8 @@ import ch.hearc.devmobile.travelnotebook.database.Post;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
@@ -151,8 +153,10 @@ public class PostShowActivity extends FragmentActivity {
 
 		googleMap.clear();
 
+		BitmapDescriptor postIcon = BitmapDescriptorFactory.fromResource(R.drawable.post);
+
 		final LatLng latLng = post.getLocationPosition(geocoder);
-		googleMap.addMarker(new MarkerOptions().position(latLng));
+		googleMap.addMarker(new MarkerOptions().position(latLng).icon(postIcon));
 
 		if (this.postShowMapView.getView().getViewTreeObserver().isAlive()) {
 			postShowMapView.getView().getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {

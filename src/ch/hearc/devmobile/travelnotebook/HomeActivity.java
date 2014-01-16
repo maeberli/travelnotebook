@@ -37,6 +37,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.LatLngBounds.Builder;
@@ -71,6 +73,7 @@ public class HomeActivity extends FragmentActivity {
 	private Geocoder geocoder;
 
 	private Map<Marker, Notebook> markers;
+	private BitmapDescriptor notebookIcon;
 
 	/********************
 	 * Public methods
@@ -254,6 +257,8 @@ public class HomeActivity extends FragmentActivity {
 		// bounds builder to get outer bounds of each position.
 		final Builder boundsBuilder = new LatLngBounds.Builder();
 
+		notebookIcon = BitmapDescriptorFactory.fromResource(R.drawable.notebook);
+
 		// Initialize events
 		googleMap.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
 
@@ -341,7 +346,7 @@ public class HomeActivity extends FragmentActivity {
 			googleMap.addPolygon(new PolygonOptions().addAll(travelItemPositions).strokeColor(notebookColorTransparent).geodesic(true));
 		}
 
-		Marker marker = googleMap.addMarker(new MarkerOptions().position(markerPosition).title(notebook.getTitle()));
+		Marker marker = googleMap.addMarker(new MarkerOptions().position(markerPosition).title(notebook.getTitle()).icon(notebookIcon));
 
 		// append the marker and the notebook to the markers list
 		// Allows to associate click events to markers
