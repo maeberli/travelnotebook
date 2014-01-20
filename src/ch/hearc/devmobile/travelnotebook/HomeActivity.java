@@ -88,15 +88,11 @@ public class HomeActivity extends FragmentActivity {
 	@Override
 	public void onLowMemory() {
 		super.onLowMemory();
-
-		homeMapView.onLowMemory();
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-
-		homeMapView.onSaveInstanceState(outState);
 	}
 
 	/********************
@@ -117,7 +113,6 @@ public class HomeActivity extends FragmentActivity {
 		markers = new HashMap<Marker, Notebook>();
 
 		homeMapView = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.home_map);
-		homeMapView.onCreate(savedInstanceState);
 
 		buildDrawer();
 
@@ -127,9 +122,6 @@ public class HomeActivity extends FragmentActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-
-		homeMapView.onResume();
-
 		Builder boundsBuilder = new LatLngBounds.Builder();
 		createOnGlobalLayoutListener(boundsBuilder);
 		buildMapElements(boundsBuilder);
@@ -149,8 +141,6 @@ public class HomeActivity extends FragmentActivity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-
-		homeMapView.onPause();
 	}
 
 	@Override

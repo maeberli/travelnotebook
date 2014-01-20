@@ -130,8 +130,6 @@ public class NotebookActivity extends FragmentActivity {
 
 		notebookMapView = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.notebook_mapview);
 
-		notebookMapView.onCreate(savedInstanceState);
-
 		notebookTitleTextView = (TextView) findViewById(R.id.notebookTitleTextView);
 
 		// get the DB Helper first.
@@ -169,8 +167,6 @@ public class NotebookActivity extends FragmentActivity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-
-		notebookMapView.onPause();
 	}
 
 	@Override

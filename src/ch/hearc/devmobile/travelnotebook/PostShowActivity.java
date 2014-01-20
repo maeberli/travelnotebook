@@ -90,7 +90,6 @@ public class PostShowActivity extends FragmentActivity {
 		tvDate = (TextView) findViewById(R.id.tv_post_date);
 
 		postShowMapView = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.post_show_map);
-		postShowMapView.onCreate(savedInstanceState);
 
 		imagePagerAdapter = new ImagePagerAdapter(getApplicationContext(), images);
 		imagePager.setAdapter(imagePagerAdapter);
@@ -122,7 +121,6 @@ public class PostShowActivity extends FragmentActivity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		postShowMapView.onPause();
 	}
 
 	/********************

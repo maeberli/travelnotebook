@@ -93,7 +93,6 @@ public class TravelItemShowActivity extends FragmentActivity {
 		ivDateLink = (ImageView) findViewById(R.id.iv_travel_item_date_link);
 
 		travelItemShowMapView = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.travel_item_show_map);
-		travelItemShowMapView.onCreate(savedInstanceState);
 
 		Intent intent = getIntent();
 		if (intent.hasExtra(TRAVEL_ITEM_ID_KEY)) {
