@@ -253,17 +253,6 @@ public class NotebookActivity extends FragmentActivity {
 
 	private void initButtons() {
 
-		// Get the planning button
-		Button btnGetPlanning = (Button) findViewById(R.id.btn_get_planning);
-		btnGetPlanning.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startPlanningActivity();
-
-				drawerLayout.closeDrawer(drawerPanel);
-			}
-		});
-
 		// Gets the add planning item button
 		Button btnAddPostItem = (Button) findViewById(R.id.btn_add_post_item);
 		btnAddPostItem.setOnClickListener(new OnClickListener() {
@@ -586,15 +575,6 @@ public class NotebookActivity extends FragmentActivity {
 		intent.putExtra(PostItemFormActivity.POST_ID_KEY, id);
 
 		startActivityForResult(intent, EDIT_POST_CODE);
-	}
-
-	private void startPlanningActivity() {
-		// Intent intent = new Intent(NotebookActivity.this,
-		// PlanningActivity.class);
-		// intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-		// startActivity(intent);
-
-		Toast.makeText(getApplicationContext(), "Planning", Toast.LENGTH_SHORT).show();
 	}
 
 	private void startNewPostItem() {
